@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block page_content %}
+<div class="page-header">
+
+    <h1>你好,
+    {% if current_user.is_authenticated %}
+    {{ current_user.username }}
+    {% else %}
+    Stranger
+    {% endif %}</h1>
+    <div>
+    <div>
+        {% if current_user.can(Permission.WRITE_ARTICLES) %}
+
+        <form method="post" action="{{url_for('main.new_sell')}}">
+            Buyer Name: <input type="text" name="buyername"><br>
+            Address: <input type="text" name="address"><br>
+            Cellphone: <input type="text" name="cellphone"><br>
+            Products:<br>
+            <table class="table">
+                <tr>
+                    <th>UPC</th>
+                    <th>brand</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Qty.</th>
+                </tr>
+                <tbody id="itemtable">
+
+                    <tr id="item1" class="item">
+                        <td><input type='text' name="upc"></td>
+                        <td><input type='text' name="brand"></td>
+                        <td><input type="text" name="name"></td>
+                        <td><input type="text" name="price"></td>
+                        <td><input type="text" name="qty"></td>
+                        <td><button type="button" id="remove1" onclick="remove_item(this.id)">-</button>
+                    </tr>
+
+
+                </tbody>
+            </table>
+            <button type="button" id="add" onclick="add_item()">Add</button>
+            <br>
+            <br>
+            <input type="submit" >
+        </form>
+
+
+        {% endif %}
+    </div>
+
+    </div>
+
+
+</div>
+
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script type="text/javascript">
+function add_item(){
+    console.log("add item");
+    var items=document.getElementById("itemtable").getElementsByClassName("item");
+    var next = 0
+    if (items[0]!=null){
+    var last_id = items[items.length -1].id;
+    next = Number(last_id.replace('item','')) + 1;
+    }
+    else{
+        next =1;
+    }
+    console.log(next);
+    document.getElementById("itemtable").innerHTML += '<tr id="item' + next + '" class="item"><td><input type="text" name="upc"></td><td><input type="text" name="brand"></td><td><input type="text" name="name"></td><td><input type="text" name="price"></td><td><input type="text" name="qty"></td><td><button type="button" id="remove' + next + '" onclick="remove_item(this.id)">-</button></tr>';
+
+}
+function remove_item(id){
+    var index = Number(id.replace('remove',''));
+    var parent=document.getElementById("itemtable");
+    var child = document.getElementById('item'+index);
+    parent.removeChild(child);
+}
+</script>
+
+{% endblock %}

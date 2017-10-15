@@ -1,0 +1,26 @@
+<ul class="posts">
+    <table class="table">
+        <thead>
+        <tr>
+
+          <th>Brand</th>
+          <th>Name/Nick</th>
+          <th>Price</th>
+          <th>Count</th>
+        </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+                <tr>
+                    <td>{{products[loop.index0].brand}}</td>
+                    <td>{{products[loop.index0].name}}/{{products[loop.index0].nick_name}}</td>
+                    <td>{{items[loop.index0].price}}</td>
+                    <td>{{items[loop.index0].count}}</td>
+                    
+                </tr>
+
+
+            {% endfor %}
+        </tbody>
+    </table>
+</ul>

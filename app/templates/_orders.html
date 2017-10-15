@@ -1,0 +1,25 @@
+<ul class="posts">
+    <table class="table">
+        <thead>
+        <tr>
+
+          <th>id</th>
+          <th>Customer</th>
+
+        </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+                <tr>
+                    <td>{{order.id}}</td>
+                    <td>{{order.customer.name}}</td>
+                    <td><a href="{{url_for('main.order_details',order_id=order.id)}}">Details</a></td>
+                    <td><a href="{{url_for('main.order_edit',order_id=order.id)}}">Edit</a></td>
+                    <td><a href="{{url_for('main.order_delete',order_id=order.id)}}">Delete</a></td>
+                </tr>
+
+
+            {% endfor %}
+        </tbody>
+    </table>
+</ul>

@@ -1,0 +1,29 @@
+<ul class="posts">
+    <table class="table">
+        <thead>
+        <tr>
+
+          <th>Brand</th>
+          <th>Name</th>
+          <th>Nick</th>
+          <th>Color</th>
+            <th>UPC</th>
+        </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+                <tr>
+                    <td>{{product["brand"]}}</td>
+                    <td>{{product["name"]}}</td>
+                    <td>{{product["nick_name"]}}</td>
+                    <td>{{product["color"]}}</td>
+                    <td>{{product["upc"]}}</td>
+
+
+                </tr>
+
+
+            {% endfor %}
+        </tbody>
+    </table>
+</ul>

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block page_content %}
+
+
+        <div class="page-header">
+
+            <h1>
+
+            {{ current_user.username }}'s Sell Order
+            </h1>
+            <div>
+
+            <div>
+                <form method="post" action="{{url_for('main.customer_edit',customer_id=customer.id)}}">
+                <table class="table">
+
+                    <tbody>
+                        <tr>
+                            <td>Name</td>
+                            <td><input type="text" value="{{customer.name}}" name ="name"></td>
+                        </tr>
+                        <tr>
+                            <td>Address</td>
+                            <td><input type="text" value="{{customer.address}}" name="address"></td>
+                        </tr>
+                        <tr>
+                            <td>Cellphone</td>
+                            <td><input type="text" value="{{customer.cellphone}}" name="cellphone"></td>
+                        </tr>
+
+
+
+                    </tbody>
+                </table>
+
+
+
+                    <button type="submit" >Confirm</button>
+                </form>
+            </div>
+
+            </div>
+
+
+        </div>
+
+
+
+
+{% endblock %}
