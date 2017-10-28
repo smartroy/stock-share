@@ -56,9 +56,13 @@ def new_sell():
         brands = request.form.getlist('brand')
         names = request.form.getlist('name')
         counts = request.form.getlist('qty')
-        prices = request.form.getlist('price')
+        types = request.form.getlist('type')
+        getprice = request.form.getlist('getprice')
+        sellprices = request.form.getlist('sellprice')
         print(upcs)
         print(names)
+        total_sell = 0.0
+        total_get = 0.0
         for i in range(len(upcs)):
             product=""
             if upcs[i]:
@@ -82,9 +86,13 @@ def new_sell():
                 stock_item.count = 0 - int(counts[i])
                 db.session.add(stock_item)
 
-            order_item = OrderItem(sell_price=float(prices[i]), count= int(counts[i]), sellorder=order, product_id=str(product['_id']))
+            order_item = OrderItem(get_price=float(getprice[i]),sell_price=float(sellprices[i]), count= int(counts[i]), sellorder=order, product_id=str(product['_id']))
             db.session.add(order_item)
             db.session.commit()
+            total_sell += order_item.sell_price*order_item.count
+            total_get += order_item.get_price*order_item.count
+        order.total_get = total_get
+        order.total_sell = total_sell
         return redirect(url_for('.sell_orders'))
 
     print('render new sell')

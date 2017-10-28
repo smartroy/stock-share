@@ -5,7 +5,8 @@
 
           <th>Brand</th>
           <th>Name/Nick</th>
-          <th>Price</th>
+          <th>Get Price</th>
+          <th>Sell Price</th>
           <th>Count</th>
         </tr>
         </thead>
@@ -14,13 +15,19 @@
                 <tr>
                     <td>{{products[loop.index0].brand}}</td>
                     <td>{{products[loop.index0].name}}/{{products[loop.index0].nick_name}}</td>
-                    <td>{{items[loop.index0].price}}</td>
+                    <td>{{items[loop.index0].get_price}}</td>
+                    <td>{{items[loop.index0].sell_price}}</td>
                     <td>{{items[loop.index0].count}}</td>
                     
                 </tr>
 
 
             {% endfor %}
+            <td></td>
+            <td></td>
+            <td>{{order.total_get}}</td>
+            <td>{{order.total_sell}}</td>
+            <td></td>
         </tbody>
     </table>
 </ul>

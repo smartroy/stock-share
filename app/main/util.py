@@ -16,6 +16,9 @@ def create_product(brand=None, name=None, nick_name=None, figure=[], upc=None, s
         "fig": figure,
         "description": description
     }
+    if source:
+        if not mongo.db.sources.find_one({'source':source.upper()}):
+            mongo.db.sources.insert({'source':source.upper()})
     product_id = mongo.db.products.insert_one(product).inserted_id
     return product_id
     # return Product(name=name, figure=figure, upc=upc, sku=sku, description=description)

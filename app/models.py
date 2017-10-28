@@ -206,6 +206,8 @@ class SellOrder(db.Model):
     order_items = db.relationship('OrderItem', backref='sellorder', lazy='dynamic')
     customer_id = db.Column(db.Integer, db.ForeignKey('customers.id'))
     status = db.Column(db.Integer, default=OrderStatus.CREATED)
+    total_get = db.Column(db.Float)
+    total_sell = db.Column(db.Float)
     # def __init__(self, **kwargs):
     #     super(SellOrder, self).__init__(**kwargs)
     #     self.order_items = []
@@ -216,7 +218,8 @@ class OrderItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     count = db.Column(db.Integer)
     sell_price = db.Column(db.Float)
-    type = db.Column(db.Integer, default=1)
+    get_price = db.Column(db.Float)
+    type = db.Column(db.Text)
     product_id = db.Column(db.Text)
     order_id = db.Column(db.Integer, db.ForeignKey('sellorders.id'))
 
