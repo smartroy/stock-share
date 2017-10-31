@@ -1,0 +1,28 @@
+<ul class="posts">
+    <table class="table">
+        <thead>
+        <tr>
+
+          <th>id</th>
+          <th>Customer</th>
+          <th>Address</th>
+          <th>Cellphone</th>
+        </tr>
+        </thead>
+        <tbody>
+            {% for customer in customers %}
+                <tr>
+                    <td>{{customer.id}}</td>
+                    <td>{{customer.name}}</td>
+                    <td>{{customer.address}}</td>
+                    <td>{{customer.cellphone}}</td>
+
+                    <td><a href="{{url_for('main.customer_edit',customer_id=customer.id)}}">Edit</a></td>
+                    <td><a href="{{url_for('main.customer_delete',customer_id=customer.id)}}">Delete</a></td>
+                </tr>
+
+
+            {% endfor %}
+        </tbody>
+    </table>
+</ul>

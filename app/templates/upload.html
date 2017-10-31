@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Flasky - Confirm your account{% endblock %}
+{% block content %}
+  <h1>Sign In</h1>
+  <form action="upload" method="post" enctype="multipart/form-data">
+      {{ form.hidden_tag() }}
+
+        <p>
+            Please select fiile:<br>
+            {{form.file}}<br>
+        </p>
+        <p>{{form.submit}}</p>
+
+
+  </form>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block page_content %}
+<div class="page-header">
+
+    <h1>你好,
+    {% if current_user.is_authenticated %}
+    {{ current_user.username }}
+    {% else %}
+    Stranger
+    {% endif %}</h1>
+    <h2>Please add your new stock items</h2>
+    <div>
+    <div>
+        {% if current_user.can(Permission.WRITE_ARTICLES) %}
+        
+        <p>Input Product UPC <input type=text size="27" name="upc"> </p>
+        <!-- <p><a href=# id="search">Search Product</a></p>  -->
+        <p><button id="search">Search</button></p>
+        <div id="products"></div>
+        {{ wtf.quick_form(form) }}
+        {% endif %}
+    </div>
+
+    </div>
+
+
+</div>
+
+
+{% endblock %}
+{% block scripts %}
+{{super()}}
+<script type="text/javascript">
+    
+    $SCRIPT_ROOT = {{request.script_root|tojson|safe}};
+    $(document).ready(function(){
+    $(function() {
+        $('#search').bind('click', function() {
+              $.getJSON($SCRIPT_ROOT + '/_search_upc', {
+                'upc': $('input[name="upc"]').val()
+                
+              }, function(data) {
+                var i;
+                var table_text = '<table class="table">'+
+                                 '<thead>'+
+                                    '<tr>'+
+                                      '<th></th>'+
+                                      '<th></th>'+
+                                      '<th>Brand</th>'+
+                                      '<th>Name/Nick name</th>'+
+                                      '<th>New Qty.</th>'+
+                                      '<th>Price</th>'
+                                    '</tr>'+
+                                    '</thead>'+
+                                 '<tbody>';
+                if (data.length==0){
+                    $("div#products").append("<h2>UPC not found</h2>");
+                }else{
+                for (i=0;i<data.length;i++){
+                    table_text += ("<tr>"+
+                                "<td><input type='checkbox' name='check' value= '1'><td>"+
+                                "<td>"+data[i]["brand"]+"</td>"+
+                                "<td>"+data[i]["nick_name"]+"</td>"+
+                                "<td><input type='text' name='qty' size=4 value=1></td>"+
+                                "<td><input type='text' name='price' size=4 value=0.0></td>"+
+                                "<td><a href=# id ='add_stock' name = "+data[i]["_id"]+">Add</a></td>"+
+                                
+                                //"<td><a href=/stock/post_product/"+data[i]["_id"]+">Add</a></td>"+
+                                
+                            "</tr>");
+
+                }
+                table_text +="</table>";
+                $("div#products").replaceWith(table_text);}
+              });
+              return false;
+            });
+        $(document).on('click','a#add_stock',function(){
+            $.getJSON($SCRIPT_ROOT+'/_add_stock',{
+                'qty':$('input[name="qty"]').val(),
+                'price':$('input[name="price"]').val(),
+                'product_id':$('a#add_stock').attr('name')
+            }, function (data) {
+                console.log(data)
+                window.location.href = data;
+            });
+            return false;
+        });
+        
+    });
+    });
+    // $(function(){
+        
+    // });
+
+</script>
+
+
+{% endblock %}

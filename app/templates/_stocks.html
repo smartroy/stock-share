@@ -1,0 +1,27 @@
+<ul class="posts">
+    <table class="table">
+        <thead>
+        <tr>
+          <th>Brand</th>
+          <th>Name/Nick Name</th>
+          <th>Price</th>
+          <th>Count</th>
+        </tr>
+        </thead>
+        <tbody>
+            {% for stock in stocks %}
+                <tr>
+                    <td>{{products[loop.index0].brand}}</td>
+                    <td>{{products[loop.index0].name}}/{{products[loop.index0].nick_name}}</td>
+                    <td>{{stocks[loop.index0].price}}</td>
+                    <td>{{stocks[loop.index0].count}}</td>
+                    <td><a href="{{url_for('main.stock_item_post',item_id=stocks[loop.index0].id)}}">Post</a></td>
+                    <td><a href="{{url_for('main.stock_item_edit',item_id=stocks[loop.index0].id)}}">Edit</a></td>
+                    <td><a href="{{url_for('main.stock_item_delete',item_id=stocks[loop.index0].id)}}">Delete</a></td>
+                </tr>
+
+
+            {% endfor %}
+        </tbody>
+    </table>
+</ul>
