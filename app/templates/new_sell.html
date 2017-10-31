@@ -1,11 +1,6 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 
-<% block scripts %>
-{{ super() }}
-<script text="text/javascript" src="./templates/js/util.js"></script>
-<% endblock %>
-
 {% block page_content %}
 <div class="page-header">
 
@@ -31,7 +26,6 @@
         <div>
 
 
-
             <form method="post" action="{{url_for('main.new_sell')}}">
                 Buyer Name: <input type="text" name="buyername"><br>
                 Address: <input type="text" name="address"><br>
@@ -46,43 +40,6 @@
                         <th>Get price</th>
                         <th>Sell Price</th>
                         <th>Qty.</th>
-
-        <form id="newSellForm" method="post" action="{{url_for('main.new_sell')}}">
-	    <div id="buyer_info">
-		<label>Buyer Name: </label>
-		<input type="text" name="buyername">
-		<br>
-		<label>Address: </label>
-		<input type="text" name="address">
-	  	<br>
-		<label>Cellphone: </label>
-		<input type="text" name="cellphone">
-		<br>
-	    </div>
-	    
-	    <label>Products: </label>
-            <table class="table">
-                <tr>
-                    <th>UPC</th>
-                    <th>brand</th>
-                    <th>Name</th>
-                    <th>Type</th>
-                    <th>Get price</th>
-                    <th>Sell Price</th>
-                    <th>Qty.</th>
-                </tr>
-                <tbody id="itemtable">
-
-                    <tr id="item1" class="item">
-                        <td><input type='text' name="upc"></td>
-                        <td><input type='text' size="10" name="brand"></td>
-                        <td><input type="text" size="10" name="name"></td>
-                        <td><input type="text" size="10" name="type"></td>
-                        <td><input type="text" size="10" name="getprice"></td>
-                        <td><input type="text" size="10" name="sellprice"></td>
-                        <td><input type="text" size="10" name="qty"></td>
-                        
-
                     </tr>
                     <tbody id="itemtable">
 
@@ -95,15 +52,7 @@
                             <td><input type="text" size="10" name="sellprice"></td>
                             <td><input type="text" size="10" name="qty"></td>
 
-
                         </tr>
-
-                </tbody>
-            </table>
-            <button class="add" type="button" id="add" onclick="add_item()">Add Product</button>
-            <input class="submit" type="submit">
-        </form>
-
 
 
                     </tbody>
