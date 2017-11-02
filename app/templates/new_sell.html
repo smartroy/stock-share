@@ -84,64 +84,7 @@
 
 {% block scripts %}
 {{super()}}
-<script type="text/javascript">
-
-
-$(document).ready(function(){
-    $SCRIPT_ROOT = {{request.script_root|tojson|safe}};
-    $(function() {
-        $('#search_source').bind('click', function() {
-            $.getJSON($SCRIPT_ROOT + '/_search_source', {
-            'source': $('#source').find('option:selected').val()
-
-        }, function(data) {
-            var i;
-            var table_text = '<table class="table">'+
-            '<thead>'+
-            '<tr>'+
-            '<th></th>'+
-            '<th></th>'+
-            '<th>Brand</th>'+
-            '<th>Name/Nick name</th>'+
-            '<th>New Qty.</th>'+
-            '<th>Price</th>'
-            '</tr>'+
-            '</thead>'+
-            '<tbody>';
-            if (data.length==0){
-                $("div#sources_result").append("<h2>UPC not found</h2>");
-            }else{
-                for (i=0;i<data.length;i++){
-                    table_text += ("<tr>"+
-                        "<td><input type='checkbox' name='check' value= '1'><td>"+
-                        "<td>"+data[i]["brand"]+"</td>"+
-                        "<td>"+data[i]["nick_name"]+"</td>"+
-                        "<td><input type='text' name='qty' size=4 value=0></td>"+
-                        "<td><input type='text' name='price' size=4 value=0.0></td>"+
-                        "</tr>");
-
-                }
-                table_text +="</table>";
-                $("div#sources_result").replaceWith(table_text);}
-            });
-          return false;
-      });
-        $(document).on('click','a#add_stock',function(){
-            $.getJSON($SCRIPT_ROOT+'/_add_stock',{
-                'qty':$('input[name="qty"]').val(),
-                'price':$('input[name="price"]').val(),
-                'product_id':$('a#add_stock').attr('name')
-            }, function (data) {
-                console.log(data)
-                window.location.href = data;
-            });
-            return false;
-        });
-        
-    });
-});
-
-</script>
+<script src="{{ url_for('static', filename='jutil.js') }}"></script>
 
 
 {% endblock %}
