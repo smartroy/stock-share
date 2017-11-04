@@ -25,7 +25,7 @@ def create_product(brand=None, name=None, nick_name=None, figure=[], upc=None, s
 
 
 def create_stock_item(price=0, product_id=None, stock=None):
-    return StockItem(product_id=product_id, stock=stock, price=price, count=1)
+    return StockItem(product_id=product_id, stock=stock, price=price, count=0)
 
 
 def create_customer(user=None, name=None, address=None,zip=0,cellphone=0):

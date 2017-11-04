@@ -15,11 +15,17 @@
     <div>
         {% if current_user.can(Permission.WRITE_ARTICLES) %}
         
-        <p>Input Product UPC <input type=text size="27" name="upc"> </p>
-        <!-- <p><a href=# id="search">Search Product</a></p>  -->
-        <p><button id="search">Search</button></p>
-        <div id="products"></div>
-        {{ wtf.quick_form(form) }}
+       <div id="stock_search">
+            <select id="source">
+                <option value="NONE">NONE</option>
+                {% for source in sources %}
+                    <option value="{{source}}">{{source}}</option>
+                {% endfor %}
+            </select>
+            <button id="search_source">Search</button>
+            <div id="sources_result"></div>
+        </div>
+        
         {% endif %}
     </div>
 
@@ -32,70 +38,8 @@
 {% endblock %}
 {% block scripts %}
 {{super()}}
-<script type="text/javascript">
-    
-    $SCRIPT_ROOT = {{request.script_root|tojson|safe}};
-    $(document).ready(function(){
-    $(function() {
-        $('#search').bind('click', function() {
-              $.getJSON($SCRIPT_ROOT + '/_search_upc', {
-                'upc': $('input[name="upc"]').val()
-                
-              }, function(data) {
-                var i;
-                var table_text = '<table class="table">'+
-                                 '<thead>'+
-                                    '<tr>'+
-                                      '<th></th>'+
-                                      '<th></th>'+
-                                      '<th>Brand</th>'+
-                                      '<th>Name/Nick name</th>'+
-                                      '<th>New Qty.</th>'+
-                                      '<th>Price</th>'
-                                    '</tr>'+
-                                    '</thead>'+
-                                 '<tbody>';
-                if (data.length==0){
-                    $("div#products").append("<h2>UPC not found</h2>");
-                }else{
-                for (i=0;i<data.length;i++){
-                    table_text += ("<tr>"+
-                                "<td><input type='checkbox' name='check' value= '1'><td>"+
-                                "<td>"+data[i]["brand"]+"</td>"+
-                                "<td>"+data[i]["nick_name"]+"</td>"+
-                                "<td><input type='text' name='qty' size=4 value=1></td>"+
-                                "<td><input type='text' name='price' size=4 value=0.0></td>"+
-                                "<td><a href=# id ='add_stock' name = "+data[i]["_id"]+">Add</a></td>"+
-                                
-                                //"<td><a href=/stock/post_product/"+data[i]["_id"]+">Add</a></td>"+
-                                
-                            "</tr>");
+<script src="{{ url_for('static', filename='jutil.js') }}"></script>
 
-                }
-                table_text +="</table>";
-                $("div#products").replaceWith(table_text);}
-              });
-              return false;
-            });
-        $(document).on('click','a#add_stock',function(){
-            $.getJSON($SCRIPT_ROOT+'/_add_stock',{
-                'qty':$('input[name="qty"]').val(),
-                'price':$('input[name="price"]').val(),
-                'product_id':$('a#add_stock').attr('name')
-            }, function (data) {
-                console.log(data)
-                window.location.href = data;
-            });
-            return false;
-        });
-        
-    });
-    });
-    // $(function(){
-        
-    // });
-
-</script>
 
 
 {% endblock %}

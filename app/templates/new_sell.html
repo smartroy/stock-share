@@ -21,12 +21,8 @@
             </select>
             <button id="search_source">Search</button>
             <div id="sources_result"></div>
+            <button class="add" type="button" id="add_search" >Add to Order</button>
         </div>
-
-        <div>
-
-
-        <form id="newSellForm" method="post" action="{{url_for('main.new_sell')}}">
         <div id="buyer_info">
         <label>Buyer Name: </label>
         <input type="text" name="buyername">
@@ -38,6 +34,27 @@
         <input type="text" name="cellphone">
         <br>
         </div>
+        <div>
+            <label>Products: </label>
+            <table class="table" id="itemtable">
+                <tr>
+                    
+                    <th>brand</th>
+                    <th>Name/Nickname</th>
+                    <th>Qty.</th>
+                    <th>Price</th>
+                    <th></th>
+                </tr>
+                <tbody >
+
+                    
+
+
+                </tbody>
+            </table>   
+
+        <!-- <form id="newSellForm" method="post" action="{{url_for('main.new_sell')}}">
+        
         
         <label>Products: </label>
             <table class="table">
@@ -52,26 +69,17 @@
                 </tr>
                 <tbody id="itemtable">
 
-                    <tr id="item1" class="item">
-                        <td><input type='text' name="upc"></td>
-                        <td><input type='text' size="10" name="brand"></td>
-                        <td><input type="text" size="10" name="name"></td>
-                        <td><input type="text" size="10" name="type"></td>
-                        <td><input type="text" size="10" name="getprice"></td>
-                        <td><input type="text" size="10" name="sellprice"></td>
-                        <td><input type="text" size="10" name="qty"></td>
-                        
-                    </tr>
+                    
 
 
                 </tbody>
             </table>
             <button class="add" type="button" id="add" onclick="add_item()">Add Product</button>
             <input class="submit" type="submit">
-        </form>
+        </form> -->
 
 
-
+        <button class="add" type="button" id="submit_order" >Create Order</button>
         </div>
         {% endif %}
     </div>

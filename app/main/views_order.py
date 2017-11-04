@@ -21,6 +21,7 @@ from datetime import datetime, timedelta
 from .forms import CreateForm, SellForm, SellItemForm
 from .util import create_customer,create_stock_item,create_product, create_item
 from bson import ObjectId
+import json
 
 
 @main.route('/order/sell_orders',methods=['GET','POST'])
@@ -46,59 +47,59 @@ def new_sell():
     cursor = mongo.db.sources.find({})
     for doc in cursor:
         sources.append(doc["source"])
-    if request.method=='POST':
-        customer = Customer.query.filter(and_(Customer.name==request.form['buyername'], Customer.cellphone==request.form['cellphone'])).first()
-        if customer is None:
-            customer = create_customer(user=current_user, name=request.form['buyername'],
-                                   address=request.form['address'], cellphone=request.form['cellphone'])
-            db.session.add(customer)
-        order = SellOrder(user=current_user, customer=customer)
-
-        db.session.add(order)
-        upcs = request.form.getlist('upc')
-        brands = request.form.getlist('brand')
-        names = request.form.getlist('name')
-        counts = request.form.getlist('qty')
-        types = request.form.getlist('type')
-        getprice = request.form.getlist('getprice')
-        sellprices = request.form.getlist('sellprice')
-        print(upcs)
-        print(names)
-        total_sell = 0.0
-        total_get = 0.0
-        for i in range(len(upcs)):
-            product=""
-            if upcs[i]:
-                product = mongo.db.products.find_one({"upc":upcs[i]})
-            elif brands[i] and names[i]:
-                product = mongo.db.products.find_one({"$and":[{"brand":brands[i]},{"$or":[{"name":names[i]},{"nick_name":names[i]}]} ]})
-            if product is not None:
-                print(product['_id'])
-                stock_item = StockItem.query.filter(and_(StockItem.product_id==str(product['_id']), StockItem.stock==current_user.stock)).first()
-                if stock_item:
-                    print(stock_item.count)
-                    stock_item.count = stock_item.count - int(counts[i])
-                else:
-                    stock_item = create_stock_item(product_id=str(product['_id']),stock=current_user.stock)
-                    stock_item.count = 0 - int(counts[i])
-                    db.session.add(stock_item)
-            else:
-                product_id =create_product(brand=brands[i],name=names[i],nick_name=names[i],upc=upcs[i])
-                product = mongo.db.find_one({"_id":product_id})
-                stock_item = create_stock_item(product_id=str(product['_id']), stock=current_user.stock)
-                stock_item.count = 0 - int(counts[i])
-                db.session.add(stock_item)
-
-            order_item = OrderItem(get_price=float(getprice[i]),sell_price=float(sellprices[i]), count= int(counts[i]), sellorder=order, product_id=str(product['_id']))
-            db.session.add(order_item)
-            db.session.commit()
-            total_sell += order_item.sell_price*order_item.count
-            total_get += order_item.get_price*order_item.count
-        order.total_get = total_get
-        order.total_sell = total_sell
-        return redirect(url_for('.sell_orders'))
-
-    print('render new sell')
+    # if request.method=='POST':
+    #     customer = Customer.query.filter(and_(Customer.name==request.form['buyername'], Customer.cellphone==request.form['cellphone'])).first()
+    #     if customer is None:
+    #         customer = create_customer(user=current_user, name=request.form['buyername'],
+    #                                address=request.form['address'], cellphone=request.form['cellphone'])
+    #         db.session.add(customer)
+    #     order = SellOrder(user=current_user, customer=customer)
+    #
+    #     db.session.add(order)
+    #     upcs = request.form.getlist('upc')
+    #     brands = request.form.getlist('brand')
+    #     names = request.form.getlist('name')
+    #     counts = request.form.getlist('qty')
+    #     types = request.form.getlist('type')
+    #     getprice = request.form.getlist('getprice')
+    #     sellprices = request.form.getlist('sellprice')
+    #     print(upcs)
+    #     print(names)
+    #     total_sell = 0.0
+    #     total_get = 0.0
+    #     for i in range(len(upcs)):
+    #         product=""
+    #         if upcs[i]:
+    #             product = mongo.db.products.find_one({"upc":upcs[i]})
+    #         elif brands[i] and names[i]:
+    #             product = mongo.db.products.find_one({"$and":[{"brand":brands[i]},{"$or":[{"name":names[i]},{"nick_name":names[i]}]} ]})
+    #         if product is not None:
+    #             print(product['_id'])
+    #             stock_item = StockItem.query.filter(and_(StockItem.product_id==str(product['_id']), StockItem.stock==current_user.stock)).first()
+    #             if stock_item:
+    #                 print(stock_item.count)
+    #                 stock_item.count = stock_item.count - int(counts[i])
+    #             else:
+    #                 stock_item = create_stock_item(product_id=str(product['_id']),stock=current_user.stock)
+    #                 stock_item.count = 0 - int(counts[i])
+    #                 db.session.add(stock_item)
+    #         else:
+    #             product_id =create_product(brand=brands[i],name=names[i],nick_name=names[i],upc=upcs[i])
+    #             product = mongo.db.find_one({"_id":product_id})
+    #             stock_item = create_stock_item(product_id=str(product['_id']), stock=current_user.stock)
+    #             stock_item.count = 0 - int(counts[i])
+    #             db.session.add(stock_item)
+    #
+    #         order_item = OrderItem(get_price=float(getprice[i]),sell_price=float(sellprices[i]), count= int(counts[i]), sellorder=order, product_id=str(product['_id']))
+    #         db.session.add(order_item)
+    #         db.session.commit()
+    #         total_sell += order_item.sell_price*order_item.count
+    #         total_get += order_item.get_price*order_item.count
+    #     order.total_get = total_get
+    #     order.total_sell = total_sell
+    #     return redirect(url_for('.sell_orders'))
+    #
+    # print('render new sell')
     return render_template('new_sell.html',sources=sources)
 
 
@@ -114,6 +115,42 @@ def search_source():
             products.append(product)
 
     return jsonify(products)
+
+
+@main.route('/_add_order',methods=['GET','POST'])
+def create_order():
+    print("add order")
+    order_data = request.get_json()
+    buyer = order_data.pop('buyer',None)
+
+    print(type(buyer))
+    print(buyer)
+    customer = Customer.query.filter(and_(Customer.name == buyer['name'], Customer.cellphone == buyer['cellphone'])).first()
+    if customer is None:
+        customer = create_customer(user=current_user, name=buyer['name'],address=buyer['addr'], cellphone=buyer['cellphone'])
+        db.session.add(customer)
+        db.session.commit()
+    order = SellOrder(user=current_user, customer=customer)
+    db.session.add(order)
+    db.session.commit()
+    total_sell = 0
+    for key, value in order_data.items():
+        stock_item = StockItem.query.filter(and_(StockItem.product_id==str(key), StockItem.stock==current_user.stock)).first()
+        if stock_item:
+            stock_item.count -= int(value['qty'])
+        else:
+            stock_item = create_stock_item(product_id=str(key), stock=current_user.stock)
+            stock_item.count = 0 - int(value['qty'])
+            db.session.add(stock_item)
+            db.session.commit()
+        order_item = OrderItem(sell_price=float(value['price']), count=int(value['qty']),sellorder=order, product_id=str(key))
+        db.session.add(order_item)
+        db.session.commit()
+        total_sell += order_item.count*order_item.sell_price
+    order.total_sell=total_sell
+
+    return jsonify(url_for('.new_sell'))
+
 
 
 @main.route('/order/details/<int:order_id>',methods=['GET','POST'])

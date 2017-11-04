@@ -25,6 +25,10 @@ from bson import ObjectId
 
 @main.route('/stock/new',methods=['GET','POST'])
 def new_stock():
+    sources = []
+    cursor = mongo.db.sources.find({})
+    for doc in cursor:
+        sources.append(doc["source"])
     form = NewStockForm()
     product = None
     if form.validate_on_submit():
@@ -47,7 +51,7 @@ def new_stock():
             db.session.commit()
 
         return redirect(url_for('.index'))
-    return render_template('new_stock.html', form=form)
+    return render_template('new_stock.html',sources=sources)
 
 
 @main.route('/stock/item_post/<int:item_id>')
