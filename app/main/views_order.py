@@ -119,12 +119,12 @@ def search_source():
 
 @main.route('/_add_order',methods=['GET','POST'])
 def create_order():
-    print("add order")
+    # print("add order")
     order_data = request.get_json()
     buyer = order_data.pop('buyer',None)
 
-    print(type(buyer))
-    print(buyer)
+    # print(type(buyer))
+    # print(buyer)
     customer = Customer.query.filter(and_(Customer.name == buyer['name'], Customer.cellphone == buyer['cellphone'])).first()
     if customer is None:
         customer = create_customer(user=current_user, name=buyer['name'],address=buyer['addr'], cellphone=buyer['cellphone'])
@@ -157,7 +157,7 @@ def create_order():
 def order_details(order_id):
     order = SellOrder.query.get_or_404(order_id)
     items = order.order_items.all()
-    print(items)
+    # print(items)
     products =[]
     for i in range(len(items)):
         print(items[i].product_id)
@@ -173,6 +173,15 @@ def order_details(order_id):
 def order_delete(order_id):
     order = SellOrder.query.get_or_404(order_id)
     print(order)
+    items = order.order_items.all()
+    # print(items)
+    # products = []
+    for i in range(len(items)):
+        # print(items[i].product_id)
+        stock_item = StockItem.query.filter(and_(StockItem.product_id==items[i].product_id, StockItem.stock==current_user.stock)).first()
+        # print(product)
+        # product['_id'] = str(product['_id'])
+        stock_item.count += items[i].count
     db.session.delete(order)
     db.session.commit()
     return redirect(url_for('.sell_orders'))

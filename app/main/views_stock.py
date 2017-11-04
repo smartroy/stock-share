@@ -105,23 +105,15 @@ def stock_item_delete(item_id):
     return redirect(url_for('.index'))
 
 
-
-@main.route('/_add_stock')
+@main.route('/_add_stock',methods=['GET','POST'])
 def add_stock():
-    product_id = request.args.get('product_id',type=str)
-    price = request.args.get('price',type=float)
-    item = StockItem.query.filter(StockItem.product_id==product_id, StockItem.stock_id==current_user.stock.id).all()
-    new_count = int(request.args.get('qty', type=int))
-    if not item:
-        # print("item not found")
-        item = create_stock_item(product_id=product_id, stock=current_user.stock,price=price)
-        item.count = new_count
-        db.session.add(item)
-    else:
+    stock_data = request.get_json()
+    for key, value in stock_data.items():
+        stock_item = StockItem.query.filter(and_(StockItem.product_id == str(key), StockItem.stock == current_user.stock)).first()
+        stock_item.count +=int(value['qty'])
+        stock_item.price = float(value['price'])
+        db.session.commit()
 
-        item[0].count += new_count
-        item[0].price = price
-    db.session.commit()
     return jsonify(url_for('.index'))
 
 

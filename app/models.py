@@ -203,7 +203,7 @@ class SellOrder(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     date = db.Column(db.DateTime(), default=datetime.utcnow)
-    order_items = db.relationship('OrderItem', backref='sellorder', lazy='dynamic')
+    order_items = db.relationship('OrderItem', backref='sellorder', lazy='dynamic',cascade="delete")
     customer_id = db.Column(db.Integer, db.ForeignKey('customers.id'))
     status = db.Column(db.Integer, default=OrderStatus.CREATED)
     total_get = db.Column(db.Float)
