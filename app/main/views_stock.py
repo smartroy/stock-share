@@ -110,6 +110,10 @@ def add_stock():
     stock_data = request.get_json()
     for key, value in stock_data.items():
         stock_item = StockItem.query.filter(and_(StockItem.product_id == str(key), StockItem.stock == current_user.stock)).first()
+        if not stock_item:
+            stock_item = create_stock_item(product_id=str(key), stock=current_user.stock)
+            db.session.add(stock_item)
+            db.session.commit()
         stock_item.count +=int(value['qty'])
         stock_item.price = float(value['price'])
         db.session.commit()
