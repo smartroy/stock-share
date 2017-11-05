@@ -268,9 +268,40 @@ def list_products():
     products = mongo.db.products.find()
     return render_template("products.html", products=products)
 
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+@main.route('/product/add',methods=['GET','POST'])
+@login_required
+@admin_required
+def add_products():
+    #products = Product.query.all()
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            while 1:
+                line = (file.readline().rstrip()).decode('utf-8')
+
+                if not line:
+                    break
+                data = line.split(',')
+                create_product(brand=data[0], name=data[1], nick_name=data[2], sku=data[3], size=data[4], color=data[5],p_color=data[6], upc=data[7], source=data[8], figure=[])
+        return redirect(url_for('.list_products'))
+    return render_template('new_products.html')
+
 
 
 @main.route('/user/<username>')
+@login_required
 def user(username):
     # if not current_user.can(Permission.FOLLOW):
     #     return redirect(url_for('.index'))
@@ -326,3 +357,6 @@ def edit_profile_admin(id):
     form.location.data = user.location
     form.about_me.data = user.about_me
     return render_template('edit_profile.html', form=form, user=user)
+
+
+ALLOWED_EXTENSIONS = set(['csv','txt'])
