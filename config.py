@@ -44,11 +44,11 @@ class ProductionConfig(Config):
 
 class HerokuConfig(Config):
     DEBUG = True
-    MAIL_SERVER = 'smtp.googlemail.com'
-    MAIL_PORT = 587
+    MAIL_SERVER = 'smtp.mailtrap.io'
+    MAIL_PORT = 2525
     MAIL_USE_TLS = True
-    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
-    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+    MAIL_USERNAME = '1aaea0726b935f'
+    MAIL_PASSWORD = '4602796b480308'
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'postgresql://stockshare:stockshare@localhost/devdb'
     MONGO_DBNAME = 'testmongo'
     MONGO_URI = os.environ.get('MONGODB_URI') or 'mongodb://localhost:27017/testmongo'
