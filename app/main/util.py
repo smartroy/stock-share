@@ -2,7 +2,7 @@ from ..models import StockItem, Customer, OrderItem, Role, User, Post
 from app import db, mongo
 
 
-def create_product(brand=None, name=None, nick_name=None, figure=[], upc=None, sku=None, size=None, color=None, p_color=None,source=None, description=None):
+def create_product(brand="", name="", nick_name="", figure=[], upc="", sku="", size="", color="", p_color="",source="", description=""):
     product = {
         "brand": brand.upper(),
         "name": name.upper(),

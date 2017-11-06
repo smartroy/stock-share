@@ -299,6 +299,32 @@ def add_products():
     return render_template('new_products.html')
 
 
+@main.route('/product/add_manual',methods=['GET','POST'])
+@login_required
+@admin_required
+def add_products_manual():
+    if request.method == 'POST':
+        upcs = request.form.getlist('upc')
+        brands = request.form.getlist('brand')
+        names = request.form.getlist('name')
+
+        sizes = request.form.getlist('size')
+        colors = request.form.getlist('color')
+        sources = request.form.getlist('source')
+        for i in range(len(upcs)):
+            product = ""
+            if upcs[i]:
+                product = mongo.db.products.find_one({"upc": upcs[i]})
+            elif brands[i] and names[i]:
+                product = mongo.db.products.find_one(
+                    {"$and": [{"brand": brands[i]}, {"$or": [{"name": names[i]}, {"nick_name": names[i]}]}]})
+            if not product:
+                product_id = create_product(brand=brands[i], name=names[i], nick_name=names[i], upc=upcs[i],size=sizes[i],color=colors[i],source=sources[i])
+    return render_template('new_products.html')
+
+
+
+
 
 @main.route('/user/<username>')
 @login_required
