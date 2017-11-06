@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block page_content %}
+
+
+        <div class="page-header">
+
+            <h1>Add New Products</h1>
+
+        </div>
+        {% if current_user.can(Permission.WRITE_ARTICLES) %}
+        <div>Upload Product File</p>
+        	<form method=post enctype=multipart/form-data>
+		      <p><input type=file name=file></p>
+		         <input type=submit value=Upload>
+		    </form>
+        </div>
+        <br>
+
+        <div>
+        	<p>Input manually</p>
+
+            <form method="post" action="{{url_for('main.add_products_manual')}}">
+                
+                <table class="table">
+                    <tr>
+                        <th>UPC</th>
+                        <th>brand</th>
+                        <th>Name</th>
+                        <th>Size</th>
+                        <th>Color</th>
+                        <th>Source</th>
+                        
+                    </tr>
+                    <tbody id="itemtable">
+
+                        <tr id="item1" class="item">
+                            <td><input type='text' name="upc"></td>
+                            <td><input type='text' size="10" name="brand"></td>
+                            <td><input type="text" size="10" name="name"></td>
+                            <td><input type="text" size="10" name="size"></td>
+                            <td><input type="text" size="10" name="color"></td>
+                            <td><input type="text" size="10" name="source"></td>
+                        </tr>
+
+
+                    </tbody>
+                </table>
+                <button type="button" id="add" onclick="add_item()">Add</button>
+                <br>
+                <br>
+                <input type="submit" value="Add Products">
+            </form>
+
+
+
+        </div>
+        {% endif %}
+
+
+
+{% endblock %}
