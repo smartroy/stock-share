@@ -27,7 +27,9 @@ def test():
 @manager.command
 def deploy():
     import app.main.util as ut
-    from flask_migrate import upgrade
+    from flask_migrate import upgrade,init,migrate
+    init()
+    migrate()
     upgrade()
     ut.db_init()
 

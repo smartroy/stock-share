@@ -1,8 +1,9 @@
 from ..models import StockItem, Customer, OrderItem, Role, User, Post
 from app import db, mongo
+from flask_login import current_user
 
 
-def create_product(brand=None, name=None, nick_name=None, figure=[], upc=None, sku=None, size=None, color=None, p_color=None,source=None, description=None):
+def create_product(brand="", name="", nick_name="", figure=[], upc="", sku="", size="", color="", p_color="",source="", description=""):
     product = {
         "brand": brand.upper(),
         "name": name.upper(),
@@ -14,7 +15,8 @@ def create_product(brand=None, name=None, nick_name=None, figure=[], upc=None, s
         "upc": upc,
         "source": source.upper(),
         "fig": figure,
-        "description": description
+        "description": description,
+        "user": [current_user.id]
     }
     if source:
         if not mongo.db.sources.find_one({'source':source.upper()}):
