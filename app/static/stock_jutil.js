@@ -80,11 +80,10 @@ $(function() {
             var table_text = '<table class="table" id="result_table">'+
             '<thead>'+
             '<tr>'+
-
             '<th>Brand</th>'+
             '<th>Name/Nick name</th>'+
             '<th>New Qty.</th>'+
-            '<th>Price</th>'
+            '<th>Price</th>' +
             '</tr>'+
             '</thead>'+
             '<tbody>';
@@ -101,7 +100,7 @@ $(function() {
                         "</tr>");
 
                 }
-                table_text +="</table>";
+                table_text +="</tbody></table>";
                 $("div#sources_result").html(table_text);
                 // $("div#sources_result").append(table_text);
             }
