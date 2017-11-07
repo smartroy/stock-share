@@ -262,7 +262,6 @@ def customer_edit(customer_id):
 
 @main.route('/product/all')
 @login_required
-@admin_required
 def list_products():
     #products = Product.query.all()
     products = mongo.db.products.find()
@@ -275,7 +274,6 @@ def allowed_file(filename):
 
 @main.route('/product/add',methods=['GET','POST'])
 @login_required
-@admin_required
 def add_products():
     #products = Product.query.all()
     if request.method == 'POST':
@@ -294,14 +292,24 @@ def add_products():
                 if not line:
                     break
                 data = line.split(',')
-                create_product(brand=data[0], name=data[1], nick_name=data[2], sku=data[3], size=data[4], color=data[5],p_color=data[6], upc=data[7], source=data[8], figure=[])
+                product=""
+                if data[7]:
+                    product = mongo.db.products.find_one({"upc": data[7]})
+                elif data[0] and data[1]:
+                    product = mongo.db.products.find_one(
+                        {"$and": [{"brand": data[0]}, {"$or": [{"name": data[1]}, {"nick_name": data[2]}]}]})
+                if not product:
+                    create_product(brand=data[0], name=data[1], nick_name=data[2], sku=data[3], size=data[4], color=data[5],p_color=data[6], upc=data[7], source=data[8], figure=[])
+                else:
+                    if not (current_user.id in product["user"]):
+                        mongo.db.products.update({"_id": product["_id"]}, {'$push': {"user": current_user.id}})
+                        # product["user"].append(current_user.id)
         return redirect(url_for('.list_products'))
     return render_template('new_products.html')
 
 
 @main.route('/product/add_manual',methods=['GET','POST'])
 @login_required
-@admin_required
 def add_products_manual():
     if request.method == 'POST':
         upcs = request.form.getlist('upc')
@@ -320,6 +328,13 @@ def add_products_manual():
                     {"$and": [{"brand": brands[i]}, {"$or": [{"name": names[i]}, {"nick_name": names[i]}]}]})
             if not product:
                 product_id = create_product(brand=brands[i], name=names[i], nick_name=names[i], upc=upcs[i],size=sizes[i],color=colors[i],source=sources[i])
+            else:
+                # print(product)
+                # print(current_user.id)
+                if not (current_user.id in product["user"]):
+                    mongo.db.products.update({"_id":product["_id"]},{'$push':{"user":current_user.id}})
+                    # product["user"].append(current_user.id)
+                # print(product)
     return render_template('new_products.html')
 
 
