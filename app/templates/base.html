@@ -30,9 +30,8 @@
                 {% endif %}
                 {% if current_user.can(Permission.WRITE_ARTICLES) %}
 
-                 <li><a href="{{ url_for('main.sell_orders', username=current_user.username) }}">我的卖单</a></li>
-                <li><a href="{{ url_for('main.user', username=current_user.username) }}">我的买单</a></li>
-                <li><a href="{{ url_for('main.user', username=current_user.username) }}">库存</a></li>
+                 <li><a href="{{ url_for('main.sell_orders', username=current_user.username) }}">Sell Orders</a></li>
+                
                 {% endif %}
             </ul>
             <ul class="nav navbar-nav navbar-right">
@@ -60,8 +59,14 @@
     <div class="row">
 
         <div class="col-md-1 sidebar">
-            <div class="menuItem"> <a href="{{ url_for('main.my_customer')}}">My Customers</a></div>
-            <div class="menuItem"> <a href="{{ url_for('main.list_products')}}">My Products</a></div>
+            <div class="menuItem"> 
+		<img src="{{ url_for('static', filename='customer.png') }}" style="width:40px;height:40px;">
+		<a href="{{ url_for('main.my_customer')}}">My Customers</a>
+	    </div>
+            <div class="menuItem">
+		<img src="{{ url_for('static', filename='inventory.png') }}" style="width:40px;height:40px;">
+		<a href="{{ url_for('main.list_products')}}">My Inventory</a>
+	    </div>
         </div>
 
         <div class="col-md-10 col-md-offset-2 content">
