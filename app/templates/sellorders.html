@@ -11,13 +11,10 @@
             {{ current_user.username }}'s Sell Orders
             </h1>
             <div>
-
-            <div>
-                {% if current_user.can(Permission.WRITE_ARTICLES) %}
-                <!--{{ wtf.quick_form(form) }}-->
-                {% endif %}
-            </div>
-
+                <div>
+                    {% if current_user.can(Permission.WRITE_ARTICLES) %}
+                    {% endif %}
+                </div>
             </div>
 
 
