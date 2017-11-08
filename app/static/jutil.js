@@ -15,7 +15,8 @@ $(function() {
             '<th>Brand</th>'+
             '<th>Name/Nick name</th>'+
             '<th>New Qty.</th>'+
-            '<th>Price</th>'
+            '<th>Price</th>'+
+            '<th>Note</th>'+
             '</tr>'+
             '</thead>'+
             '<tbody>';
@@ -29,6 +30,7 @@ $(function() {
                         "<td name='nick_name'>"+data[i]["name"]+"/"+data[i]["nick_name"]+"</td>"+
                         "<td><input type='text' name='qty' size=4 value=0></td>"+
                         "<td><input type='text' name='price' size=4 value=0.0></td>"+
+                        "<td><input type='text' name='note' size=4 ></td>"+
                         "</tr>");
 
                 }
@@ -54,12 +56,14 @@ $(function() {
                 var item_brand = $(this).find('[name="brand"]').text();
                 var item_name=$(this).find('[name="nick_name"]').text();
                 var item_price=$(this).find('[name="price"]').val();
+                var item_note=$(this).find('[name="note"]').val();
                 add_table += ("<tr id='"+item_id+"''>"+
 
                         "<td name='brand'>"+item_brand+"</td>"+
                         "<td name='nick_name'>"+item_name+"</td>"+
                         "<td><input type='text' name='qty' size=4 value="+item_qty+"></td>"+
                         "<td><input type='text' name='price' size=4 value="+item_price+"></td>"+
+                        "<td><input type='text' name='note' size=4 value="+item_note+"></td>"+
                         "</tr>");
 
 
@@ -81,7 +85,8 @@ $(function() {
                 var item_id =$(this).attr('id');
                 
                 var item_price=$(this).find('[name="price"]').val();
-                items[item_id]={'qty':item_qty,'price':item_price};
+                var item_note=$(this).find('[name="note"]').val();
+                items[item_id]={'qty':item_qty,'price':item_price,"note":item_note};
 
 
             }

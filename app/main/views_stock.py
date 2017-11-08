@@ -121,7 +121,7 @@ def add_stock():
     return jsonify(url_for('.index'))
 
 
-@main.route('/_search_upc')
+@main.route('/_search_upc',methods=['GET','POST'])
 def search_upc():
     upc=request.args.get('upc','',type=str)
     upc_data = upc.split(',')

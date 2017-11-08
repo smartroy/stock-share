@@ -7,7 +7,8 @@
           <th>Name/Nick</th>
           <th>Purchase Price</th>
           <th>Sell Price</th>
-          <th>Count</th>
+          <th>Required Qty</th>
+          <th>Stock Qty</th>
         </tr>
         </thead>
         <tbody>
@@ -18,6 +19,7 @@
                     <td>{{items[loop.index0].get_price}}</td>
                     <td>{{items[loop.index0].sell_price}}</td>
                     <td>{{items[loop.index0].count}}</td>
+                    <td>{{items[loop.index0].stock_count}}</td>
                     
                 </tr>
 

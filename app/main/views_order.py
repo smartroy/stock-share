@@ -122,7 +122,7 @@ def create_order():
     # print("add order")
     order_data = request.get_json()
     buyer = order_data.pop('buyer',None)
-
+    # print(order_data)
     # print(type(buyer))
     # print(buyer)
     customer = Customer.query.filter(and_(Customer.name == buyer['name'], Customer.cellphone == buyer['cellphone'])).first()
@@ -135,15 +135,24 @@ def create_order():
     db.session.commit()
     total_sell = 0
     for key, value in order_data.items():
+        # print(value)
+        order_item = OrderItem(sell_price=float(value['price']), count=int(value['qty']), sellorder=order,
+                               product_id=str(key))
+
         stock_item = StockItem.query.filter(and_(StockItem.product_id==str(key), StockItem.stock==current_user.stock)).first()
+        order_item.note=str(value['note'])
         if stock_item:
+            if stock_item.count >=int(value['qty']):
+                order_item.stock_count=int(value['qty'])
+            else:
+                order_item.stock_count=stock_item.count - int(value['qty'])
             stock_item.count -= int(value['qty'])
         else:
             stock_item = create_stock_item(product_id=str(key), stock=current_user.stock)
+            order_item.stock_count = 0 - int(value['qty'])
             stock_item.count = 0 - int(value['qty'])
             db.session.add(stock_item)
             db.session.commit()
-        order_item = OrderItem(sell_price=float(value['price']), count=int(value['qty']),sellorder=order, product_id=str(key))
         db.session.add(order_item)
         db.session.commit()
         total_sell += order_item.count*order_item.sell_price
@@ -160,9 +169,9 @@ def order_details(order_id):
     # print(items)
     products =[]
     for i in range(len(items)):
-        print(items[i].product_id)
+        # print(items[i].product_id)
         product = mongo.db.products.find_one({'_id': ObjectId(items[i].product_id)})
-        print(product)
+        # print(product)
         product['_id'] = str(product['_id'])
         products.append(product)
 
@@ -172,7 +181,7 @@ def order_details(order_id):
 @main.route('/order/delete/<int:order_id>',methods=['GET','POST'])
 def order_delete(order_id):
     order = SellOrder.query.get_or_404(order_id)
-    print(order)
+    # print(order)
     items = order.order_items.all()
     # print(items)
     # products = []

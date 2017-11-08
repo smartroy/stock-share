@@ -196,7 +196,9 @@ class StockItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     count = db.Column(db.Integer)
     price = db.Column(db.Float)
+
     product_id = db.Column(db.Text)
+
     stock_id = db.Column(db.Integer, db.ForeignKey('stocks.id'))
     posts = db.relationship('Post',backref='stockitem',lazy='dynamic')
 
@@ -220,9 +222,11 @@ class OrderItem(db.Model):
     __tablename__ = 'order_items'
     id = db.Column(db.Integer, primary_key=True)
     count = db.Column(db.Integer)
+    stock_count = db.Column(db.Integer)
     sell_price = db.Column(db.Float)
-    get_price = db.Column(db.Float)
+    get_price = db.Column(db.Float,default=0.0)
     type = db.Column(db.Text)
+    note = db.Column(db.Text)
     product_id = db.Column(db.Text)
     order_id = db.Column(db.Integer, db.ForeignKey('sellorders.id'))
 
