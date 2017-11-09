@@ -26,7 +26,7 @@ def create_product(brand="", name="", nick_name="", figure=[], upc="", sku="", s
     # return Product(name=name, figure=figure, upc=upc, sku=sku, description=description)
 
 
-def create_stock_item(price=0, product_id=None, stock=None):
+def create_stock_item(product_id, stock,price=0 ):
     return StockItem(product_id=product_id, stock=stock, price=price, count=0)
 
 

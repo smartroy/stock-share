@@ -11,7 +11,7 @@ from config import basedir
 import os
 from flask_login import login_required, current_user
 from ..decoraters import admin_required
-from sqlalchemy import and_, or_
+from sqlalchemy import and_, or_,asc
 from hashlib import sha1
 import hmac
 from uuid import uuid4
@@ -21,6 +21,7 @@ from datetime import datetime, timedelta
 from .forms import CreateForm, SellForm, SellItemForm
 from .util import create_customer,create_stock_item,create_product, create_item, create_post
 from bson import ObjectId
+
 
 
 @main.route('/stock/new',methods=['GET','POST'])
@@ -112,10 +113,17 @@ def add_stock():
         stock_item = StockItem.query.filter(and_(StockItem.product_id == str(key), StockItem.stock == current_user.stock)).first()
         if not stock_item:
             stock_item = create_stock_item(product_id=str(key), stock=current_user.stock)
+            stock_item.count +=int(value['qty'])
+            stock_item.price = float(value['price'])
             db.session.add(stock_item)
             db.session.commit()
-        stock_item.count +=int(value['qty'])
-        stock_item.price = float(value['price'])
+
+        else:
+            order_items=OrderItem.query.filer(OrderItem.product_id==str(key)).order_by(OrderItem.sellorder.date).all()
+            if order_items:
+                for i in range(len(order_items)):
+                    if order_items[i].stock_count<0 and order_items[i].stock_count + stock_item.count>=0:
+                        order_items[i].stock_count = order_items[i].count
         db.session.commit()
 
     return jsonify(url_for('.index'))

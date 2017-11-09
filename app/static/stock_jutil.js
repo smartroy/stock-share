@@ -82,6 +82,7 @@ $(function() {
             '<tr>'+
             '<th>Brand</th>'+
             '<th>Name/Nick name</th>'+
+            '<th>Required Qty.</th>'+
             '<th>New Qty.</th>'+
             '<th>Price</th>' +
             '</tr>'+
@@ -95,6 +96,7 @@ $(function() {
 
                         "<td name='brand'>"+data[i]["brand"]+"</td>"+
                         "<td name='nick_name'>"+data[i]["name"]+"/"+data[i]["nick_name"]+"</td>"+
+                        "<td name='count'>"+data[i]["count"]+"</td>"+
                         "<td><input type='text' name='qty' size=4 value=0></td>"+
                         "<td><input type='text' name='price' size=4 value=0.0></td>"+
                         "</tr>");

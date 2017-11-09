@@ -112,6 +112,11 @@ def search_source():
     if cursor:
         for product in cursor:
             product["_id"]=str(product["_id"])
+            stock_item=StockItem.query.filter(StockItem.product_id==product["_id"]).first()
+            if stock_item:
+                product["count"]=stock_item.count
+            else:
+                product["count"]=0
             products.append(product)
 
     return jsonify(products)
@@ -160,6 +165,10 @@ def create_order():
 
     return jsonify(url_for('.new_sell'))
 
+
+@main.route('/order/ship',methods=['GET','POST'])
+def item_ship():
+    pass
 
 
 @main.route('/order/details/<int:order_id>',methods=['GET','POST'])

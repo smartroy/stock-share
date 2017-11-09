@@ -5,10 +5,10 @@
 
           <th>Brand</th>
           <th>Name/Nick</th>
-          <th>Purchase Price</th>
           <th>Sell Price</th>
-          <th>Required Qty</th>
+          <th>Ordered Qty</th>
           <th>Stock Qty</th>
+          <th>Shipment</th>
         </tr>
         </thead>
         <tbody>
@@ -16,10 +16,13 @@
                 <tr>
                     <td>{{products[loop.index0].brand}}</td>
                     <td>{{products[loop.index0].name}}/{{products[loop.index0].nick_name}}</td>
-                    <td>{{items[loop.index0].get_price}}</td>
                     <td>{{items[loop.index0].sell_price}}</td>
                     <td>{{items[loop.index0].count}}</td>
                     <td>{{items[loop.index0].stock_count}}</td>
+                    {% if items[loop.index0].count == items[loop.index0].stock_count%}
+                        <td><input type=text name="ship"></td>
+                        <input type="button" class="optionalBtn" onclick="location.href='{{url_for('.item_ship')}}'" value="Ship">
+                    {% endif%}
                     
                 </tr>
 
@@ -27,7 +30,7 @@
             {% endfor %}
             <td></td>
             <td></td>
-            <td>{{order.total_get}}</td>
+            
             <td>{{order.total_sell}}</td>
             <td></td>
         </tbody>
