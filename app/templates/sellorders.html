@@ -14,6 +14,8 @@
 
                 <div>
                     {% if current_user.can(Permission.WRITE_ARTICLES) %}
+                    <input type="button" class="optionalBtn" onclick="location.href='{{url_for('.new_sell')}}'" value="Add New Order">
+                    <div>{% include '_orders.html' %}</div>
                     {% endif %}
                 </div>
 
@@ -21,7 +23,7 @@
 
 
         </div>
-        <div>{% include '_orders.html' %}</div>
+        
 
 
 

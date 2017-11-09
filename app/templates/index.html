@@ -22,11 +22,12 @@
             </h2>
         </div>
         {% if current_user.is_authenticated %}
-         <div>{% include '_stocks.html' %}</div>
-         <div id="addNewProduct">
+        <div id="addNewProduct">
             <input type="button" class="optionalBtn" onclick="location.href='{{url_for('.new_stock')}}'" value="Search To Add">
             <input type="button" class="optionalBtn" onclick="location.href='{{url_for('.new_scan')}}'" value="Scan To Add">
         </div> 
+         <div>{% include '_stocks.html' %}</div>
+        
         {% endif %}
         
 

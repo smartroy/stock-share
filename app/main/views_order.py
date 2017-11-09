@@ -145,7 +145,7 @@ def create_order():
             if stock_item.count >=int(value['qty']):
                 order_item.stock_count=int(value['qty'])
             else:
-                order_item.stock_count=stock_item.count - int(value['qty'])
+                order_item.stock_count=max(-int(value['qty']),stock_item.count - int(value['qty']))
             stock_item.count -= int(value['qty'])
         else:
             stock_item = create_stock_item(product_id=str(key), stock=current_user.stock)
