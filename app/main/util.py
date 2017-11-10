@@ -1,4 +1,4 @@
-from ..models import StockItem, Customer, OrderItem, Role, User, Post
+from ..models import StockItem, Customer, OrderItem, Role, User, Post, Operation, OrderStatus, Shipment
 from app import db, mongo
 from flask_login import current_user
 
@@ -63,4 +63,23 @@ def insert_product_mongo(file):
         create_product(brand= data[0],name=data[1],nick_name=data[2],sku=data[3],size= data[4],color=data[5],p_color=data[6],upc=data[7],source=data[8],figure=[])
 
         #collection.insert_one(product)
+
+
+def update_stock(order_item,stock_item, action,new_qty=0):
+    if action == Operation.CREATE:
+        stock_item.order_count += order_item.count
+        db.session.commit()
+    elif action == Operation.SHIP:
+        stock_item.count -= order_item.count
+        stock_item.order_count -= order_item.count
+        order_item.shipped_count = order_item.count
+        order_item.status = OrderStatus.SHIPPED
+        shipment = Shipment(count=order_item.count, orderitem=order_item)
+        db.session.add(shipment)
+
+        db.session.commit()
+    elif action == Operation.ADDSTOCK:
+        stock_item.count += new_qty
+        db.session.commit()
+
 

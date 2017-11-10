@@ -20,7 +20,13 @@ class OrderStatus:
     CREATED = 0x01
     INSTOCK = 0x02
     SHIPPED = 0x03
-    DILVERED = 0x04
+    DELIVERED = 0x04
+    status = {CREATED:"Created",INSTOCK:"In Stock",SHIPPED:"Shipped", DELIVERED:"Delivered"}
+
+class Operation:
+    CREATE = 0x01
+    ADDSTOCK = 0x02
+    SHIP = 0x03
 
 
 class Role(db.Model):
@@ -194,11 +200,11 @@ class Stock(db.Model):
 class StockItem(db.Model):
     __tablename__='stock_items'
     id = db.Column(db.Integer, primary_key=True)
-    count = db.Column(db.Integer)
+    count = db.Column(db.Integer,default=0)
     price = db.Column(db.Float)
 
     product_id = db.Column(db.Text)
-    order_count = db.Column(db.Integer)
+    order_count = db.Column(db.Integer,default=0)
     stock_id = db.Column(db.Integer, db.ForeignKey('stocks.id'))
     posts = db.relationship('Post',backref='stockitem',lazy='dynamic')
 
@@ -221,8 +227,9 @@ class SellOrder(db.Model):
 class OrderItem(db.Model):
     __tablename__ = 'order_items'
     id = db.Column(db.Integer, primary_key=True)
-    count = db.Column(db.Integer)
+    count = db.Column(db.Integer,default=0)
     stock_count = db.Column(db.Integer)
+    shipped_count = db.Column(db.Integer, default=0)
     sell_price = db.Column(db.Float)
     get_price = db.Column(db.Float,default=0.0)
     type = db.Column(db.Text)
@@ -230,6 +237,15 @@ class OrderItem(db.Model):
     status = db.Column(db.Integer, default=OrderStatus.CREATED)
     product_id = db.Column(db.Text)
     order_id = db.Column(db.Integer, db.ForeignKey('sellorders.id'))
+    shipment = db.relationship('Shipment', backref='orderitem', lazy='dynamic', cascade="delete")
+
+
+class Shipment(db.Model):
+    __tablename__ = 'shipments'
+    id = db.Column(db.Integer, primary_key=True)
+    count = db.Column(db.Integer, default=0)
+    track = db.Column(db.Text)
+    orderitem_id = db.Column(db.Integer, db.ForeignKey('order_items.id'))
 
 
 class Customer(db.Model):

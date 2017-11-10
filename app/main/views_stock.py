@@ -4,7 +4,7 @@ from flask import current_app as app
 from . import main
 from .forms import NameForm, EditProfileForm, EditProfileAdminForm, NewStockForm
 from .. import db, mongo
-from ..models import User, Role, Permission, Post, Stock, StockItem, SellOrder, OrderItem, Customer
+from ..models import User, Role, Permission, Post, Stock, StockItem, SellOrder, OrderItem, Customer, Operation
 from .. import auth
 from werkzeug.utils import secure_filename
 from config import basedir
@@ -19,7 +19,7 @@ from json import dumps
 from base64 import b64encode
 from datetime import datetime, timedelta
 from .forms import CreateForm, SellForm, SellItemForm
-from .util import create_customer,create_stock_item,create_product, create_item, create_post
+from .util import create_customer,create_stock_item,create_product, create_item, create_post,update_stock
 from bson import ObjectId
 
 
@@ -113,18 +113,17 @@ def add_stock():
         stock_item = StockItem.query.filter(and_(StockItem.product_id == str(key), StockItem.stock == current_user.stock)).first()
         if not stock_item:
             stock_item = create_stock_item(product_id=str(key), stock=current_user.stock)
-            stock_item.count +=int(value['qty'])
-            stock_item.price = float(value['price'])
             db.session.add(stock_item)
-            db.session.commit()
+        update_stock(order_item=None, stock_item=stock_item, action=Operation.ADDSTOCK,new_qty=value['qty'])
 
-        else:
-            order_items=OrderItem.query.filer(OrderItem.product_id==str(key)).order_by(OrderItem.sellorder.date).all()
-            if order_items:
-                for i in range(len(order_items)):
-                    if order_items[i].stock_count<0 and order_items[i].stock_count + stock_item.count>=0:
-                        order_items[i].stock_count = order_items[i].count
-        db.session.commit()
+
+        # else:
+        #     order_items=OrderItem.query.filter(OrderItem.product_id==str(key)).order_by(OrderItem.sellorder.date).all()
+        #     if order_items:
+        #         for i in range(len(order_items)):
+        #             if order_items[i].stock_count<0 and order_items[i].stock_count + stock_item.count>=0:
+        #                 order_items[i].stock_count = order_items[i].count
+
 
     return jsonify(url_for('.index'))
 

@@ -13,6 +13,7 @@
             <div>
 
             <div>
+                <h3>Order Status: {{status}}</h3>
                 <table class="table">
                     <thead>
                     <tr>
@@ -35,6 +36,7 @@
 
                     <button type="submit" >Edit</button>
                 </form>
+                <input type="button" onclick="location.href='{{url_for('.order_ship',order_id=order.id)}}'" value="Ship All">
             </div>
 
             </div>

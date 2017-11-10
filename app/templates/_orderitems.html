@@ -18,17 +18,21 @@
                     <td>{{products[loop.index0].name}}/{{products[loop.index0].nick_name}}</td>
                     <td>{{items[loop.index0].sell_price}}</td>
                     <td>{{items[loop.index0].count}}</td>
-                    <td>{{items[loop.index0].stock_count}}</td>
-                    {% if items[loop.index0].count == items[loop.index0].stock_count%}
-                        <td><input type=text name="ship"></td>
-                        <input type="button" class="optionalBtn" onclick="location.href='{{url_for('.item_ship')}}'" value="Ship">
+                    <td>{{stock_items[loop.index0].count}}</td>
+                    <td>{{items[loop.index0].shipped_count}}</td>
+                    {% if stock_items[loop.index0].count >= items[loop.index0].count%}
+                        <td>
+                        {% if items[loop.index0].count > items[loop.index0].shipped_count%}
+                        <input type="button" onclick="location.href='{{url_for('.item_ship',item_id=items[loop.index0].id)}}'" value="Ship">
+                        {% endif %}
+                        </td>
                     {% endif%}
                     
                 </tr>
 
 
             {% endfor %}
-            <td></td>
+            <td>Total</td>
             <td></td>
             
             <td>{{order.total_sell}}</td>
