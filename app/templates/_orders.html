@@ -7,6 +7,7 @@
           <th>Customer</th>
           <th>Date</th>
           <th>Order Price</th>
+          <th>Status</th>
 	  <th></th>
 	  <th></th>
 	  <th></th>
@@ -19,6 +20,7 @@
                     <td>{{order.customer.name}}</td>
                     <td>{{order.date.strftime('%Y-%m-%d')}}</td>
                     <td>{{order.total_sell}}</td>
+                    <td>{{status[order.status]}}
                     <td><a href="{{url_for('main.order_details',order_id=order.id)}}">Details</a></td>
                     <td><a href="{{url_for('main.order_edit',order_id=order.id)}}">Edit</a></td>
                     <td><a href="{{url_for('main.order_delete',order_id=order.id)}}">Delete</a></td>

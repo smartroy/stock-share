@@ -7,6 +7,7 @@
           <th>Purchase Price</th>
           <th>Stock Qty.</th>
           <th>Pending Ordered Qty.</th>
+          <th>Qty. Needed</th>
 	  <th></th>
 	  <th></th>
           <th></th>
@@ -20,6 +21,7 @@
                     <td>{{stocks[loop.index0].price}}</td>
                     <td>{{stocks[loop.index0].count}}</td>
                     <td>{{stocks[loop.index0].order_count}}</td>
+                    <td><h4>{{stocks[loop.index0].order_count - stocks[loop.index0].count}}<h4></td>
                     <!-- <td><a href="{{url_for('main.stock_item_post',item_id=stocks[loop.index0].id)}}">Post</a></td> -->
                     <!-- <td><a href="{{url_for('main.stock_item_edit',item_id=stocks[loop.index0].id)}}">Edit</a></td> -->
                     <td><a href="{{url_for('main.stock_item_delete',item_id=stocks[loop.index0].id)}}">Delete</a></td>

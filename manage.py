@@ -34,6 +34,7 @@ def deploy():
     ut.db_init()
 
 
+
 @manager.command
 def deploy_mongo():
     ut.insert_product_mongo('product-list.csv')

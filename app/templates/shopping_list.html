@@ -15,7 +15,7 @@
             </h1>
             <h2>
                 {% if current_user.is_authenticated %}
-                    You have the following in stock
+                    The following products need to be purchased
                 {% else %}
                     Please log in or register.
                 {% endif %}
@@ -23,13 +23,10 @@
         </div>
         {% if current_user.is_authenticated %}
         <div>
-            <input type="button" onclick="location.href='{{url_for('.shopping_list')}}'" value="Shopping List">
+            <input type="button" onclick="location.href='{{url_for('.index')}}'" value="Back to Stock">
         </div>
-        <div id="addNewProduct">
-            <input type="button" class="optionalBtn" onclick="location.href='{{url_for('.new_stock')}}'" value="Search To Add">
-            <input type="button" class="optionalBtn" onclick="location.href='{{url_for('.new_scan')}}'" value="Scan To Add">
-        </div> 
-         <div>{% include '_stocks.html' %}</div>
+        
+        <div>{% include '_shop_stocks.html' %}</div>
         
         {% endif %}
         

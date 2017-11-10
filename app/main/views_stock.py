@@ -23,7 +23,6 @@ from .util import create_customer,create_stock_item,create_product, create_item,
 from bson import ObjectId
 
 
-
 @main.route('/stock/new',methods=['GET','POST'])
 def new_stock():
     sources = []
@@ -53,6 +52,19 @@ def new_stock():
 
         return redirect(url_for('.index'))
     return render_template('new_stock.html',sources=sources)
+
+
+@main.route('/stock/shopping')
+def shopping_list():
+    stocks=StockItem.query.filter(and_(StockItem.need_more()<0, StockItem.stock == current_user.stock)).all()
+    products = []
+    for i in range(len(stocks)):
+        product = mongo.db.products.find_one({'_id': ObjectId(stocks[i].product_id)})
+        product['_id'] = str(product['_id'])
+        products.append(product)
+
+    return render_template('shopping_list.html',stocks=stocks,products=products)
+
 
 
 @main.route('/stock/item_post/<int:item_id>')
@@ -104,6 +116,9 @@ def stock_item_delete(item_id):
     db.session.delete(stock_item)
     db.session.commit()
     return redirect(url_for('.index'))
+
+
+
 
 
 @main.route('/_add_stock',methods=['GET','POST'])

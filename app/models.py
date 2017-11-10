@@ -6,7 +6,7 @@ from flask import current_app, request
 from . import login_manager
 from datetime import datetime
 import hashlib
-
+from sqlalchemy.ext.hybrid import hybrid_method
 
 class Permission:
     FOLLOW = 0x01
@@ -207,6 +207,10 @@ class StockItem(db.Model):
     order_count = db.Column(db.Integer,default=0)
     stock_id = db.Column(db.Integer, db.ForeignKey('stocks.id'))
     posts = db.relationship('Post',backref='stockitem',lazy='dynamic')
+
+    @hybrid_method
+    def need_more(self):
+        return self.count - self.order_count
 
 
 class SellOrder(db.Model):

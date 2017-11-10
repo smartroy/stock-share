@@ -37,7 +37,7 @@ def sell_orders():
     # else:
     #     print(current_user.role)
         orders = SellOrder.query.filter_by(user_id=current_user.id).all()
-        return render_template('sellorders.html', form=form,orders=orders)
+        return render_template('sellorders.html', form=form,orders=orders,status=OrderStatus.status)
     else:
         return render_template('sellorders.html')
 

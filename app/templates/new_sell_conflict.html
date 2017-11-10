@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+<% block scripts %>
+{{ super() }}
+<script text="text/javascript" src="./templates/js/util.js"></script>
+<% endblock %>
+
+{% block page_content %}
+<div class="page-header">
+
+    <h1>你好,
+        {% if current_user.is_authenticated %}
+        {{ current_user.username }}
+        {% else %}
+        Stranger
+    {% endif %}</h1>
+    <div>
+        {% if current_user.can(Permission.WRITE_ARTICLES) %}
+        <div id="stock_search">
+            <select id="source">
+                <option value="NONE">NONE</option>
+                {% for source in sources %}
+                <option value="{{source}}">{{source}}</option>
+                {% endfor %}
+            </select>
+            <button id="search_source">Search</button>
+            <div id="sources_result"></div>
+        </div>
+
+        <div>
+
+
+
+            <form method="post" action="{{url_for('main.new_sell')}}">
+                Buyer Name: <input type="text" name="buyername"><br>
+                Address: <input type="text" name="address"><br>
+                Cellphone: <input type="text" name="cellphone"><br>
+                Products:<br>
+                <table class="table">
+                    <tr>
+                        <th>UPC</th>
+                        <th>brand</th>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Get price</th>
+                        <th>Sell Price</th>
+                        <th>Qty.</th>
+
+                        <form id="newSellForm" method="post" action="{{url_for('main.new_sell')}}">
+                           <div id="buyer_info">
+                              <label>Buyer Name: </label>
+                              <input type="text" name="buyername">
+                              <br>
+                              <label>Address: </label>
+                              <input type="text" name="address">
+                              <br>
+                              <label>Cellphone: </label>
+                              <input type="text" name="cellphone">
+                              <br>
+                          </div>
+                          
+                          <label>Products: </label>
+                          <table class="table">
+                            <tr>
+                                <th>UPC</th>
+                                <th>brand</th>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Get price</th>
+                                <th>Sell Price</th>
+                                <th>Qty.</th>
+                            </tr>
+                            <tbody id="itemtable">
+
+                                <tr id="item1" class="item">
+                                    <td><input type='text' name="upc"></td>
+                                    <td><input type='text' size="10" name="brand"></td>
+                                    <td><input type="text" size="10" name="name"></td>
+                                    <td><input type="text" size="10" name="type"></td>
+                                    <td><input type="text" size="10" name="getprice"></td>
+                                    <td><input type="text" size="10" name="sellprice"></td>
+                                    <td><input type="text" size="10" name="qty"></td>
+                                    
+
+                                </tr>
+                                <tbody id="itemtable">
+
+                                    <tr id="item1" class="item">
+                                        <td><input type='text' name="upc"></td>
+                                        <td><input type='text' size="10" name="brand"></td>
+                                        <td><input type="text" size="10" name="name"></td>
+                                        <td><input type="text" size="10" name="type"></td>
+                                        <td><input type="text" size="10" name="getprice"></td>
+                                        <td><input type="text" size="10" name="sellprice"></td>
+                                        <td><input type="text" size="10" name="qty"></td>
+
+
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                            <button class="add" type="button" id="add" onclick="add_item()">Add Product</button>
+                            <input class="submit" type="submit">
+                        </form>
+
+
+
+                    </tbody>
+                </table>
+                <button type="button" id="add" onclick="add_item()">Add</button>
+                <br>
+                <br>
+                <input type="submit" >
+            </form>
+
+
+
+        </div>
+        {% endif %}
+    </div>
+
+
+</div>
+
+
+{% endblock %}
+
+{% block scripts %}
+{{super()}}
+<script type="text/javascript">
+
+
+    $(document).ready(function(){
+        $SCRIPT_ROOT = {{request.script_root|tojson|safe}};
+        $(function() {
+            $('#search_source').bind('click', function() {
+                $.getJSON($SCRIPT_ROOT + '/_search_source', {
+                    'source': $('#source').find('option:selected').val()
+
+                }, function(data) {
+                    var i;
+                    var table_text = '<table class="table">'+
+                    '<thead>'+
+                    '<tr>'+
+                    '<th></th>'+
+                    '<th></th>'+
+                    '<th>Brand</th>'+
+                    '<th>Name/Nick name</th>'+
+                    '<th>New Qty.</th>'+
+                    '<th>Price</th>'
+                    '</tr>'+
+                    '</thead>'+
+                    '<tbody>';
+                    if (data.length==0){
+                        $("div#sources_result").append("<h2>UPC not found</h2>");
+                    }else{
+                        for (i=0;i<data.length;i++){
+                            table_text += ("<tr>"+
+                                "<td><input type='checkbox' name='check' value= '1'><td>"+
+                                "<td>"+data[i]["brand"]+"</td>"+
+                                "<td>"+data[i]["nick_name"]+"</td>"+
+                                "<td><input type='text' name='qty' size=4 value=0></td>"+
+                                "<td><input type='text' name='price' size=4 value=0.0></td>"+
+                                "</tr>");
+
+                        }
+                        table_text +="</table>";
+                        $("div#sources_result").replaceWith(table_text);}
+                    });
+                return false;
+            });
+            $(document).on('click','a#add_stock',function(){
+                $.getJSON($SCRIPT_ROOT+'/_add_stock',{
+                    'qty':$('input[name="qty"]').val(),
+                    'price':$('input[name="price"]').val(),
+                    'product_id':$('a#add_stock').attr('name')
+                }, function (data) {
+                    console.log(data)
+                    window.location.href = data;
+                });
+                return false;
+            });
+            
+        });
+    });
+
+</script>
+
+
+{% endblock %}
+
