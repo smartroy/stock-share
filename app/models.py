@@ -201,7 +201,7 @@ class StockItem(db.Model):
     __tablename__='stock_items'
     id = db.Column(db.Integer, primary_key=True)
     count = db.Column(db.Integer,default=0)
-    price = db.Column(db.Float)
+    price = db.Column(db.Float,default=0)
 
     product_id = db.Column(db.Text)
     order_count = db.Column(db.Integer,default=0)
@@ -243,6 +243,16 @@ class OrderItem(db.Model):
     order_id = db.Column(db.Integer, db.ForeignKey('sellorders.id'))
     shipment = db.relationship('Shipment', backref='orderitem', lazy='dynamic', cascade="delete")
 
+
+class PurchaseItem(db.Model):
+    __tablename__='purchaseitem'
+    id = db.Column(db.Integer, primary_key=True)
+    count = db.Column(db.Integer, default=0)
+    get_price = db.Column(db.Float, default=0.0)
+    # type = db.Column(db.Text)
+    source = db.Column(db.Text)
+    product_id = db.Column(db.Text)
+    date = db.Column(db.DateTime(),default=datetime.utcnow)
 
 class Shipment(db.Model):
     __tablename__ = 'shipments'

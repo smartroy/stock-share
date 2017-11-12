@@ -33,3 +33,11 @@
 
 
 {% endblock %}
+{% block scripts %}
+{{super()}}
+
+<script src="{{ url_for('static', filename='stock_jutil.js') }}"></script>
+
+
+
+{% endblock %}

@@ -1,13 +1,14 @@
 <ul class="posts">
-    <table class="table">
+    <table class="table" id="shop_table">
         <thead>
         <tr>
           <th>Brand</th>
           <th>Name/Nick Name</th>
-          <th>Purchase Price</th>
           <th>Stock Qty.</th>
           <th>Pending Ordered Qty.</th>
           <th>Qty. Needed</th>
+          <th>Purchase Price</th>
+          <th>New Qty.</th>
 	  <th></th>
 	  <th></th>
           <th></th>
@@ -15,16 +16,17 @@
         </thead>
         <tbody>
             {% for stock in stocks %}
-                <tr>
+                <tr id="{{products[loop.index0]._id}}">
                     <td>{{products[loop.index0].brand}}</td>
                     <td>{{products[loop.index0].name}}/{{products[loop.index0].nick_name}}</td>
-                    <td>{{stocks[loop.index0].price}}</td>
                     <td>{{stocks[loop.index0].count}}</td>
                     <td>{{stocks[loop.index0].order_count}}</td>
                     <td><h4>{{stocks[loop.index0].order_count - stocks[loop.index0].count}}<h4></td>
                     <!-- <td><a href="{{url_for('main.stock_item_post',item_id=stocks[loop.index0].id)}}">Post</a></td> -->
                     <!-- <td><a href="{{url_for('main.stock_item_edit',item_id=stocks[loop.index0].id)}}">Edit</a></td> -->
-                    <td><a href="{{url_for('main.stock_item_delete',item_id=stocks[loop.index0].id)}}">Delete</a></td>
+                    <td><input type=text size=5 name="get_price" value=0></td>
+                    <td><input type=text size=5 name="new_qty" value=0></td>
+                    <td><button class="actionBtn" type="button" name="add_purchase" onclick="add_purchase(this)" >Add</button></td>
                 </tr>
 
 

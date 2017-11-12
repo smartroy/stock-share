@@ -109,4 +109,32 @@ $(function() {
             });
         return false;
     });
+    
+
 });
+
+function add_purchase(bt){
+        
+        var items ={};
+        // console.log($('#sources_result').html());
+        var row=$(bt).parents('tr');
+        // alert(row.attr('id'));
+        item_qty=row.find('[name="new_qty"]').val();
+        if(parseInt(item_qty)>0){
+            item_price=row.find('[name="get_price"]').val();
+            item_id=row.attr('id');
+            items[item_id]={'qty':item_qty,'price':item_price};
+        }
+        items = JSON.stringify(items);
+        $.ajax({
+            type : "POST",
+            url : "/_add_stock",
+            data: items,
+            contentType: 'application/json;charset=UTF-8',
+            success: function(result) {
+                console.log(result);
+                window.location.href = result;
+            }
+        });
+        
+};

@@ -5,6 +5,7 @@ from . import main
 from .forms import NameForm, EditProfileForm, EditProfileAdminForm, NewStockForm
 from .. import db, mongo
 from ..models import User, Role, Permission, Post, Stock, StockItem, SellOrder, OrderItem, Customer, Operation
+from ..models import PurchaseItem
 from .. import auth
 from werkzeug.utils import secure_filename
 from config import basedir
@@ -54,14 +55,22 @@ def new_stock():
     return render_template('new_stock.html',sources=sources)
 
 
-@main.route('/stock/shopping')
+@main.route('/stock/shopping',methods=['GET','POST'])
 def shopping_list():
-    stocks=StockItem.query.filter(and_(StockItem.need_more()<0, StockItem.stock == current_user.stock)).all()
+    # if request.method == 'POST':
+    #     shop_data = request.get_json()
+    #     for key, value in shop_data.items():
+    #         stock_item = StockItem.query.filter(
+    #             and_(StockItem.product_id == str(key), StockItem.stock == current_user.stock)).first()
+    #         stock_item
+
+    stocks=StockItem.query.filter(and_(StockItem.need_more()<0, StockItem.stock == current_user.stock)).order_by(StockItem.id.desc()).all()
     products = []
     for i in range(len(stocks)):
         product = mongo.db.products.find_one({'_id': ObjectId(stocks[i].product_id)})
         product['_id'] = str(product['_id'])
         products.append(product)
+
 
     return render_template('shopping_list.html',stocks=stocks,products=products)
 
@@ -129,7 +138,8 @@ def add_stock():
         if not stock_item:
             stock_item = create_stock_item(product_id=str(key), stock=current_user.stock)
             db.session.add(stock_item)
-        update_stock(order_item=None, stock_item=stock_item, action=Operation.ADDSTOCK,new_qty=value['qty'])
+        update_stock(order_item=None, stock_item=stock_item, action=Operation.ADDSTOCK,new_qty=int(value['qty']),price=float(value['price']))
+
 
 
         # else:
@@ -140,7 +150,7 @@ def add_stock():
         #                 order_items[i].stock_count = order_items[i].count
 
 
-    return jsonify(url_for('.index'))
+    return jsonify(request.referrer)
 
 
 @main.route('/_search_upc',methods=['GET','POST'])
