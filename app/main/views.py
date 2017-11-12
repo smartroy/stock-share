@@ -33,7 +33,7 @@ def index():
     #     print("user can create")
     # else:
     #     print(current_user.role)
-        stocks = StockItem.query.filter_by(stock_id=current_user.stock.id).all()
+        stocks = StockItem.query.filter_by(stock_id=current_user.stock.id).order_by(StockItem.id.desc()).all()
         products=[]
         for i in range(len(stocks)):
             product = mongo.db.products.find_one({'_id':ObjectId(stocks[i].product_id)})
