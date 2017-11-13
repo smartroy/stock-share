@@ -41,43 +41,13 @@ $(function() {
         
     // });
 
-    $('#add_search').bind('click','#sources_result',function(){
-        
-        var items ={};
-        // console.log($('#sources_result').html());
-        $('#result_table tr').each(function(){
-            var item_qty=$(this).find('[name="qty"]').val();
-            if(parseInt(item_qty)>0){
-                // add_table +=$(this).html();
-                var item_id =$(this).attr('id');
-                
-                var item_price=$(this).find('[name="price"]').val();
-                items[item_id]={'qty':item_qty,'price':item_price};
-
-
-            } 
-        });
-        items = JSON.stringify(items);
-        $.ajax({
-            type : "POST",
-            url : "/_add_stock",
-            data: items,
-            contentType: 'application/json;charset=UTF-8',
-            success: function(result) {
-                console.log(result);
-                window.location.href = result;
-            }
-        });
-        
-    });
-
     $('#search_source').bind('click', function() {
         $.getJSON('/_search_source', {
             'source': $('#source').find('option:selected').val()
 
         }, function(data) {
             var i;
-            var table_text = '<table class="table" id="result_table">'+
+            var table_text = '<table class="table table-fixed" id="result_table">'+
             '<thead>'+
             '<tr>'+
             '<th>Brand</th>'+
@@ -103,7 +73,37 @@ $(function() {
 
                 }
                 table_text +="</tbody></table>";
+                table_text +="<button class='actionBtn' type='button' id='add_search' >Add to Stock</button>";
                 $("div#sources_result").html(table_text);
+                $('#add_search').bind('click','#sources_result',function(){
+        
+                    var items ={};
+                    // console.log($('#sources_result').html());
+                    $('#result_table tr').each(function(){
+                        var item_qty=$(this).find('[name="qty"]').val();
+                        if(parseInt(item_qty)>0){
+                            // add_table +=$(this).html();
+                            var item_id =$(this).attr('id');
+                            
+                            var item_price=$(this).find('[name="price"]').val();
+                            items[item_id]={'qty':item_qty,'price':item_price};
+
+
+                        } 
+                    });
+                    items = JSON.stringify(items);
+                    $.ajax({
+                        type : "POST",
+                        url : "/_add_stock",
+                        data: items,
+                        contentType: 'application/json;charset=UTF-8',
+                        success: function(result) {
+                            console.log(result);
+                            window.location.href = result;
+                        }
+                    });
+        
+    });
                 // $("div#sources_result").append(table_text);
             }
             });

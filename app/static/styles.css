@@ -215,3 +215,69 @@ html, body, .container-fluid, .row {
     height: 30px;
     color: rgb(52,160,225);
 }
+
+.table-fixed {
+    width: 100% 
+}
+
+.table-fixed > thead,
+.table-fixed > tbody,
+.table-fixed > thead > tr,
+.table-fixed > tbody > tr,
+.table-fixed > thead > tr > th,
+.table-fixed > tbody > tr > td {
+    display: block;
+}
+
+.table-fixed > tbody > tr:after,
+.table-fixed > thead > tr:after {
+    content: ' ';
+    display: block;
+    visibility: hidden;
+    clear: both;
+}
+
+.table-fixed > tbody {
+    overflow-y: auto;
+    max-height: 350px;
+}
+
+.table-fixed > tbody > tr > td,
+.table-fixed > thead > tr > th {
+    width: 16.5%;
+    float: left;
+    height: 35px;
+    text-overflow: ellipsis;;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+#sellorders .table-fixed > tbody > tr > td,
+#sellorders .table-fixed > thead > tr > th,
+#shop_table .table-fixed > tbody > tr > td,
+#shop_table .table-fixed > thead > tr > th {
+    width: 12.5%;
+    float: left;
+    height: 35px;
+    text-overflow: ellipsis;;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+#result_table{
+    margin-top: 15px;
+}
+#result_table input{
+    height:30px;
+    margin-top: -5px;
+}
+
+#sources_result .table-fixed > tbody > tr > td,
+#sources_result .table-fixed > thead > tr > th {
+    width: 20%;
+    float: left;
+    height: 35px;
+    text-overflow: ellipsis;;
+    white-space: nowrap;
+    overflow: hidden;
+}
