@@ -38,7 +38,7 @@ $(document).ready(function(){
 
         }, function(data) {
             var i;
-            var table_text = '<table class="table">'+
+            var table_text = '<table class="table table-fixed">'+
             '<thead>'+
             '<tr>'+
             '<th></th>'+

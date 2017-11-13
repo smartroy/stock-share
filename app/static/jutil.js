@@ -8,7 +8,7 @@ $(function() {
 
         }, function(data) {
             var i;
-            var table_text = '<table class="table" id="result_table">'+
+            var table_text = '<table class="table table-fixed" id="result_table">'+
             '<thead>'+
             '<tr>'+
 

@@ -1,5 +1,5 @@
-<ul class="posts">
-    <table class="table">
+
+    <table class="table table-fixed">
         <thead>
         <tr>
 
@@ -14,12 +14,12 @@
         <tbody>
             {% for product in products %}
                 <tr>
-                    <td>{{product["brand"]}}</td>
-                    <td>{{product["name"]}}</td>
-                    <td>{{product["nick_name"]}}</td>
-                    <td>{{product["color"]}}</td>
-                    <td>{{product["upc"]}}</td>
-                    <td>{{product["source"]}}</td>
+                    <td title="{{product["brand"]}}">{{product["brand"]}}</td>
+                    <td title="{{product["name"]}}">{{product["name"]}}</td>
+                    <td title="{{product["nick_name"]}}">{{product["nick_name"]}}</td>
+                    <td title="{{product["color"]}}">{{product["color"]}}</td>
+                    <td title="{{product["upc"]}}">{{product["upc"]}}</td>
+                    <td title="{{product["source"]}}">{{product["source"]}}</td>
 
                 </tr>
 
@@ -27,4 +27,3 @@
             {% endfor %}
         </tbody>
     </table>
-</ul>
