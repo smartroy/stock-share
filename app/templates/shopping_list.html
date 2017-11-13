@@ -23,7 +23,8 @@
         </div>
         {% if current_user.is_authenticated %}
         <div>
-            <input type="button" onclick="location.href='{{url_for('.index')}}'" value="Back to Stock">
+            <img src="{{url_for('static', filename='left_arrow.svg')}}" style="width:20px; height:20px;">
+            <label onclick="location.href='{{url_for('.index')}}'" style="color:#0066cc;">Back To Stock</label>
         </div>
         
         <div>{% include '_shop_stocks.html' %}</div>
