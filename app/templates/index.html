@@ -22,9 +22,7 @@
             </h2>
         </div>
         {% if current_user.is_authenticated %}
-        <div>
-            <input type="button" onclick="location.href='{{url_for('.shopping_list')}}'" value="Shopping List">
-        </div>
+        <img src="{{ url_for('static', filename='outOfStock.png')}}" style="width:30px; height:30px; float: right; margin:15px;" onclick="location.href='{{url_for('.shopping_list')}}'">
        
         <div id="stockoverview">{% include '_stocks.html' %}</div>
         <div id="addNewProduct">
@@ -36,4 +34,19 @@
         
 
 
+{% endblock %}
+
+{% block scripts %}
+{{super()}}
+<script>
+    $('#stockoverview tr').each(function(){
+        var stockQty = +($(this).find("td:eq(3)").text());
+        var orderQty = +($(this).find("td:eq(4)").text());
+        if(stockQty < orderQty){
+            $(this).css("background","rgba(255, 0, 0, 0.2)");
+        }else{
+            $(this).css("background", "transparent"); 
+        }
+    });
+</script>
 {% endblock %}
