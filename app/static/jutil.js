@@ -9,17 +9,16 @@ $(function() {
         }, function(data) {
             var i;
             var table_text = '<table class="table table-fixed" id="result_table">'+
-            '<thead>'+
-            '<tr>'+
-
-            '<th>Brand</th>'+
-            '<th>Name/Nick name</th>'+
-            '<th>New Qty.</th>'+
-            '<th>Price</th>'+
-            '<th>Note</th>'+
-            '</tr>'+
-            '</thead>'+
-            '<tbody>';
+                                '<thead>'+
+                                '<tr>'+
+                                '<th>Brand</th>'+
+                                '<th>Name/Nick name</th>'+
+                                '<th>New Qty.</th>'+
+                                '<th>Price</th>'+
+                                '<th>Note</th>'+
+                                '</tr>'+
+                                '</thead>'+
+                                '<tbody>';
             if (data.length==0){
                 $("div#sources_result").append("<h2>UPC not found</h2>");
             }else{
@@ -30,47 +29,46 @@ $(function() {
                         "<td name='nick_name'>"+data[i]["name"]+"/"+data[i]["nick_name"]+"</td>"+
                         "<td><input type='text' name='qty' size=4 value=0></td>"+
                         "<td><input type='text' name='price' size=4 value=0.0></td>"+
-                        "<td><input type='text' name='note' size=4 ></td>"+
+                        "<td><input type='text' name='note' size=4 style='width:100%;'></td>"+
                         "</tr>");
 
                 }
                 table_text +="</table>";
+                table_text +="<button class='actionBtn' type='button' id='add_search' >Add to Order</button>";
                 $("div#sources_result").html(table_text);
-                // $("div#sources_result").append(table_text);
+                $('#add_search').bind('click','#sources_result',function(){
+        
+                    var add_table ='';
+                    // console.log($('#sources_result').html());
+                    $('#result_table tr').each(function(){
+                        // console.log("in loop");
+                        // console.log($(this).html());
+                        var item_qty=$(this).find('[name="qty"]').val();
+                        if(parseInt(item_qty)>0){
+                            // add_table +=$(this).html();
+                            var item_id =$(this).attr('id');
+                            var item_brand = $(this).find('[name="brand"]').text();
+                            var item_name=$(this).find('[name="nick_name"]').text();
+                            var item_price=$(this).find('[name="price"]').val();
+                            var item_note=$(this).find('[name="note"]').val();
+                            add_table += ("<tr id='"+item_id+"''>"+
+
+                                    "<td name='brand'>"+item_brand+"</td>"+
+                                    "<td name='nick_name'>"+item_name+"</td>"+
+                                    "<td>"+item_qty+"</td>"+
+                                    "<td>"+item_price+"</td>"+
+                                    "<td>"+item_note+"</td>"+
+                                    "</tr>");
+                        }
+                    });
+                    $('#itemtable').append(add_table);
+                });
             }
             });
         return false;
     });
 
-    $('#add_search').bind('click','#sources_result',function(){
-        
-        var add_table ='';
-        // console.log($('#sources_result').html());
-        $('#result_table tr').each(function(){
-            // console.log("in loop");
-            // console.log($(this).html());
-            var item_qty=$(this).find('[name="qty"]').val();
-            if(parseInt(item_qty)>0){
-                // add_table +=$(this).html();
-                var item_id =$(this).attr('id');
-                var item_brand = $(this).find('[name="brand"]').text();
-                var item_name=$(this).find('[name="nick_name"]').text();
-                var item_price=$(this).find('[name="price"]').val();
-                var item_note=$(this).find('[name="note"]').val();
-                add_table += ("<tr id='"+item_id+"''>"+
-
-                        "<td name='brand'>"+item_brand+"</td>"+
-                        "<td name='nick_name'>"+item_name+"</td>"+
-                        "<td><input type='text' name='qty' size=4 value="+item_qty+"></td>"+
-                        "<td><input type='text' name='price' size=4 value="+item_price+"></td>"+
-                        "<td><input type='text' name='note' size=4 value="+item_note+"></td>"+
-                        "</tr>");
-
-
-            }
-        });
-        $('#itemtable').append(add_table);
-    });
+    
 
     $('#submit_order').bind('click','#itemtable',function(){
         

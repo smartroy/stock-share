@@ -21,70 +21,37 @@
             </select>
             <button id="search_source">Search</button>
             <div id="sources_result"></div>
-            <button class="add" type="button" id="add_search" >Add to Order</button>
         </div>
-        <div id="buyer_info">
-        <label>Buyer Name: </label>
-        <input type="text" name="buyername">
-        <br>
-        <label>Address: </label>
-        <input type="text" name="address">
-        <br>
-        <label>Cellphone: </label>
-        <input type="text" name="cellphone">
-        <br>
-        </div>
-        <div>
-            <label>Products: </label>
+        <div id='previewOrder'>
+            <label>Preview Order: </label>
             <table class="table table-fixed" id="itemtable">
-                <tr>
-                    
-                    <th>brand</th>
-                    <th>Name/Nickname</th>
-                    <th>Qty.</th>
-                    <th>Price</th>
-                    <th>Note</th>
-                </tr>
-                <tbody >
-
-                    
-
-
+                <thead>
+                    <tr>
+                        <th>Brand</th>
+                        <th>Name/Nick name</th>
+                        <th>Qty</th>
+                        <th>Price</th>
+                        <th>Note</th>
+                    </tr>
+                </thead>
+                <tbody>
                 </tbody>
-            </table>   
-
-        <!-- <form id="newSellForm" method="post" action="{{url_for('main.new_sell')}}">
-        
-        
-        <label>Products: </label>
-            <table class="table">
-                <tr>
-                    <th>UPC</th>
-                    <th>brand</th>
-                    <th>Name</th>
-                    <th>Type</th>
-                    <th>Get price</th>
-                    <th>Sell Price</th>
-                    <th>Qty.</th>
-                </tr>
-                <tbody id="itemtable">
-
-                    
-
-
-                </tbody>
-            </table>
-            <button class="add" type="button" id="add" onclick="add_item()">Add Product</button>
-            <input class="submit" type="submit">
-        </form> -->
-
-
-        <button class="add" type="button" id="submit_order" >Create Order</button>
+            </table>  
         </div>
+         <div id="buyer_info">
+            <label>Buyer Name: </label>
+            <input type="text" name="buyername">
+            <br>
+            <label>Address: </label>
+            <input type="text" name="address">
+            <br>
+            <label>Cellphone: </label>
+            <input type="text" name="cellphone">
+            <br>
+        </div>
+         <button class="actionBtn" type="button" id="submit_order" style='float:right;'>Create Order</button>
         {% endif %}
     </div>
-
-
 </div>
 
 

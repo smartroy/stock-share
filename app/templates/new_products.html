@@ -24,17 +24,17 @@
             <form method="post" action="{{url_for('main.add_products_manual')}}">
                 
                 <table class="table table-fixed">
-                    <tr>
-                        <th>UPC</th>
-                        <th>brand</th>
-                        <th>Name</th>
-                        <th>Size</th>
-                        <th>Color</th>
-                        <th>Source</th>
-                        
-                    </tr>
+                    <thead>
+                        <tr>
+                            <th>UPC</th>
+                            <th>brand</th>
+                            <th>Name</th>
+                            <th>Size</th>
+                            <th>Color</th>
+                            <th>Source</th>
+                        </tr>
+                    </thead>
                     <tbody id="itemtable">
-
                         <tr id="item1" class="item">
                             <td><input type='text' name="upc"></td>
                             <td><input type='text' size="10" name="brand"></td>
@@ -43,8 +43,6 @@
                             <td><input type="text" size="10" name="color"></td>
                             <td><input type="text" size="10" name="source"></td>
                         </tr>
-
-
                     </tbody>
                 </table>
                 <button type="button" id="add" onclick="add_item()">Add</button>
