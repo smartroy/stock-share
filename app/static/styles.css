@@ -277,7 +277,9 @@ html, body, .container-fluid, .row {
     height:30px;
     margin-top: -5px;
 }
-
+#itemtable input{
+    width: 100%;
+}
 #sources_result .table-fixed > tbody > tr > td,
 #sources_result .table-fixed > thead > tr > th,
 #itemtable tbody > tr > td,
