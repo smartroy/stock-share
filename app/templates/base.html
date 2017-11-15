@@ -20,7 +20,7 @@
             </button>
          
         </div>
-        <div class="navbar-collapse collapse">
+        <div class="navbar-collapse collapse navHeaderCollapse">
             <ul class="nav navbar-nav">
 
                 <li><a href="{{ url_for('main.index') }}">Home</a></li>
@@ -30,8 +30,9 @@
                 {% endif %}
                 {% if current_user.can(Permission.WRITE_ARTICLES) %}
 
-                 <li><a href="{{ url_for('main.sell_orders', username=current_user.username) }}">Sell Orders</a></li>
-                
+                <li><a href="{{ url_for('main.sell_orders', username=current_user.username) }}">Sell Orders</a></li>
+                <li><a href="{{ url_for('main.my_customer')}}">My Customers</a></li>
+                <li><a href="{{ url_for('main.list_products')}}">My Inventory</a></li>
                 {% endif %}
             </ul>
             <ul class="nav navbar-nav navbar-right">
@@ -58,7 +59,7 @@
     {% endfor %}
     <div class="row">
 
-        <div class="col-md-1 sidebar">
+        <!--<div class="col-md-1 sidebar">
             <div class="menuItem"> 
         		<img src="{{ url_for('static', filename='customer.png') }}" style="width:40px;height:40px;">
         		<a href="{{ url_for('main.my_customer')}}">My Customers</a>
@@ -67,10 +68,11 @@
         		<img src="{{ url_for('static', filename='inventory.png') }}" style="width:40px;height:40px;">
         		<a href="{{ url_for('main.list_products')}}">My Inventory</a>
     	    </div>
-        </div>
+        </div>-->
 
-        <div class="col-md-11 col-md-offset-1 content">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 content">
             {% block page_content %}
+                 
 
 
 
