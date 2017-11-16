@@ -264,7 +264,7 @@ def customer_edit(customer_id):
 @login_required
 def list_products():
     #products = Product.query.all()
-    products = mongo.db.products.find()
+    products = mongo.db.products.find({"user":current_user.id})
     return render_template("products.html", products=products)
 
 def allowed_file(filename):
@@ -303,6 +303,10 @@ def add_products():
                 else:
                     if not (current_user.id in product["user"]):
                         mongo.db.products.update({"_id": product["_id"]}, {'$push': {"user": current_user.id}})
+                        source = product["source"]
+                        if not mongo.db.sources.find_one({"$and": [{"source":source},{"user":current_user.id}]}):
+                            mongo.db.sources.update({"source":source},{'$push':{"user":current_user.id}})
+
                         # product["user"].append(current_user.id)
         return redirect(url_for('.list_products'))
     return render_template('new_products.html')
@@ -333,6 +337,9 @@ def add_products_manual():
                 # print(current_user.id)
                 if not (current_user.id in product["user"]):
                     mongo.db.products.update({"_id":product["_id"]},{'$push':{"user":current_user.id}})
+                    source = product["source"]
+                    if not mongo.db.sources.find_one({"$and": [{"source": source}, {"user": current_user.id}]}):
+                        mongo.db.sources.update({"source": source}, {'$push': {"user": current_user.id}})
                     # product["user"].append(current_user.id)
                 # print(product)
     return render_template('new_products.html')

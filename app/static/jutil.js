@@ -57,7 +57,7 @@ $(function() {
                                     "<td name='nick_name'>"+item_name+"</td>"+
                                     "<td><input type='text' name='qty' size=4 value="+item_qty+"></td>"+
                                     "<td><input type='text' name='price' size=4 value="+item_price+"></td>"+
-                                    "<td><input type='text' name='note' size=4 style='width:100%;'></td>"+
+                                    "<td><input type='text' name='note' size=4 style='width:100%;' value="+item_note+"></td>"+
                                     "</tr>");
                         }
                     });

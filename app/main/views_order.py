@@ -45,7 +45,7 @@ def sell_orders():
 @main.route('/order/new_sell',methods=['GET','POST'])
 def new_sell():
     sources = []
-    cursor = mongo.db.sources.find({})
+    cursor = mongo.db.sources.find({"user":current_user.id})
     for doc in cursor:
         sources.append(doc["source"])
 
