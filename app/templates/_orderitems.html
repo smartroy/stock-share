@@ -8,7 +8,10 @@
           <th>Sell Price</th>
           <th>Ordered Qty</th>
           <th>Stock Qty</th>
-          <th>Shipment</th>
+          <th>Shipped Qty.</th>
+          <th>Track</th>
+          <th>Qty. to Ship</th>
+
         </tr>
         </thead>
         <tbody>
@@ -17,15 +20,22 @@
                     <td>{{products[loop.index0].brand}}</td>
                     <td>{{products[loop.index0].name}}/{{products[loop.index0].nick_name}}</td>
                     <td>{{items[loop.index0].sell_price}}</td>
-                    <td>{{items[loop.index0].count}}</td>
-                    <td>{{stock_items[loop.index0].count}}</td>
-                    <td>{{items[loop.index0].shipped_count}}</td>
-                    {% if stock_items[loop.index0].count >= items[loop.index0].count%}
+                    <td name="ordered_count">{{items[loop.index0].count}}</td>
+                    <td name="stock_count">{{stock_items[loop.index0].count}}</td>
+                    <td >{{items[loop.index0].shipped_count}}</td>
+                    
+                    {% if items[loop.index0].count > items[loop.index0].shipped_count%}
+                    <td><input type=text name="track"></td>
+                    <td><input type=text name="qyt" size=3></td>
+                        
+                        {% if stock_items[loop.index0].count >= 0%}
                         <td>
-                        {% if items[loop.index0].count > items[loop.index0].shipped_count%}
-                        <input type="button" onclick="location.href='{{url_for('.item_ship',item_id=items[loop.index0].id)}}'" value="Ship">
-                        {% endif %}
+                            <input type="button" onclick="location.href='{{url_for('.item_ship',item_id=items[loop.index0].id)}}'" value="Ship">
                         </td>
+                        {% endif %}
+                        
+                    {% else %}
+                        <td>Shiped</td>
                     {% endif%}
                     
                 </tr>

@@ -76,7 +76,7 @@ def create_order():
 
     order_data = request.get_json()
     buyer = order_data.pop('buyer',None)
-
+    # print(order_data)
     customer = Customer.query.filter(and_(Customer.name == buyer['name'], Customer.cellphone == buyer['cellphone'])).first()
     if customer is None:
         customer = create_customer(user=current_user, name=buyer['name'],address=buyer['addr'], cellphone=buyer['cellphone'])
@@ -156,7 +156,8 @@ def order_details(order_id):
         # print(product)
         product['_id'] = str(product['_id'])
         products.append(product)
-        stock_item=StockItem.query.filter(StockItem.product_id==items[i].product_id).first()
+        stock_item=StockItem.query.filter(and_(StockItem.product_id==items[i].product_id, StockItem.stock==current_user.stock)).first()
+
         stock_items.append(stock_item)
         if items[i].status == OrderStatus.CREATED:
             order.status = OrderStatus.CREATED
@@ -179,6 +180,7 @@ def order_delete(order_id):
         # print(product)
         # product['_id'] = str(product['_id'])
         stock_item.count += items[i].count
+        stock_item.order_count -= items[i].count
         db.session.delete(items[i])
     db.session.delete(order)
     db.session.commit()

@@ -55,9 +55,9 @@ $(function() {
 
                                     "<td name='brand'>"+item_brand+"</td>"+
                                     "<td name='nick_name'>"+item_name+"</td>"+
-                                    "<td>"+item_qty+"</td>"+
-                                    "<td>"+item_price+"</td>"+
-                                    "<td>"+item_note+"</td>"+
+                                    "<td><input type='text' name='qty' size=4 value="+item_qty+"></td>"+
+                                    "<td><input type='text' name='price' size=4 value="+item_price+"></td>"+
+                                    "<td><input type='text' name='note' size=4 style='width:100%;'></td>"+
                                     "</tr>");
                         }
                     });
@@ -75,8 +75,8 @@ $(function() {
         var items ={};
         // console.log($('#sources_result').html());
         $('#itemtable tr').each(function(){
-            // console.log("in loop");
-            // console.log($(this).html());
+            console.log("in loop");
+            console.log($(this).html());
             var item_qty=$(this).find('[name="qty"]').val();
             if(parseInt(item_qty)>0){
                 // add_table +=$(this).html();

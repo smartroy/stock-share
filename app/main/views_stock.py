@@ -119,6 +119,13 @@ def stock_item_edit(item_id):
     pass
 
 
+@main.route('/stock/item_details/<product_id>')
+def stock_item_details(product_id):
+    product = mongo.db.products.find_one({'_id':ObjectId(product_id)})
+    product['_id'] = str(product['_id'])
+    return render_template('product_details.html', product=product)
+
+
 @main.route('/stock/item_delete/<int:item_id>')
 def stock_item_delete(item_id):
     stock_item = StockItem.query.get_or_404(item_id)
@@ -156,7 +163,7 @@ def add_stock():
 @main.route('/_search_upc',methods=['GET','POST'])
 def search_upc():
     upc=request.args.get('upc','',type=str)
-    print(upc)
+    # print(upc)
     upc_data = upc.split(',')
     products=[]
     print(upc_data)
@@ -166,5 +173,5 @@ def search_upc():
         if product is not None:
             product["_id"]=str(product["_id"])
             products.append(product)
-    print(products)
+    # print(products)
     return jsonify(products)

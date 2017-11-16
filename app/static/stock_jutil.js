@@ -110,33 +110,42 @@ $(function() {
         return false;
     });
 
-    $('#add_scan').bind('click','#upc_scan',function(){
-             var upc=$('#upc_scan').find('[name="upc"]').val();
-            $.getJSON('/_search_upc', {
+    $('#add_scan').bind('click','#scan_result',function(){
+            var upc=$('#upc_scan').find('[name="upc"]').val();
+            var product_qty = $('#scan_table').find('[name='+upc+']').find('[name="new_qty"]').val();
+            if (!product_qty){
+                $.getJSON('/_search_upc', {
 
-            'upc': $('#upc_scan').find('[name="upc"]').val()
+                    'upc': upc
 
-        }, function(data) {
-            for (var i=0;i<data.length;i++){
-               var product_qty = $('#'+data[i]["_id"]).find('[name="new_qty"]').val();
-               if (!product_qty){
-                    table_add = "<tr id='"+data[i]["_id"]+"''>"+
+                }, function(data) {
+                    //for (var i=0;i<data.length;i++){
+                    if(data.length<1){
+                        alert('product with UPC'+upc+' not found in inventory');
+                    }    
+                    else{
+                        table_add = "<tr id='"+data[0]["_id"]+"' name='"+upc+"'>"+
 
-                        "<td name='brand'>"+data[i]["brand"]+"</td>"+
-                        "<td name='nick_name'>"+data[i]["name"]+"/"+data[i]["nick_name"]+"</td>"+
-                        "<td>"+'<input name="new_qty" size=4 value=1>'+"</td>"+
-                        
-                        "<td><input type='text' name='get_price' size=4 value=0.0></td>"+
-                        "</tr>";
-                    $('#result_table').append(table_add);
+                            "<td name='brand'>"+data[0]["brand"]+"</td>"+
+                            "<td name='nick_name'>"+data[0]["name"]+"/"+data[0]["nick_name"]+"</td>"+
+                            "<td>"+'<input name="new_qty" size=4 value=1>'+"</td>"+
+                            
+                            "<td><input type='text' name='get_price' size=4 value=0.0></td>"+
+                            '<td><button class="actionBtn" type="button" name="add_purchase" onclick="add_purchase(this)" >Add</button></td>'+
+                            "</tr>";
+                        $('#scan_table').append(table_add);
+                    }
+                });
 
-               } 
-               else{
-                    $('#'+data[i]["_id"]).find('[name="new_qty"]').val(parseInt(product_qty)+1)
-               }
             }
+            else{
+                $('#scan_table').find('[name='+upc+']').find('[name="new_qty"]').val(parseInt(product_qty)+1)
+            }
+                    
+                   
+                //}
             
-        });
+            
         return false;
         
     });
