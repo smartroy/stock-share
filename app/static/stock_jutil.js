@@ -109,6 +109,37 @@ $(function() {
             });
         return false;
     });
+
+    $('#add_scan').bind('click','#upc_scan',function(){
+             var upc=$('#upc_scan').find('[name="upc"]').val();
+            $.getJSON('/_search_upc', {
+
+            'upc': $('#upc_scan').find('[name="upc"]').val()
+
+        }, function(data) {
+            for (var i=0;i<data.length;i++){
+               var product_qty = $('#'+data[i]["_id"]).find('[name="new_qty"]').val();
+               if (!product_qty){
+                    table_add = "<tr id='"+data[i]["_id"]+"''>"+
+
+                        "<td name='brand'>"+data[i]["brand"]+"</td>"+
+                        "<td name='nick_name'>"+data[i]["name"]+"/"+data[i]["nick_name"]+"</td>"+
+                        "<td>"+'<input name="new_qty" size=4 value=1>'+"</td>"+
+                        
+                        "<td><input type='text' name='get_price' size=4 value=0.0></td>"+
+                        "</tr>";
+                    $('#result_table').append(table_add);
+
+               } 
+               else{
+                    $('#'+data[i]["_id"]).find('[name="new_qty"]').val(parseInt(product_qty)+1)
+               }
+            }
+            
+        });
+        return false;
+        
+    });
     
 
 });

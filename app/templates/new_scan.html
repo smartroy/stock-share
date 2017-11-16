@@ -3,8 +3,32 @@
 
 {% block page_content %}
 
-<a>
-	TODO: implement the functionality that scans all product into a table.<br>
-	Once scan is done, click "Add to stock" button to submit data to database and redirect user to previos page. i.e. index.html.
-</a>
+
+<div id="upc_scan">
+	<label>UPC: </label>
+	<input type="text" name="upc">
+	<button class="actionBtn" type="button" id="add_scan" autofocus>Add</button>
+</div>
+<div id="scan_rsult">
+	<table class="table table-fixed">
+            <thead>
+	            <tr>
+	            <th>Brand</th>
+	            <th>Name/Nick name</th>
+	           
+	            <th>New Qty.</th>
+	            <th>Price</th>
+	            </tr>
+            </thead>
+            <tbody id="result_table">
+            </tbody>	
+</div>
+{% endblock %}
+{% block scripts %}
+{{super()}}
+
+<script src="{{ url_for('static', filename='stock_jutil.js') }}"></script>
+
+
+
 {% endblock %}

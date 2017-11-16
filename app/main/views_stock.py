@@ -156,12 +156,15 @@ def add_stock():
 @main.route('/_search_upc',methods=['GET','POST'])
 def search_upc():
     upc=request.args.get('upc','',type=str)
+    print(upc)
     upc_data = upc.split(',')
     products=[]
+    print(upc_data)
     for data in upc_data:
+
         product = mongo.db.products.find_one({"upc":data})
         if product is not None:
             product["_id"]=str(product["_id"])
             products.append(product)
-
+    print(products)
     return jsonify(products)
