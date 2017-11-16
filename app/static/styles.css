@@ -254,8 +254,8 @@ html, body, .container-fluid, .row {
 
 #sellorders .table-fixed > tbody > tr > td,
 #sellorders .table-fixed > thead > tr > th,
-#shop_table  tbody > tr > td,
-#shop_table  thead > tr > th {
+#shop_table tbody > tr > td,
+#shop_table thead > tr > th{
     width: 12.5%;
     float: left;
     height: 35px;
@@ -265,22 +265,32 @@ html, body, .container-fluid, .row {
 }
 
 #result_table, 
-#shop_table {
+#itemtable,
+#shop_table,
+#previewOrder {
     margin-top: 15px;
 }
 #result_table input,
+#itemtable input,
 #shop_table input,
 #shop_table button {
     height:30px;
     margin-top: -5px;
 }
-
+#itemtable input{
+    width: 100%;
+}
 #sources_result .table-fixed > tbody > tr > td,
-#sources_result .table-fixed > thead > tr > th {
+#sources_result .table-fixed > thead > tr > th,
+#itemtable tbody > tr > td,
+#itemtable thead > tr > th {
     width: 20%;
     float: left;
     height: 35px;
     text-overflow: ellipsis;;
     white-space: nowrap;
     overflow: hidden;
+}
+.page-header{
+    border-bottom: none !important;
 }

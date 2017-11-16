@@ -7,15 +7,12 @@
         <div class="page-header">
 
             <h1>
-
             {{ current_user.username }}'s Products
             </h1>
-            <div><a href="{{url_for('main.add_products')}}">Add New Products</a></div>
-
-
-
+            <div>{% include '_products.html' %}</div>
+            <div><button class="optionalBtn" onclick="location.href='{{url_for('main.add_products')}}'" style="float:right;">Add New Products</input></div>
         </div>
-        <div>{% include '_products.html' %}</div>
+       
 
 
 
