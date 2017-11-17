@@ -25,6 +25,7 @@ from bson import ObjectId
 
 
 @main.route('/stock/new',methods=['GET','POST'])
+@login_required
 def new_stock():
     sources = []
     cursor = mongo.db.sources.find({})
@@ -56,6 +57,7 @@ def new_stock():
 
 
 @main.route('/stock/shopping',methods=['GET','POST'])
+@login_required
 def shopping_list():
     # if request.method == 'POST':
     #     shop_data = request.get_json()
@@ -77,6 +79,7 @@ def shopping_list():
 
 
 @main.route('/stock/item_post/<int:item_id>')
+@login_required
 def stock_item_post(item_id):
     item = StockItem.query.filter(StockItem.id==item_id).first()
 
@@ -91,6 +94,7 @@ def stock_item_post(item_id):
 
 
 @main.route('/post/all')
+@login_required
 def post_all():
     form = CreateForm()
     if current_user.can(Permission.WRITE_ARTICLES):
@@ -115,11 +119,13 @@ def post_all():
 
 
 @main.route('/stock/item_edit/<int:item_id>')
+@login_required
 def stock_item_edit(item_id):
     pass
 
 
 @main.route('/stock/item_details/<product_id>')
+@login_required
 def stock_item_details(product_id):
     product = mongo.db.products.find_one({'_id':ObjectId(product_id)})
     product['_id'] = str(product['_id'])
@@ -127,6 +133,7 @@ def stock_item_details(product_id):
 
 
 @main.route('/stock/item_delete/<int:item_id>')
+@login_required
 def stock_item_delete(item_id):
     stock_item = StockItem.query.get_or_404(item_id)
     db.session.delete(stock_item)
@@ -138,6 +145,7 @@ def stock_item_delete(item_id):
 
 
 @main.route('/_add_stock',methods=['GET','POST'])
+@login_required
 def add_stock():
     stock_data = request.get_json()
     for key, value in stock_data.items():
@@ -161,6 +169,7 @@ def add_stock():
 
 
 @main.route('/_search_upc',methods=['GET','POST'])
+@login_required
 def search_upc():
     upc=request.args.get('upc','',type=str)
     # print(upc)

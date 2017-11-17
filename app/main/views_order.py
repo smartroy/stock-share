@@ -26,6 +26,7 @@ import json
 
 
 @main.route('/order/sell_orders',methods=['GET','POST'])
+@login_required
 def sell_orders():
     form = CreateForm()
     if current_user.can(Permission.WRITE_ARTICLES):
@@ -43,6 +44,7 @@ def sell_orders():
 
 
 @main.route('/order/new_sell',methods=['GET','POST'])
+@login_required
 def new_sell():
     sources = []
     cursor = mongo.db.sources.find({"user":current_user.id})
@@ -53,6 +55,7 @@ def new_sell():
 
 
 @main.route('/_search_source')
+@login_required
 def search_source():
     source=request.args.get('source','',type=str)
     # upc_data = upc.split(',')
@@ -72,6 +75,7 @@ def search_source():
 
 
 @main.route('/_add_order',methods=['GET','POST'])
+@login_required
 def create_order():
 
     order_data = request.get_json()
@@ -121,6 +125,7 @@ def create_order():
 
 
 @main.route('/order/ship/item/<int:item_id>',methods=['GET','POST'])
+@login_required
 def item_ship(item_id):
     order_item = OrderItem.query.get_or_404(item_id)
     stock_item = StockItem.query.filter(StockItem.product_id==order_item.product_id).first()
@@ -130,6 +135,7 @@ def item_ship(item_id):
 
 
 @main.route('/order/ship/<int:order_id>',methods=['GET','POST'])
+@login_required
 def order_ship(order_id):
     order = SellOrder.query.get_or_404(order_id)
     items = order.order_items.all()
@@ -142,6 +148,7 @@ def order_ship(order_id):
 
 
 @main.route('/order/details/<int:order_id>',methods=['GET','POST'])
+@login_required
 def order_details(order_id):
     order = SellOrder.query.get_or_404(order_id)
     items = order.order_items.all()
@@ -168,6 +175,7 @@ def order_details(order_id):
 
 
 @main.route('/order/delete/<int:order_id>',methods=['GET','POST'])
+@login_required
 def order_delete(order_id):
     order = SellOrder.query.get_or_404(order_id)
     # print(order)
@@ -188,5 +196,6 @@ def order_delete(order_id):
 
 
 @main.route('/order/edit/<int:order_id>',methods=['GET','POST'])
+@login_required
 def order_edit(order_id):
     return 0

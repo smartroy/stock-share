@@ -24,6 +24,7 @@ from bson import ObjectId
 
 
 @main.route('/scan/new',methods=['GET','POST'])
+@login_required
 def new_scan():
     sources = []
     cursor = mongo.db.sources.find({})

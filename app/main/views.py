@@ -24,6 +24,7 @@ from bson import ObjectId
 
 
 @main.route('/', methods=['GET', 'POST'])
+@login_required
 def index():
     form = CreateForm()
     if current_user.can(Permission.WRITE_ARTICLES):
@@ -46,6 +47,7 @@ def index():
 
 
 @main.route('/post/post_product/<int:upc>')
+@login_required
 def post_product(upc):
     pass
 
@@ -236,6 +238,7 @@ def my_customer():
 
 
 @main.route('/user/customers/delete/<int:customer_id>',methods=['GET','POST'])
+@login_required
 def customer_delete(customer_id):
     customer = Customer.query.get_or_404(customer_id)
     # print(order)
@@ -245,6 +248,7 @@ def customer_delete(customer_id):
 
 
 @main.route('/user/customers/edit/<int:customer_id>',methods=['GET','POST'])
+@login_required
 def customer_edit(customer_id):
     customer = Customer.query.get_or_404(customer_id)
     if request.method == 'POST':
@@ -408,3 +412,5 @@ def edit_profile_admin(id):
 
 
 ALLOWED_EXTENSIONS = set(['csv','txt'])
+
+
