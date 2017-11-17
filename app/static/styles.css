@@ -255,8 +255,18 @@ html, body, .container-fluid, .row {
 #sellorders .table-fixed > tbody > tr > td,
 #sellorders .table-fixed > thead > tr > th,
 #shop_table tbody > tr > td,
-#shop_table thead > tr > th{
+#shop_table thead > tr > th {
     width: 12.5%;
+    float: left;
+    height: 35px;
+    text-overflow: ellipsis;;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+#order_status tbody > tr > td,
+#order_status thead > tr > th {
+    width: 11.1%;
     float: left;
     height: 35px;
     text-overflow: ellipsis;;
@@ -267,13 +277,15 @@ html, body, .container-fluid, .row {
 #result_table, 
 #itemtable,
 #shop_table,
-#previewOrder {
+#previewOrder,
+#scan_result {
     margin-top: 15px;
 }
 #result_table input,
 #itemtable input,
 #shop_table input,
-#shop_table button {
+#shop_table button,
+#order_status input {
     height:30px;
     margin-top: -5px;
 }
