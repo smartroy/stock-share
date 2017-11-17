@@ -32,11 +32,8 @@
                     </tbody>
                 </table>
                 <div>{% include '_orderitems.html' %}</div>
-                <form method="post" action="{{url_for('main.order_edit',order_id=order.id)}}">
-
-                    <button type="submit" >Edit</button>
-                </form>
-                <input type="button" onclick="location.href='{{url_for('.order_ship',order_id=order.id)}}'" value="Ship All">
+                <button class="actionBtn" onclick = "location.href='{{url_for('main.order_edit',order_id=order.id)}}'">Edit</button>
+                <button class= "actionBtn" onclick = "location.href='{{url_for('.order_ship',order_id=order.id)}}'" style="float:right;">Ship All</button>
             </div>
 
             </div>

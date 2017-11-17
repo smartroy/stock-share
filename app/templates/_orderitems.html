@@ -1,5 +1,5 @@
 
-    <table class="table table-fixed">
+    <table id="order_status" class="table table-fixed">
         <thead>
         <tr>
 
@@ -10,7 +10,7 @@
           <th>Stock Qty</th>
           <th>Shipped Qty.</th>
           <th>Track</th>
-          <th>Qty. to Ship</th>
+          <th>Qty to Ship</th>
 
         </tr>
         </thead>
@@ -25,12 +25,12 @@
                     <td >{{items[loop.index0].shipped_count}}</td>
                     
                     {% if items[loop.index0].count > items[loop.index0].shipped_count%}
-                    <td><input type=text name="track"></td>
-                    <td><input type=text name="qyt" size=3></td>
+                    <td><input type=text name="track" style="width:100%;"></td>
+                    <td><input type=text name="qyt" size=3 style="width:100%;"></td>
                         
                         {% if stock_items[loop.index0].count >= 0%}
                         <td>
-                            <input type="button" onclick="location.href='{{url_for('.item_ship',item_id=items[loop.index0].id)}}'" value="Ship">
+                            <button onclick="location.href='{{url_for('.item_ship',item_id=items[loop.index0].id)}}'" class="optionalBtn" style="width: 85px;height: 30px;margin: -5px;">Ship</button>
                         </td>
                         {% endif %}
                         
@@ -42,10 +42,10 @@
 
 
             {% endfor %}
-            <td>Total</td>
+            <td style="font-weight: bold;">Total</td>
             <td></td>
             
-            <td>{{order.total_sell}}</td>
+            <td style="font-weight: bold;">{{order.total_sell}}</td>
             <td></td>
         </tbody>
     </table>
