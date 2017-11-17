@@ -111,7 +111,8 @@ $(function() {
     });
 
     $('#add_scan').bind('click','#scan_result',function(){
-        submit_scan();    
+        submit_scan();  
+        $('#upc_input').val('');  
     });
     
     $(document).keypress(function(e){

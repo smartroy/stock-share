@@ -128,14 +128,15 @@ def create_order():
 @login_required
 def item_ship():
     ship_data = request.get_json()
-    print(ship_data)
-
+    # print(ship_data)
+    item = OrderItem.query.get_or_404(str(list(ship_data.keys())[0]))
+    order = SellOrder.query.get_or_404(item.sellorder.id)
     for key, value in ship_data.items():
         order_item = OrderItem.query.get_or_404(str(key))
         stock_item = StockItem.query.filter(StockItem.product_id==order_item.product_id, StockItem.stock==current_user.stock).first()
         update_stock(order_item,stock_item,Operation.SHIP,ship_qty=int(value['qty']))
 
-    return jsonify(url_for('.order_details', order_id = order_item.sellorder.id))
+    return jsonify(url_for('.order_details', order_id = order.id))
 
 
 @main.route('/order/ship/<int:order_id>',methods=['GET','POST'])
