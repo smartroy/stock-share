@@ -16,7 +16,7 @@
         </thead>
         <tbody>
             {% for item in items %}
-                <tr>
+                <tr id="{{items[loop.index0].id}}">
                     <td>{{products[loop.index0].brand}}</td>
                     <td>{{products[loop.index0].name}}/{{products[loop.index0].nick_name}}</td>
                     <td>{{items[loop.index0].sell_price}}</td>
@@ -26,11 +26,11 @@
                     
                     {% if items[loop.index0].count > items[loop.index0].shipped_count%}
                     <td><input type=text name="track"></td>
-                    <td><input type=text name="qyt" size=3></td>
+                    <td><input type=text name="ship_qty" size=3></td>
                         
-                        {% if stock_items[loop.index0].count >= 0%}
+                        {% if stock_items[loop.index0].count > 0%}
                         <td>
-                            <input type="button" onclick="location.href='{{url_for('.item_ship',item_id=items[loop.index0].id)}}'" value="Ship">
+                            <button class="actionBtn" type="button" name="ship_item" onclick="ship_item(this)" vaule ="Ship"></button>
                         </td>
                         {% endif %}
                         

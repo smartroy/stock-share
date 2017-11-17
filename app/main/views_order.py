@@ -124,14 +124,18 @@ def create_order():
     return jsonify(url_for('.new_sell'))
 
 
-@main.route('/order/ship/item/<int:item_id>',methods=['GET','POST'])
+@main.route('/order/_item_ship',methods=['GET','POST'])
 @login_required
-def item_ship(item_id):
-    order_item = OrderItem.query.get_or_404(item_id)
-    stock_item = StockItem.query.filter(StockItem.product_id==order_item.product_id).first()
-    update_stock(order_item,stock_item,Operation.SHIP)
+def item_ship():
+    ship_data = request.get_json()
+    print(ship_data)
 
-    return redirect(url_for('.order_details', order_id = order_item.sellorder.id))
+    for key, value in ship_data.items():
+        order_item = OrderItem.query.get_or_404(str(key))
+        stock_item = StockItem.query.filter(StockItem.product_id==order_item.product_id, StockItem.stock==current_user.stock).first()
+        update_stock(order_item,stock_item,Operation.SHIP,ship_qty=int(value['qty']))
+
+    return jsonify(url_for('.order_details', order_id = order_item.sellorder.id))
 
 
 @main.route('/order/ship/<int:order_id>',methods=['GET','POST'])
@@ -141,10 +145,10 @@ def order_ship(order_id):
     items = order.order_items.all()
     for order_item in items:
         if order_item.status == OrderStatus.CREATED:
-            stock_item = StockItem.query.filter(StockItem.product_id == order_item.product_id).first()
-            update_stock(order_item, stock_item, Operation.SHIP)
+            stock_item = StockItem.query.filter(StockItem.product_id == order_item.product_id,StockItem.stock==current_user.stock).first()
+            update_stock(order_item, stock_item, Operation.SHIP,ship_qty=order_item.count)
 
-    return redirect(url_for('.order_details', order_id = order_item.sellorder.id))
+    return redirect(url_for('.order_details', order_id = order.id))
 
 
 @main.route('/order/details/<int:order_id>',methods=['GET','POST'])

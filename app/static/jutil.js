@@ -129,3 +129,34 @@ $(function() {
     
 });
 //});
+
+function ship_item(bt){
+        
+        var items ={};
+        // console.log($('#sources_result').html());
+        var row=$(bt).parents('tr');
+        // alert(row.attr('id'));
+        item_qty=row.find('[name="ship_qty"]').val();
+    
+        if(parseInt(item_qty)>0){
+            
+            item_id=row.attr('id');
+            items[item_id]={'qty':item_qty};
+        
+            items = JSON.stringify(items);
+            $.ajax({
+                type : "POST",
+                url : "/order/_item_ship",
+                data: items,
+                contentType: 'application/json;charset=UTF-8',
+                success: function(result) {
+                    console.log(result);
+                    window.location.href = result;
+                }
+            });
+        }
+        else{
+            alert("Please the amount you want to ship")
+        }
+        
+};

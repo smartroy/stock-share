@@ -65,16 +65,17 @@ def insert_product_mongo(file):
         #collection.insert_one(product)
 
 
-def update_stock(order_item,stock_item, action,new_qty=0,price=0):
+def update_stock(order_item,stock_item, action,new_qty=0,price=0,ship_qty=0):
     if action == Operation.CREATE:
         stock_item.order_count += order_item.count
         db.session.commit()
     elif action == Operation.SHIP:
-        stock_item.count -= order_item.count
-        stock_item.order_count -= order_item.count
-        order_item.shipped_count = order_item.count
-        order_item.status = OrderStatus.SHIPPED
-        shipment = Shipment(count=order_item.count, orderitem=order_item)
+        stock_item.count -= ship_qty
+        stock_item.order_count -= ship_qty
+        order_item.shipped_count += ship_qty
+        if order_item.count<= order_item.shipped_count:
+            order_item.status = OrderStatus.SHIPPED
+        shipment = Shipment(count=ship_qty, orderitem=order_item)
         db.session.add(shipment)
 
         db.session.commit()
