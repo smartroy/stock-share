@@ -294,6 +294,7 @@ def add_products():
             flash('No selected file')
             return redirect(request.url)
         if file and allowed_file(file.filename):
+            line = file.readline()
             while 1:
                 line = (file.readline().rstrip()).decode('utf-8')
 
