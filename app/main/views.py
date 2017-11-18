@@ -21,6 +21,7 @@ from datetime import datetime, timedelta
 from .forms import CreateForm, SellForm, SellItemForm
 from .util import create_customer,create_stock_item,create_product, create_item
 from bson import ObjectId
+from ..email import send_email
 
 
 @main.route('/', methods=['GET', 'POST'])
@@ -268,7 +269,10 @@ def customer_edit(customer_id):
 @login_required
 def list_products():
     #products = Product.query.all()
-    products = mongo.db.products.find({"user":current_user.id})
+    if current_user.is_administrator():
+        products = mongo.db.products.find()
+    else:
+        products = mongo.db.products.find({"user":current_user.id})
     return render_template("products.html", products=products)
 
 def allowed_file(filename):
@@ -409,6 +413,16 @@ def edit_profile_admin(id):
     form.location.data = user.location
     form.about_me.data = user.about_me
     return render_template('edit_profile.html', form=form, user=user)
+
+
+@main.route('/_send_email', methods=['GET', 'POST'])
+@login_required
+def email_handle():
+    data = request.get_json()
+    print(data)
+    send_email(data['email'], data['subject'], 'auth/email/confirm', user=user,token='')
+
+    return jsonify(request.referrer)
 
 
 ALLOWED_EXTENSIONS = set(['csv','txt'])

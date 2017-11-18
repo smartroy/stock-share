@@ -30,6 +30,14 @@
             {% endif %}
         </p>
     </div>
+    <div id='send_email'>
+        <br>To
+        <input type=text id='email'>
+        <br>Subject
+        <input type=text id='subject'>
+        <br>
+        <button class="actionBtn" type="button" id="submit_email" style='float:right;'>Send</button>
+    </div>
 </div>
 <h3>Posts by {{ user.username }}</h3>
 {% include '_posts.html' %}
@@ -37,3 +45,9 @@
 
 {% endblock %}
 
+{% block scripts %}
+{{super()}}
+<script src="{{ url_for('static', filename='jutil.js') }}"></script>
+
+
+{% endblock %}

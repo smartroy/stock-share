@@ -113,6 +113,27 @@ $(function() {
         
     });
 
+    $('#submit_email').bind('click','#send_email',function(){
+        var email_item={};
+        email_item['email'] = $('#email').val();
+        email_item['subject'] = $('#subject').val();
+        if(email_item['email']){
+            email_item=JSON.stringify(email_item);
+            $.ajax({
+            type : "POST",
+            url : "/_send_email",
+            data: email_item,
+            contentType: 'application/json;charset=UTF-8',
+            success: function(result) {
+                console.log(result);
+                window.location.href = result;
+            }
+        });
+        }
+        else{
+            alter("Please fill in email address");
+        }
+    });
 
     
     // $(document).on('click','a#add_stock',function(){

@@ -19,11 +19,11 @@ class Config:
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    MAIL_SERVER = 'smtp.mailtrap.io'
-    MAIL_PORT = 2525
+    MAIL_SERVER = 'smtp.sendgrid.net'
+    MAIL_PORT = 587
     MAIL_USE_TLS = True
-    MAIL_USERNAME = '1aaea0726b935f'
-    MAIL_PASSWORD = '4602796b480308'
+    MAIL_USERNAME = 'app80708088@heroku.com'
+    MAIL_PASSWORD = 'efq5vskg8381'
     SQLALCHEMY_DATABASE_URI =os.environ.get('DATABASE_URL') or 'postgresql://stockshare:stockshare@localhost/devdb'
     #os.environ.get('DEV_DATABASE_URL') or \
                               #'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
@@ -44,11 +44,11 @@ class ProductionConfig(Config):
 
 class HerokuConfig(Config):
     DEBUG = True
-    MAIL_SERVER = 'smtp.mailtrap.io'
-    MAIL_PORT = 2525
+    MAIL_SERVER = 'smtp.sendgrid.net'
+    MAIL_PORT = 587
     MAIL_USE_TLS = True
-    MAIL_USERNAME = '1aaea0726b935f'
-    MAIL_PASSWORD = '4602796b480308'
+    MAIL_USERNAME = 'app80708088@heroku.com'
+    MAIL_PASSWORD = 'efq5vskg8381'
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'postgresql://stockshare:stockshare@localhost/devdb'
     MONGO_DBNAME = 'testmongo'
     MONGO_URI = os.environ.get('MONGODB_URI') or 'mongodb://localhost:27017/testmongo'

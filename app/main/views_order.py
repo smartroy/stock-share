@@ -47,7 +47,10 @@ def sell_orders():
 @login_required
 def new_sell():
     sources = []
-    cursor = mongo.db.sources.find({"user":current_user.id})
+    if current_user.is_administrator:
+        cursor = mongo.db.sources.find()
+    else:
+        cursor = mongo.db.sources.find({"user":current_user.id})
     for doc in cursor:
         sources.append(doc["source"])
 
@@ -60,7 +63,10 @@ def search_source():
     source=request.args.get('source','',type=str)
     # upc_data = upc.split(',')
     products=[]
-    cursor=mongo.db.products.find({"source":source.upper()})
+    if current_user.is_administrator:
+        cursor = mongo.db.products.find({"source":source.upper()})
+    else:
+        cursor = mongo.db.products.find({"$and": [{"source": source.upper()}, {"user": current_user.id}]})
     if cursor:
         for product in cursor:
             product["_id"]=str(product["_id"])
