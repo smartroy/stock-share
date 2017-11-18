@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block page_content %}
+
+
+        <div class="page-header">
+
+           <table class="table table-fixed">
+                <thead>
+                <tr>
+
+                  <th>Brand</th>
+                  <th>Name</th>
+                  <th>Nick</th>
+                  <th>Color</th>
+                    <th>UPC</th>
+                    <th>Source</th>
+                </tr>
+                </thead>
+                <tbody>
+                    
+                            <td title="{{product["brand"]}}">{{product["brand"]}}</td>
+                            <td title="{{product["name"]}}">{{product["name"]}}</td>
+                            <td title="{{product["nick_name"]}}">{{product["nick_name"]}}</td>
+                            <td title="{{product["color"]}}">{{product["color"]}}</td>
+                            <td title="{{product["upc"]}}">{{product["upc"]}}</td>
+                            <td title="{{product["source"]}}">{{product["source"]}}</td>
+
+                        </tr>
+
+
+                    
+                </tbody>
+            </table>
+
+        </div>
+
+
+
+
+{% endblock %}
