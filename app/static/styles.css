@@ -242,6 +242,7 @@ html, body, .container-fluid, .row {
     max-height: 350px;
 }
 
+/*table with 6 columns*/
 .table-fixed > tbody > tr > td,
 .table-fixed > thead > tr > th {
     width: 16.5%;
@@ -252,6 +253,19 @@ html, body, .container-fluid, .row {
     overflow: hidden;
 }
 
+/*table with 7 columns*/
+#all_products tbody > tr > td,
+#all_products thead > tr > th,
+#new_products #itemtable tbody > tr > td,
+#new_products #itemtable thead > tr > th {
+    width: 14.2%;
+    float: left;
+    height: 35px;
+    text-overflow: ellipsis;;
+    white-space: nowrap;
+    overflow: hidden;
+}
+/*table with 8 columns*/
 #sellorders .table-fixed > tbody > tr > td,
 #sellorders .table-fixed > thead > tr > th,
 #shop_table tbody > tr > td,
@@ -264,6 +278,7 @@ html, body, .container-fluid, .row {
     overflow: hidden;
 }
 
+/*table with 9 columns*/
 #order_status tbody > tr > td,
 #order_status thead > tr > th {
     width: 11.1%;
@@ -283,9 +298,10 @@ html, body, .container-fluid, .row {
 }
 #result_table input,
 #itemtable input,
+#itemtable button,
 #shop_table input,
 #shop_table button,
-#order_status input {
+#order_status input{
     height:30px;
     margin-top: -5px;
 }
