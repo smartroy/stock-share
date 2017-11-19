@@ -20,7 +20,7 @@
                     <td title="{{product["color"]}}">{{product["color"]}}</td>
                     <td title="{{product["upc"]}}">{{product["upc"]}}</td>
                     <td title="{{product["source"]}}">{{product["source"]}}</td>
-
+                    <td><a href="{{url_for('main.product_details',product_id = product._id)}}">Edit</a></td>
                 </tr>
 
 

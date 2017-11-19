@@ -19,7 +19,7 @@
                     <td title="{{stocks[loop.index0].count}}" id="stockQty">{{stocks[loop.index0].count}}</td>
                     <td title="{{stocks[loop.index0].pending_count}}" id="orderQty">{{stocks[loop.index0].pending_count}}</td>
                     <!-- <td><a href="{{url_for('main.stock_item_post',item_id=stocks[loop.index0].id)}}">Post</a></td> -->
-                    <td><a href="{{url_for('main.stock_item_details',product_id=products[loop.index0]._id)}}">Details</a></td>
+                    <td><a href="{{url_for('main.product_details',product_id=products[loop.index0]._id)}}">Details</a></td>
                     <td><a href="{{url_for('main.stock_item_edit',item_id = stocks[loop.index0].id)}}">Edit</a></td>
                     <!-- <td><a href="{{url_for('main.stock_item_delete',item_id=stocks[loop.index0].id)}}">Delete</a></td> -->
                 </tr>
