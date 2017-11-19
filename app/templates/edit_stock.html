@@ -5,7 +5,7 @@
 
 
         <div class="page-header">
-
+          
            <table class="table table-fixed">
                 <thead>
                 <tr>
@@ -28,12 +28,36 @@
                             <td title="{{product["upc"]}}">{{product["upc"]}}</td>
                             <td title="{{product["source"]}}">{{product["source"]}}</td>
 
-                </tr>
+                  </tr>
 
 
                     
                 </tbody>
+
+                
             </table>
+          <form method="post" action="{{url_for('main.stock_item_edit',item_id = stock_item.id)}}">
+            <table class="table table-fixed">
+                <thead>
+                <tr>
+
+                  
+                  <th>Order Total</th>
+                  <th>Shipped Total</th>
+                  <th>Pending Qty</th>
+                  <th>Stock Qty</th>
+                </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><input type=text name="order_total" value = "{{stock_item.order_count}}"></td>
+                    <td><input type=text name="shipped_total" value = "{{stock_item.shipped_count}}"></td>
+                    <td><input type=text name="pending" value = "{{stock_item.pending_count}}"></td>
+                    <td><input type=text name="current" value = "{{stock_item.count}}"></td>
+                    <td><input type="submit" value="Update"></td>
+                  </tr>
+            
+          </form>
 
         </div>
 

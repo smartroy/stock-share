@@ -19,7 +19,7 @@ from json import dumps
 from base64 import b64encode
 from datetime import datetime, timedelta
 from .forms import CreateForm, SellForm, SellItemForm
-from .util import create_customer,create_stock_item,create_product, create_item,update_stock
+from .util import create_customer,create_stock_item,create_product, create_item,update_stock, delete_orderItem, delete_order
 from bson import ObjectId
 import json
 
@@ -189,20 +189,21 @@ def order_details(order_id):
 @login_required
 def order_delete(order_id):
     order = SellOrder.query.get_or_404(order_id)
+    delete_order(order)
     # print(order)
     items = order.order_items.all()
     # print(items)
     # products = []
-    for i in range(len(items)):
-        # print(items[i].product_id)
-        stock_item = StockItem.query.filter(and_(StockItem.product_id==items[i].product_id, StockItem.stock==current_user.stock)).first()
-        # print(product)
-        # product['_id'] = str(product['_id'])
-        stock_item.count += items[i].count
-        stock_item.order_count -= items[i].count
-        db.session.delete(items[i])
-    db.session.delete(order)
-    db.session.commit()
+    # for i in range(len(items)):
+    #     # print(items[i].product_id)
+    #     stock_item = StockItem.query.filter(and_(StockItem.product_id==items[i].product_id, StockItem.stock==current_user.stock)).first()
+    #     # print(product)
+    #     # product['_id'] = str(product['_id'])
+    #     stock_item.count += items[i].count
+    #     stock_item.order_count -= items[i].count
+    #     db.session.delete(items[i])
+    # db.session.delete(order)
+    # db.session.commit()
     return redirect(url_for('.sell_orders'))
 
 

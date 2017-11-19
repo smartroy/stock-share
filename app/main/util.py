@@ -1,7 +1,7 @@
-from ..models import StockItem, Customer, OrderItem, Role, User, Post, Operation, OrderStatus, Shipment, PurchaseItem
+from ..models import StockItem, Customer, OrderItem, Role, User, Post, Operation, OrderStatus, Shipment, PurchaseItem, SellOrder
 from app import db, mongo
 from flask_login import current_user
-
+from sqlalchemy import and_, or_
 
 def create_product(brand="", name="", nick_name="", figure=[], upc="", sku="", size="", color="", p_color="",source="", description=""):
     product = {
@@ -65,13 +65,42 @@ def insert_product_mongo(file):
         #collection.insert_one(product)
 
 
+def delete_order(order):
+    items = order.order_items.all()
+
+    for i in range(len(items)):
+        # print(items[i].product_id)
+        delete_orderItem(items[i])
+
+        # db.session.delete(items[i])
+    db.session.delete(order)
+    db.session.commit()
+
+
+def delete_orderItem(item):
+    stock_item = StockItem.query.filter(
+        and_(StockItem.product_id == item.product_id, StockItem.stock == current_user.stock)).first()
+    # print(product)
+    # product['_id'] = str(product['_id'])
+
+    stock_item.order_count -= item.count
+    shipments = item.shipment.all()
+    for i in range(len(shipments)):
+        stock_item.count += shipments[i].count
+        stock_item.shipped_count -= shipments[i].count
+        db.session.delete(shipments[i])
+
+    db.session.delete(item)
+    db.session.commit()
+
+
 def update_stock(order_item,stock_item, action,new_qty=0,price=0,ship_qty=0):
     if action == Operation.CREATE:
         stock_item.order_count += order_item.count
         db.session.commit()
     elif action == Operation.SHIP:
         stock_item.count -= ship_qty
-        stock_item.order_count -= ship_qty
+        stock_item.shipped_count += ship_qty
         order_item.shipped_count += ship_qty
         if order_item.count<= order_item.shipped_count:
             order_item.status = OrderStatus.SHIPPED

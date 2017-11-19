@@ -6,7 +6,7 @@ from flask import current_app, request
 from . import login_manager
 from datetime import datetime
 import hashlib
-from sqlalchemy.ext.hybrid import hybrid_method
+from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
 
 class Permission:
     FOLLOW = 0x01
@@ -202,15 +202,21 @@ class StockItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     count = db.Column(db.Integer,default=0)
     price = db.Column(db.Float,default=0)
-
+    shipped_count = db.Column(db.Integer, default=0)
     product_id = db.Column(db.Text)
     order_count = db.Column(db.Integer,default=0)
     stock_id = db.Column(db.Integer, db.ForeignKey('stocks.id'))
     posts = db.relationship('Post',backref='stockitem',lazy='dynamic')
 
-    @hybrid_method
-    def need_more(self):
-        return self.count - self.order_count
+    @hybrid_property
+    def need_count(self):
+
+        return self.pending_count - self.count
+
+
+    @hybrid_property
+    def pending_count(self):
+        return self.order_count - self.shipped_count
 
 
 class SellOrder(db.Model):

@@ -66,7 +66,7 @@ def shopping_list():
     #             and_(StockItem.product_id == str(key), StockItem.stock == current_user.stock)).first()
     #         stock_item
 
-    stocks=StockItem.query.filter(and_(StockItem.need_more()<0, StockItem.stock == current_user.stock)).order_by(StockItem.id.desc()).all()
+    stocks=StockItem.query.filter(and_(StockItem.need_count>0, StockItem.stock == current_user.stock)).order_by(StockItem.id.desc()).all()
     products = []
     for i in range(len(stocks)):
         product = mongo.db.products.find_one({'_id': ObjectId(stocks[i].product_id)})
@@ -118,10 +118,18 @@ def post_all():
 
 
 
-@main.route('/stock/item_edit/<int:item_id>')
+@main.route('/stock/item_edit/<int:item_id>',methods=['GET','POST'])
 @login_required
 def stock_item_edit(item_id):
-    pass
+    stock_item = StockItem.query.get_or_404(item_id)
+    product = mongo.db.products.find_one({'_id':ObjectId(stock_item.product_id)})
+    if request.method == 'POST':
+        stock_item.count = int(request.form.get("current"))
+        stock_item.order_count = int(request.form.get("order_total"))
+        stock_item.shipped_count = int(request.form.get("shipped_total"))
+        # stock_item.pending_count = int(request.form.get("pending"))
+        db.session.commit()
+    return render_template('edit_stock.html', stock_item=stock_item, product=product)
 
 
 @main.route('/stock/item_details/<product_id>')

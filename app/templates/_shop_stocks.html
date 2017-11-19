@@ -19,7 +19,7 @@
                     <td>{{products[loop.index0].name}}/{{products[loop.index0].nick_name}}</td>
                     <td>{{stocks[loop.index0].count}}</td>
                     <td>{{stocks[loop.index0].order_count}}</td>
-                    <td>{{stocks[loop.index0].order_count - stocks[loop.index0].count}}</td>
+                    <td>{{stocks[loop.index0].need_count}}</td>
                     <!-- <td><a href="{{url_for('main.stock_item_post',item_id=stocks[loop.index0].id)}}">Post</a></td> -->
                     <!-- <td><a href="{{url_for('main.stock_item_edit',item_id=stocks[loop.index0].id)}}">Edit</a></td> -->
                     <td><input type=text size=5 name="get_price" value=0></td>
