@@ -11,7 +11,7 @@ function add_item(){
     }
     console.log(next);
     $("#itemtable").append(
-                        '<tr id="item' + next + '" class="item"><td><input type="text" name="upc"></td><td><input type="text" size="10" name="brand"></td><td><input type="text" size="10" name="name"></td><td><input type="text" size="10" name="size"><td><input type="text" size="10" name="color"></td><td><input type="text" size="10" name="source"></td<td><button type="button" id="remove' + next + '" onclick="remove_item(this.id)">-</button></tr>'
+                        '<tr id="item' + next + '" class="item"><td><input type="text" name="upc"></td><td><input type="text" size="10" name="brand"></td><td><input type="text" size="10" name="name"></td><td><input type="text" size="10" name="size"><td><input type="text" size="10" name="color"></td><td><input type="text" size="10" name="source"></td><td><button type="button" id="remove' + next + '" onclick="remove_item(this.id)">-</button></td></tr>'
         );
     //document.getElementById("itemtable").innerHTML += '<tr id="item' + next + '" class="item"><td><input type="text" name="upc"></td><td><input type="text" name="brand"></td><td><input type="text" name="name"></td><td><input type="text" name="price"></td><td><input type="text" name="qty"></td><td><button type="button" id="remove' + next + '" onclick="remove_item(this.id)">-</button></tr>';
 

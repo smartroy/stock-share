@@ -18,12 +18,12 @@
         </div>
         <br>
 
-        <div>
+        <div id="new_products">
         	<p>Input manually</p>
 
             <form method="post" action="{{url_for('main.add_products_manual')}}">
                 
-                <table class="table table-fixed">
+                <table id="itemtable" class="table table-fixed">
                     <thead>
                         <tr>
                             <th>UPC</th>
@@ -34,14 +34,15 @@
                             <th>Source</th>
                         </tr>
                     </thead>
-                    <tbody id="itemtable">
-                        <tr id="item1" class="item">
+                    <tbody >
+                        <tr class="item">
                             <td><input type='text' name="upc"></td>
                             <td><input type='text' size="10" name="brand"></td>
                             <td><input type="text" size="10" name="name"></td>
                             <td><input type="text" size="5" name="size"></td>
                             <td><input type="text" size="5" name="color"></td>
                             <td><input type="text" size="10" name="source"></td>
+                            <td><button type="button" id="remove' + next + '" onclick="remove_item(this.id)">-</button></td>
                         </tr>
                     </tbody>
                 </table>

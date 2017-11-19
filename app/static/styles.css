@@ -242,6 +242,7 @@ html, body, .container-fluid, .row {
     max-height: 350px;
 }
 
+/*table with 6 columns*/
 .table-fixed > tbody > tr > td,
 .table-fixed > thead > tr > th {
     width: 16.5%;
@@ -252,6 +253,21 @@ html, body, .container-fluid, .row {
     overflow: hidden;
 }
 
+/*table with 7 columns*/
+#all_products tbody > tr > td,
+#all_products thead > tr > th,
+#new_products #itemtable tbody > tr > td,
+#new_products #itemtable thead > tr > th,
+#stock_table tbody > tr > td,
+#stock_table thead > tr > th {
+    width: 14.2%;
+    float: left;
+    height: 35px;
+    text-overflow: ellipsis;;
+    white-space: nowrap;
+    overflow: hidden;
+}
+/*table with 8 columns*/
 #sellorders .table-fixed > tbody > tr > td,
 #sellorders .table-fixed > thead > tr > th,
 #shop_table tbody > tr > td,
@@ -264,9 +280,20 @@ html, body, .container-fluid, .row {
     overflow: hidden;
 }
 
+/*table with 9 columns*/
 #order_status tbody > tr > td,
 #order_status thead > tr > th {
     width: 11.1%;
+    float: left;
+    height: 35px;
+    text-overflow: ellipsis;;
+    white-space: nowrap;
+    overflow: hidden;
+}
+/*table with 10 columns*/
+#product_details .table-fixed > tbody > tr > td,
+#product_details .table-fixed > thead > tr > th {
+    width: 10%;
     float: left;
     height: 35px;
     text-overflow: ellipsis;;
@@ -283,13 +310,16 @@ html, body, .container-fluid, .row {
 }
 #result_table input,
 #itemtable input,
+#itemtable button,
 #shop_table input,
 #shop_table button,
-#order_status input {
+#order_status input,
+#product_details input{
     height:30px;
     margin-top: -5px;
 }
-#itemtable input{
+#itemtable input,
+#product_details input{
     width: 100%;
 }
 #sources_result .table-fixed > tbody > tr > td,
