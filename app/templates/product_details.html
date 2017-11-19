@@ -4,48 +4,40 @@
 {% block page_content %}
 
 
-        <div class="page-header">
+        <div id="product_details" class="page-header">
           <form method="post" action="{{url_for('main.product_details',product_id = product._id)}}">
             
            <table class="table table-fixed">
                 <thead>
-                <tr>
-
-                  <th>Brand</th>
-                  <th>Name</th>
-                  <th>Nick</th>
-                  <th>Color</th>
-                  <th>UPC</th>
-                  <th>Source</th>
-                  <th>Size</th>
-                  <th>SKU</th>
-                  
-                  <th>Factory Color</th>
-                  <th>Description</th>
-                </tr>
-                </thead>
-                <tbody>
                   <tr>
-                    
-                            <td title="{{product["brand"]}}"><input type=text name="brand" value='{{product["brand"]}}'></td>
-                            <td title="{{product["name"]}}"><input type=text name="name" value='{{product["name"]}}'></td>
-                            <td title="{{product["nick_name"]}}"><input type=text name="nick_name" value='{{product["nick_name"]}}'></td>
-                            <td title="{{product["color"]}}"><input type=text name="color" value='{{product["color"]}}'></td>
-                            <td title="{{product["upc"]}}"><input type=text name="upc" value='{{product["upc"]}}'></td>
-                            <td title="{{product["source"]}}"><input type=text name="source" value='{{product["source"]}}'></td>
-                            <td title="{{product["size"]}}"><input type=text name="size" value='{{product["size"]}}'></td>
-                            <td title="{{product["sku"]}}"><input type=text name="sku" value='{{product["sku"]}}'></td>
-                            
-                            <td title="{{product["p_color"]}}"><input type=text name="p_color" value='{{product["p_color"]}}'></td>
-                            <td title="{{product["description"]}}"><input type=text name="description" value='{{product["description"]}}'></td>
-
-                </tr>
-
-
-                    
+                    <th>Brand</th>
+                    <th>Name</th>
+                    <th>Nick</th>
+                    <th>Color</th>
+                    <th>UPC</th>
+                    <th>Source</th>
+                    <th>Size</th>
+                    <th>SKU</th>
+                    <th>Factory Color</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                  <tbody>
+                  <tr>
+                    <td title="{{product["brand"]}}"><input type=text name="brand" value='{{product["brand"]}}'></td>
+                    <td title="{{product["name"]}}"><input type=text name="name" value='{{product["name"]}}'></td>
+                    <td title="{{product["nick_name"]}}"><input type=text name="nick_name" value='{{product["nick_name"]}}'></td>
+                    <td title="{{product["color"]}}"><input type=text name="color" value='{{product["color"]}}'></td>
+                    <td title="{{product["upc"]}}"><input type=text name="upc" value='{{product["upc"]}}'></td>
+                    <td title="{{product["source"]}}"><input type=text name="source" value='{{product["source"]}}'></td>
+                    <td title="{{product["size"]}}"><input type=text name="size" value='{{product["size"]}}'></td>
+                    <td title="{{product["sku"]}}"><input type=text name="sku" value='{{product["sku"]}}'></td>
+                    <td title="{{product["p_color"]}}"><input type=text name="p_color" value='{{product["p_color"]}}'></td>
+                    <td title="{{product["description"]}}"><input type=text name="description" value='{{product["description"]}}'></td>
+                  </tr>
                 </tbody>
             </table>
-            <input type="submit" value="Update">
+            <input class="actionBtn" type="submit" value="Update" style="width:64px;">
             </form>
         </div>
 

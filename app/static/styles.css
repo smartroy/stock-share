@@ -257,7 +257,9 @@ html, body, .container-fluid, .row {
 #all_products tbody > tr > td,
 #all_products thead > tr > th,
 #new_products #itemtable tbody > tr > td,
-#new_products #itemtable thead > tr > th {
+#new_products #itemtable thead > tr > th,
+#stock_table tbody > tr > td,
+#stock_table thead > tr > th {
     width: 14.2%;
     float: left;
     height: 35px;
@@ -288,6 +290,16 @@ html, body, .container-fluid, .row {
     white-space: nowrap;
     overflow: hidden;
 }
+/*table with 10 columns*/
+#product_details .table-fixed > tbody > tr > td,
+#product_details .table-fixed > thead > tr > th {
+    width: 10%;
+    float: left;
+    height: 35px;
+    text-overflow: ellipsis;;
+    white-space: nowrap;
+    overflow: hidden;
+}
 
 #result_table, 
 #itemtable,
@@ -301,11 +313,13 @@ html, body, .container-fluid, .row {
 #itemtable button,
 #shop_table input,
 #shop_table button,
-#order_status input{
+#order_status input,
+#product_details input{
     height:30px;
     margin-top: -5px;
 }
-#itemtable input{
+#itemtable input,
+#product_details input{
     width: 100%;
 }
 #sources_result .table-fixed > tbody > tr > td,
