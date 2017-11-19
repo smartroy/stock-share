@@ -132,22 +132,7 @@ def stock_item_edit(item_id):
     return render_template('edit_stock.html', stock_item=stock_item, product=product)
 
 
-@main.route('/product/product_details/<product_id>',methods=['GET','POST'])
-@login_required
-def product_details(product_id):
 
-    product = mongo.db.products.find_one({'_id':ObjectId(product_id)})
-    product['_id'] = str(product['_id'])
-    if request.method == 'POST':
-        new_value ={}
-        # print(request.form)
-        for key,value in product.items():
-            if not(key == "user" or key == "fig" or key=="_id"):
-                new_value[key] = request.form.get(key)
-        # print(new_value)
-        mongo.db.products.update_one({"_id":ObjectId(product_id)},{"$set":new_value})
-        product = mongo.db.products.find_one({'_id': ObjectId(product_id)})
-    return render_template('product_details.html', product=product)
 
 
 @main.route('/stock/item_delete/<int:item_id>')

@@ -19,9 +19,10 @@ from json import dumps
 from base64 import b64encode
 from datetime import datetime, timedelta
 from .forms import CreateForm, SellForm, SellItemForm
-from .util import create_customer,create_stock_item,create_product, create_item
+from .util import create_customer,create_stock_item,create_product, create_item, inventory_add
 from bson import ObjectId
 from ..email import send_email
+
 
 
 @main.route('/', methods=['GET', 'POST'])
@@ -265,93 +266,95 @@ def customer_edit(customer_id):
 #         product = Product.query.filter_by(upc=upc).first()
 #         if product is not None:
 
-@main.route('/product/all')
-@login_required
-def list_products():
-    #products = Product.query.all()
-    if current_user.is_administrator():
-        products = mongo.db.products.find()
-    else:
-        products = mongo.db.products.find({"user":current_user.id})
-    return render_template("products.html", products=products)
-
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
-@main.route('/product/add',methods=['GET','POST'])
-@login_required
-def add_products():
-    #products = Product.query.all()
-    if request.method == 'POST':
-        if 'file' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
-        file = request.files['file']
-
-        if file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
-        if file and allowed_file(file.filename):
-            line = file.readline()
-            while 1:
-                line = (file.readline().rstrip()).decode('utf-8')
-
-                if not line:
-                    break
-                data = line.split(',')
-                product=""
-                if data[7]:
-                    product = mongo.db.products.find_one({"upc": data[7]})
-                elif data[0] and data[1]:
-                    product = mongo.db.products.find_one(
-                        {"$and": [{"brand": data[0]}, {"$or": [{"name": data[1]}, {"nick_name": data[2]}]}]})
-                if not product:
-                    create_product(brand=data[0], name=data[1], nick_name=data[2], sku=data[3], size=data[4], color=data[5],p_color=data[6], upc=data[7], source=data[8], figure=[])
-                else:
-                    if not (current_user.id in product["user"]):
-                        mongo.db.products.update({"_id": product["_id"]}, {'$push': {"user": current_user.id}})
-                        source = product["source"]
-                        if not mongo.db.sources.find_one({"$and": [{"source":source},{"user":current_user.id}]}):
-                            mongo.db.sources.update({"source":source},{'$push':{"user":current_user.id}})
+# @main.route('/product/all')
+# @login_required
+# def list_products():
+#     #products = Product.query.all()
+#     if current_user.is_administrator():
+#         products = mongo.db.products.find()
+#     else:
+#         products = mongo.db.products.find({"user":current_user.id})
+#     return render_template("products.html", products=products)
+#
+# def allowed_file(filename):
+#     return '.' in filename and \
+#            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+#
+#
+# @main.route('/product/add',methods=['GET','POST'])
+# @login_required
+# def add_products():
+#     #products = Product.query.all()
+#     if request.method == 'POST':
+#         if 'file' not in request.files:
+#             flash('No file part')
+#             return redirect(request.url)
+#         file = request.files['file']
+#
+#         if file.filename == '':
+#             flash('No selected file')
+#             return redirect(request.url)
+#         if file and allowed_file(file.filename):
+#             line = file.readline()
+#             while 1:
+#                 line = (file.readline().rstrip()).decode('utf-8')
+#
+#                 if not line:
+#                     break
+#                 data = line.split(',')
+#                 inventory_add(brand=data[0], name=data[1], nick_name=data[2], sku=data[3], size=data[4], color=data[5],p_color=data[6], upc=data[7], source=data[8], figure=[])
+                # product=""
+                # if data[7]:
+                #     product = mongo.db.products.find_one({"upc": data[7]})
+                # elif data[0] and data[1]:
+                #     product = mongo.db.products.find_one(
+                #         {"$and": [{"brand": data[0]}, {"$or": [{"name": data[1]}, {"nick_name": data[2]}]}]})
+                # if not product:
+                #     create_product(brand=data[0], name=data[1], nick_name=data[2], sku=data[3], size=data[4], color=data[5],p_color=data[6], upc=data[7], source=data[8], figure=[])
+                # else:
+                #     if not (current_user.id in product["user"]):
+                #         mongo.db.products.update({"_id": product["_id"]}, {'$push': {"user": current_user.id}})
+                #         source = product["source"]
+                #         if not mongo.db.sources.find_one({"$and": [{"source":source},{"user":current_user.id}]}):
+                #             mongo.db.sources.update({"source":source},{'$push':{"user":current_user.id}})
 
                         # product["user"].append(current_user.id)
-        return redirect(url_for('.list_products'))
-    return render_template('new_products.html')
+    #     return redirect(url_for('.list_products'))
+    # return render_template('new_products.html')
 
 
-@main.route('/product/add_manual',methods=['GET','POST'])
-@login_required
-def add_products_manual():
-    if request.method == 'POST':
-        upcs = request.form.getlist('upc')
-        brands = request.form.getlist('brand')
-        names = request.form.getlist('name')
-
-        sizes = request.form.getlist('size')
-        colors = request.form.getlist('color')
-        sources = request.form.getlist('source')
-        for i in range(len(upcs)):
-            product = ""
-            if upcs[i]:
-                product = mongo.db.products.find_one({"upc": upcs[i]})
-            elif brands[i] and names[i]:
-                product = mongo.db.products.find_one(
-                    {"$and": [{"brand": brands[i]}, {"$or": [{"name": names[i]}, {"nick_name": names[i]}]}]})
-            if not product:
-                product_id = create_product(brand=brands[i], name=names[i], nick_name=names[i], upc=upcs[i],size=sizes[i],color=colors[i],source=sources[i])
-            else:
-                # print(product)
-                # print(current_user.id)
-                if not (current_user.id in product["user"]):
-                    mongo.db.products.update({"_id":product["_id"]},{'$push':{"user":current_user.id}})
-                    source = product["source"]
-                    if not mongo.db.sources.find_one({"$and": [{"source": source}, {"user": current_user.id}]}):
-                        mongo.db.sources.update({"source": source}, {'$push': {"user": current_user.id}})
-                    # product["user"].append(current_user.id)
-                # print(product)
-    return render_template('new_products.html')
+# @main.route('/product/add_manual',methods=['GET','POST'])
+# @login_required
+# def add_products_manual():
+#     if request.method == 'POST':
+#         upcs = request.form.getlist('upc')
+#         brands = request.form.getlist('brand')
+#         names = request.form.getlist('name')
+#
+#         sizes = request.form.getlist('size')
+#         colors = request.form.getlist('color')
+#         sources = request.form.getlist('source')
+#         for i in range(len(upcs)):
+#             inventory_add(brand=brands[i], name=names[i], nick_name=names[i], upc=upcs[i],size=sizes[i],color=colors[i],source=sources[i])
+#             # product = ""
+#             # if upcs[i]:
+#             #     product = mongo.db.products.find_one({"upc": upcs[i]})
+#             # elif brands[i] and names[i]:
+#             #     product = mongo.db.products.find_one(
+#             #         {"$and": [{"brand": brands[i]}, {"$or": [{"name": names[i]}, {"nick_name": names[i]}]}]})
+#             # if not product:
+#             #     product_id = create_product(brand=brands[i], name=names[i], nick_name=names[i], upc=upcs[i],size=sizes[i],color=colors[i],source=sources[i])
+#             # else:
+#             #     # print(product)
+#             #     # print(current_user.id)
+#             #     if not (current_user.id in product["user"]):
+#             #         mongo.db.products.update({"_id":product["_id"]},{'$push':{"user":current_user.id}})
+#             #         source = product["source"]
+#             #         if not mongo.db.sources.find_one({"$and": [{"source": source}, {"user": current_user.id}]}):
+#             #             mongo.db.sources.update({"source": source}, {'$push': {"user": current_user.id}})
+#             #         # product["user"].append(current_user.id)
+#             #     # print(product)
+#     return render_template('new_products.html')
 
 
 
@@ -426,6 +429,6 @@ def email_handle():
     return jsonify(request.referrer)
 
 
-ALLOWED_EXTENSIONS = set(['csv','txt'])
+
 
 

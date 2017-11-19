@@ -254,8 +254,7 @@ html, body, .container-fluid, .row {
 }
 
 /*table with 7 columns*/
-#all_products tbody > tr > td,
-#all_products thead > tr > th,
+
 #new_products #itemtable tbody > tr > td,
 #new_products #itemtable thead > tr > th,
 #stock_table tbody > tr > td,
@@ -268,6 +267,8 @@ html, body, .container-fluid, .row {
     overflow: hidden;
 }
 /*table with 8 columns*/
+#all_products tbody > tr > td,
+#all_products thead > tr > th,
 #sellorders .table-fixed > tbody > tr > td,
 #sellorders .table-fixed > thead > tr > th,
 #shop_table tbody > tr > td,

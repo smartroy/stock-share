@@ -4,6 +4,8 @@ from flask_login import current_user
 from sqlalchemy import and_, or_
 
 def create_product(brand="", name="", nick_name="", figure=[], upc="", sku="", size="", color="", p_color="",source="", description=""):
+    if not source:
+        source = "OTHERS"
     product = {
         "brand": brand.upper(),
         "name": name.upper(),
@@ -116,3 +118,22 @@ def update_stock(order_item,stock_item, action,new_qty=0,price=0,ship_qty=0):
         db.session.commit()
 
 
+def inventory_add(brand="", name="", nick_name="", upc="", sku="", size="", color="", p_color="",source="", description="",figure=[]):
+
+    product = ""
+    if upc:
+        product = mongo.db.products.find_one({"upc": upc})
+    elif brand and name:
+        product = mongo.db.products.find_one(
+            {"$and": [{"brand": brand}, {"$or": [{"name": name}, {"nick_name": name}]}]})
+    if not product:
+        product_id = create_product(brand=brand, name=name, nick_name=nick_name, upc=upc, size=size,
+                                    color=color, p_color=p_color, source=source,description=description,figure=figure)
+    else:
+        # print(product)
+        # print(current_user.id)
+        if not (current_user.id in product["user"]):
+            mongo.db.products.update({"_id": product["_id"]}, {'$push': {"user": current_user.id}})
+            source = product["source"]
+            if not mongo.db.sources.find_one({"$and": [{"source": source}, {"user": current_user.id}]}):
+                mongo.db.sources.update({"source": source}, {'$push': {"user": current_user.id}})
