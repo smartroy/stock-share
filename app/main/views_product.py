@@ -29,11 +29,40 @@ ALLOWED_EXTENSIONS = set(['csv','txt'])
 @login_required
 def list_products():
     #products = Product.query.all()
+    products={}
+    sources = []
+    if current_user.is_administrator:
+        cursor = mongo.db.sources.find()
+    else:
+        cursor = mongo.db.sources.find({"user": current_user.id})
+    for doc in cursor:
+        sources.append(doc["source"])
+
     if current_user.is_administrator():
         products = mongo.db.products.find()
     else:
         products = mongo.db.products.find({"user":current_user.id})
-    return render_template("products.html", products=products)
+    return render_template("products.html", products=products,sources=sources)
+
+
+@main.route('/_sort_products',methods=['GET','POST'])
+@login_required
+def sort_products():
+    source = request.args.get('source', '', type=str)
+    products = []
+    if source.upper() =="ALL":
+        search_dict ={}
+    else:
+        search_dict = {"source":source.upper()}
+    if current_user.is_administrator():
+        products = list(mongo.db.products.find(search_dict))
+    else:
+        search_dict["user"] = current_user.id
+        products = list(mongo.db.products.find(search_dict))
+    for product in products:
+        product["_id"] = str(product["_id"])
+    return jsonify(products)
+
 
 def allowed_file(filename):
     return '.' in filename and \

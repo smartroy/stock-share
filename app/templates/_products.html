@@ -7,11 +7,19 @@
           <th>Name</th>
           <th>Nick</th>
           <th>Color</th>
-            <th>UPC</th>
-            <th>Source</th>
+          <th>UPC</th>
+          <th>
+            Source:
+            <select id="source">
+                <option value="ALL">ALL</option>
+                {% for source in sources %}
+                    <option value="{{source}}">{{source}}</option>
+                {% endfor %}
+            </select>
+          </th>
         </tr>
         </thead>
-        <tbody>
+        <tbody id="products_body">
             {% for product in products %}
                 <tr>
                     <td title="{{product["brand"]}}">{{product["brand"]}}</td>
