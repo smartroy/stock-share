@@ -85,14 +85,25 @@ def search_source():
 def create_order():
 
     order_data = request.get_json()
-    buyer = order_data.pop('buyer',None)
+    print(order_data)
+    bill = order_data.pop('bill',None)
+    ship = order_data.pop('ship', None)
+    print(bill)
+    print(ship)
     # print(order_data)
-    customer = Customer.query.filter(and_(Customer.name == buyer['name'], Customer.cellphone == buyer['cellphone'])).first()
-    if customer is None:
-        customer = create_customer(user=current_user, name=buyer['name'],address=buyer['addr'], cellphone=buyer['cellphone'])
-        db.session.add(customer)
+    bill_c = Customer.query.filter(and_(Customer.name == bill['name'], Customer.cellphone == bill['cellphone'])).first()
+    if bill_c is None:
+        bill_c = create_customer(user=current_user, name=bill['name'], address=bill['addr'], cellphone=bill['cellphone'])
+        db.session.add(bill_c)
         db.session.commit()
-    order = SellOrder(user=current_user, customer=customer)
+    ship_c = Customer.query.filter(and_(Customer.name == ship['name'], Customer.cellphone == ship['cellphone'])).first()
+    if ship_c is None:
+        ship_c = create_customer(user=current_user, name=ship['name'], address=ship['addr'],
+                                 cellphone=ship['cellphone'])
+        db.session.add(ship_c)
+        db.session.commit()
+    order = SellOrder(user=current_user, bill=bill_c,ship=ship_c)
+
     db.session.add(order)
     db.session.commit()
     total_sell = 0

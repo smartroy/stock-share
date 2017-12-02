@@ -26,70 +26,70 @@ $(function() {
     });
     
 
-    $('#submit_order').bind('click','#itemtable',function(){
+    // $('#submit_order').bind('click','#itemtable',function(){
         
-        var items ={};
-        // console.log($('#sources_result').html());
-        $('#itemtable tr').each(function(){
-            console.log("in loop");
-            console.log($(this).html());
-            var item_qty=$(this).find('[name="qty"]').val();
-            if(parseInt(item_qty)>0){
-                // add_table +=$(this).html();
-                var item_id =$(this).attr('id');
+    //     var items ={};
+    //     // console.log($('#sources_result').html());
+    //     $('#itemtable tr').each(function(){
+    //         console.log("in loop");
+    //         console.log($(this).html());
+    //         var item_qty=$(this).find('[name="qty"]').val();
+    //         if(parseInt(item_qty)>0){
+    //             // add_table +=$(this).html();
+    //             var item_id =$(this).attr('id');
                 
-                var item_price=$(this).find('[name="price"]').val();
-                var item_note=$(this).find('[name="note"]').val();
-                items[item_id]={'qty':item_qty,'price':item_price,"note":item_note};
+    //             var item_price=$(this).find('[name="price"]').val();
+    //             var item_note=$(this).find('[name="note"]').val();
+    //             items[item_id]={'qty':item_qty,'price':item_price,"note":item_note};
 
 
-            }
-        });
-        var buyer_name=$('[name="buyername"]').val();
-        var buyer_addr=$('#buyer_info').find('[name="address"]').val();
-        var buy_cell=$('#buyer_info').find('[name="cellphone"]').val();
-        items['buyer']={'name':buyer_name,'addr':buyer_addr,'cellphone':buy_cell};
-        items = JSON.stringify(items);
-        $.ajax({
-            type : "POST",
-            url : "/_sort_product",
-            data: items,
-            contentType: 'application/json;charset=UTF-8',
-            success: function(result) {
-                console.log(result);
-                window.location.href = result;
-            }
-        });
-        //  $.getJSON('/_add_order',items, function (data) {
-        //     console.log(data)
-        //     window.location.href = data;
-        // });
-        return false;
-        // console.log(items);
+    //         }
+    //     });
+    //     var buyer_name=$('[name="buyername"]').val();
+    //     var buyer_addr=$('#buyer_info').find('[name="address"]').val();
+    //     var buy_cell=$('#buyer_info').find('[name="cellphone"]').val();
+    //     items['buyer']={'name':buyer_name,'addr':buyer_addr,'cellphone':buy_cell};
+    //     items = JSON.stringify(items);
+    //     $.ajax({
+    //         type : "POST",
+    //         url : "/_sort_product",
+    //         data: items,
+    //         contentType: 'application/json;charset=UTF-8',
+    //         success: function(result) {
+    //             console.log(result);
+    //             window.location.href = result;
+    //         }
+    //     });
+    //     //  $.getJSON('/_add_order',items, function (data) {
+    //     //     console.log(data)
+    //     //     window.location.href = data;
+    //     // });
+    //     return false;
+    //     // console.log(items);
         
-    });
+    // });
 
-    $('#submit_email').bind('click','#send_email',function(){
-        var email_item={};
-        email_item['email'] = $('#email').val();
-        email_item['subject'] = $('#subject').val();
-        if(email_item['email']){
-            email_item=JSON.stringify(email_item);
-            $.ajax({
-                type : "POST",
-                url : "/_send_email",
-                data: email_item,
-                contentType: 'application/json;charset=UTF-8',
-                success: function(result) {
-                    console.log(result);
-                    window.location.href = result;
-                }
-            });
-        }
-        else{
-            alter("Please fill in email address");
-        }
-    });
+    // $('#submit_email').bind('click','#send_email',function(){
+    //     var email_item={};
+    //     email_item['email'] = $('#email').val();
+    //     email_item['subject'] = $('#subject').val();
+    //     if(email_item['email']){
+    //         email_item=JSON.stringify(email_item);
+    //         $.ajax({
+    //             type : "POST",
+    //             url : "/_send_email",
+    //             data: email_item,
+    //             contentType: 'application/json;charset=UTF-8',
+    //             success: function(result) {
+    //                 console.log(result);
+    //                 window.location.href = result;
+    //             }
+    //         });
+    //     }
+    //     else{
+    //         alter("Please fill in email address");
+    //     }
+    // });
 
     
     // $(document).on('click','a#add_stock',function(){

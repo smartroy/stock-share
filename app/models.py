@@ -225,7 +225,9 @@ class SellOrder(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     date = db.Column(db.DateTime(), default=datetime.utcnow)
     order_items = db.relationship('OrderItem', backref='sellorder', lazy='dynamic',cascade="delete")
-    customer_id = db.Column(db.Integer, db.ForeignKey('customers.id'))
+    ship_id = db.Column(db.Integer, db.ForeignKey('customers.id'))
+    bill_id = db.Column(db.Integer, db.ForeignKey('customers.id'))
+
     status = db.Column(db.Integer, default=OrderStatus.CREATED)
     total_get = db.Column(db.Float)
     total_sell = db.Column(db.Float)
@@ -276,7 +278,8 @@ class Customer(db.Model):
     cellphone = db.Column(db.Text,default=0)
     zip = db.Column(db.Text,default=0)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    orders = db.relationship('SellOrder', backref='customer', lazy='dynamic')
+    bill = db.relationship('SellOrder',backref='bill',lazy='dynamic',foreign_keys='[SellOrder.bill_id]')
+    ship = db.relationship('SellOrder',backref='ship',lazy='dynamic',foreign_keys='[SellOrder.ship_id]')
 # class Order(db.Model):
 #     __tablename__='orders'
 #     id = db.Column(db.Integer, primary_key=True)

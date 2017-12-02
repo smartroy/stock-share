@@ -14,6 +14,7 @@
 
                 <div>
                     {% if current_user.can(Permission.WRITE_ARTICLES) %}
+                    <input type="button" class="optionalBtn" onclick="location.href='{{url_for('.new_sell')}}'" value="Check" style="float:right;">
                     <div id="sellorders">{% include '_orders.html' %}</div>
                     <input type="button" class="optionalBtn" onclick="location.href='{{url_for('.new_sell')}}'" value="Add New Order" style="float:right;">
                     {% endif %}

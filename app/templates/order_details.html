@@ -14,23 +14,28 @@
 
             <div>
                 <h3>Order Status: {{status}}</h3>
-                <table class="table table-fixed">
-                    <thead>
-                    <tr>
-                        <th>Buyer</th>
-                        <th>Address</th>
-                        <th>Cellphone</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>{{order.customer.name}}</td>
-                            <td>{{order.customer.address}}</td>
-                            <td>{{order.customer.cellphone}}</td>
-
-                        </tr>
-                    </tbody>
-                </table>
+                <div id="ship_info">
+                    <label>Receiver Name: </label>
+                    {{order.ship.name}}
+                    <br>
+                    <label>Address: </label>
+                    {{order.ship.address}}
+                    <br>
+                    <label>Cellphone: </label>
+                    {{order.ship.cellphone}}
+                    <br>
+                </div>
+                <div id="bill_info">
+                    <label>Buyer Name: </label>
+                    {{order.bill.name}}
+                    <br>
+                    <label>Address: </label>
+                    {{order.bill.address}}
+                    <br>
+                    <label>Cellphone: </label>
+                    {{order.bill.cellphone}}
+                    <br>
+                </div>
                 <div>{% include '_orderitems.html' %}</div>
                 <button class="actionBtn" onclick = "location.href='{{url_for('main.order_edit',order_id=order.id)}}'">Edit</button>
                 <button class= "actionBtn" onclick = "location.href='{{url_for('.order_ship',order_id=order.id)}}'" style="float:right;">Ship All</button>

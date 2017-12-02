@@ -26,11 +26,12 @@
                     
                     {% if items[loop.index0].count > items[loop.index0].shipped_count%}
 
-                    <td><input type=text name="track" style="width:100%;"></td>
-                    <td><input type=text name="ship_qty" size=3 style="width:100%;"></td>
+                    
 
                         
                         {% if stock_items[loop.index0].count > 0%}
+                        <td><input type=text name="track" style="width:100%;"></td>
+                        <td><input type=text name="ship_qty" size=3 style="width:100%;"></td>
                         <td>
 
                             <button onclick="ship_item(this)" class="optionalBtn" style="width: 85px;height: 30px;margin: -5px;">Ship</button>

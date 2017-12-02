@@ -94,10 +94,15 @@ $(function() {
 
             }
         });
-        var buyer_name=$('[name="buyername"]').val();
-        var buyer_addr=$('#buyer_info').find('[name="address"]').val();
-        var buy_cell=$('#buyer_info').find('[name="cellphone"]').val();
-        items['buyer']={'name':buyer_name,'addr':buyer_addr,'cellphone':buy_cell};
+        var ship_name=$('#ship_info').find('[name="ship_name"]').val();
+        var ship_addr=$('#ship_info').find('[name="address"]').val();
+        var ship_cell=$('#ship_info').find('[name="cellphone"]').val();
+
+        var bill_name=$('#bill_info').find('[name="bill_name"]').val();
+        var bill_addr=$('#bill_info').find('[name="address"]').val();
+        var bill_cell=$('#bill_info').find('[name="cellphone"]').val();
+        items['bill']={'name':bill_name,'addr':bill_addr,'cellphone':bill_cell};
+        items['ship']={'name':ship_name,'addr':ship_addr,'cellphone':ship_cell};
         items = JSON.stringify(items);
         $.ajax({
             type : "POST",
