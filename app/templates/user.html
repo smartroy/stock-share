@@ -30,14 +30,51 @@
             {% endif %}
         </p>
     </div>
+    {% if current_user.can(Permission.ADMINISTER) %}
     <div id='send_email'>
         <br>To
-        <input type=text id='email'>
+        <input type=text name='email'>
         <br>Subject
-        <input type=text id='subject'>
+        <input type=text name='subject'>
         <br>
         <button class="actionBtn" type="button" id="submit_email" style='float:right;'>Send</button>
     </div>
+
+    <table id="all_user" class="table table-fixed" >
+        <thead>
+        <tr>
+
+          <th>Name</th>
+          <th>Email</th>
+          <th>Priority</th>
+          <th></th>
+          
+        </tr>
+        </thead>
+        <tbody id="products_body">
+            {% for u in users %}
+                <tr>
+                    <td>{{u.name}}/{{u.username}}</td>
+                    <td>{{u.email}}</td>
+                    <td>{{u.role.name}}</td>
+                    <td><a href="{{ url_for('main.sell_orders', user_id=u.id) }}">Orders</a></td>
+                </tr>
+
+
+            {% endfor %}
+        </tbody>
+    </table>
+    {% if current_user.can(Permission.ADD_PRODUCT)%}
+    <div id='new_service'>
+        <br>Create New Cusomner Service
+        <br>Email: <input type=text id='email'> 
+        <br><button class="actionBtn" type="button" id="add_service" style='float:right;'>Create</button>
+    </div>
+    {% endif %}
+
+
+
+    {% endif %}
 </div>
 <h3>Posts by {{ user.username }}</h3>
 {% include '_posts.html' %}

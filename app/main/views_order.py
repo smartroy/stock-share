@@ -25,19 +25,19 @@ import json
 
 
 
-@main.route('/order/sell_orders',methods=['GET','POST'])
+@main.route('/order/sell_orders/<int:user_id>',methods=['GET','POST'])
 @login_required
-def sell_orders():
+def sell_orders(user_id):
     form = CreateForm()
-    if current_user.can(Permission.WRITE_ARTICLES):
+    if current_user.can(Permission.POST_PRODUCT):
         if form.validate_on_submit():
 
             return redirect(url_for('.new_sell'))
-    # if current_user.can(Permission.WRITE_ARTICLES):
+    # if current_user.can(Permission.POST_PRODUCT):
     #     print("user can create")
     # else:
     #     print(current_user.role)
-        orders = SellOrder.query.filter_by(user_id=current_user.id).all()
+        orders = SellOrder.query.filter_by(user_id=user_id).all()
         return render_template('sellorders.html', form=form,orders=orders,status=OrderStatus.status)
     else:
         return render_template('sellorders.html')
@@ -202,7 +202,7 @@ def order_delete(order_id):
     order = SellOrder.query.get_or_404(order_id)
     delete_order(order)
     # print(order)
-    items = order.order_items.all()
+    # items = order.order_items.all()
     # print(items)
     # products = []
     # for i in range(len(items)):
@@ -222,3 +222,22 @@ def order_delete(order_id):
 @login_required
 def order_edit(order_id):
     return 0
+
+
+@main.route('/order/check',methods=['GET','POST'])
+@login_required
+def checkout():
+    dues = []
+    customers = Customer.query.filter(Customer.user_id==current_user.id).all()
+    for customer in customers:
+
+        orders = SellOrder.query.filter(and_(SellOrder.bill==customer, SellOrder.paid==False)).all()
+        if orders:
+            payer={'customer':customer,'orders':orders}
+            total_due = 0
+            for order in orders:
+                total_due += order.total_sell
+            payer['amount']=total_due
+            dues.append(payer)
+    print(dues)
+    return render_template("checkout.html",dues=dues)

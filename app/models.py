@@ -7,21 +7,24 @@ from . import login_manager
 from datetime import datetime
 import hashlib
 from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
+from sqlalchemy.orm import backref
 
 class Permission:
-    FOLLOW = 0x01
-    COMMENT = 0X02
-    WRITE_ARTICLES = 0X04
-    MODERATE_COMMENTS = 0X08
-    ADMINISTER = 0X80
+    BROWSE = 0x01
+    SHOP = 0X02
+    POST_PRODUCT = 0X04
+    ADD_PRODUCT = 0X08
+    ADMINISTER = 0Xff
 
 
 class OrderStatus:
     CREATED = 0x01
     INSTOCK = 0x02
-    SHIPPED = 0x03
-    DELIVERED = 0x04
-    status = {CREATED:"Created",INSTOCK:"In Stock",SHIPPED:"Shipped", DELIVERED:"Delivered"}
+    PAID = 0x03
+    SHIPPED = 0x04
+    DELIVERED = 0x05
+    CANCEL = 0x90
+    status = {CREATED:"Created",PAID:"Paid",INSTOCK:"In Stock",SHIPPED:"Shipped", DELIVERED:"Delivered", CANCEL:"Canceled"}
 
 class Operation:
     CREATE = 0x01
@@ -44,9 +47,9 @@ class Role(db.Model):
     @staticmethod
     def insert_roles():
         roles = {
-            'User':(Permission.FOLLOW | Permission.COMMENT | Permission.WRITE_ARTICLES, True),
-            'Moderator':(Permission.FOLLOW | Permission.COMMENT |
-                         Permission.WRITE_ARTICLES | Permission.MODERATE_COMMENTS, False),
+            'User':(Permission.BROWSE | Permission.SHOP | Permission.POST_PRODUCT, True),
+            'Moderator':(Permission.BROWSE | Permission.SHOP |
+                         Permission.POST_PRODUCT | Permission.ADD_PRODUCT, False),
             'Administrator': (0xff, False)
         }
         for r in roles:
@@ -77,17 +80,18 @@ class User(UserMixin,db.Model):
     stock = db.relationship('Stock', uselist=False, backref='user')
     sell_orders = db.relationship('SellOrder', backref='user', lazy='dynamic')
     customers = db.relationship('Customer', backref='user', lazy='dynamic')
-
+    parent_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    children = db.relationship('Customer',backref=backref('parent', remote_side=[id]))
     def __init__(self, **kwargs):
         super(User,self).__init__(**kwargs)
         print('creating user')
         if self.role is None:
             print('assign role')
             if self.email == current_app.config['FLASKY_ADMIN']:
-                print('admin')
+                # print('admin')
                 self.role = Role.query.filter_by(permissions=0xff).first()
             if self.role is None:
-                print('normal')
+                # print('normal')
                 print(Role.query.filter_by(default=True).first())
 
                 self.role = Role.query.filter_by(default=True).first()
@@ -225,8 +229,10 @@ class SellOrder(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     date = db.Column(db.DateTime(), default=datetime.utcnow)
     order_items = db.relationship('OrderItem', backref='sellorder', lazy='dynamic',cascade="delete")
-    ship_id = db.Column(db.Integer, db.ForeignKey('customers.id'))
+    # ship_id = db.Column(db.Integer, db.ForeignKey('customers.id'))
     bill_id = db.Column(db.Integer, db.ForeignKey('customers.id'))
+    ship_addr= db.Column(db.Text)
+    paid = db.Column(db.Boolean,default=False)
 
     status = db.Column(db.Integer, default=OrderStatus.CREATED)
     total_get = db.Column(db.Float)
@@ -267,6 +273,7 @@ class Shipment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     count = db.Column(db.Integer, default=0)
     track = db.Column(db.Text)
+    status = db.Column(db.Text, default='Shipping')
     orderitem_id = db.Column(db.Integer, db.ForeignKey('order_items.id'))
 
 
@@ -279,7 +286,7 @@ class Customer(db.Model):
     zip = db.Column(db.Text,default=0)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     bill = db.relationship('SellOrder',backref='bill',lazy='dynamic',foreign_keys='[SellOrder.bill_id]')
-    ship = db.relationship('SellOrder',backref='ship',lazy='dynamic',foreign_keys='[SellOrder.ship_id]')
+    # ship = db.relationship('SellOrder',backref='ship',lazy='dynamic',foreign_keys='[SellOrder.ship_id]')
 # class Order(db.Model):
 #     __tablename__='orders'
 #     id = db.Column(db.Integer, primary_key=True)

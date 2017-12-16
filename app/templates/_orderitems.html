@@ -30,7 +30,7 @@
 
                         
                         {% if stock_items[loop.index0].count > 0%}
-                        <td><input type=text name="track" style="width:100%;"></td>
+                        
                         <td><input type=text name="ship_qty" size=3 style="width:100%;"></td>
                         <td>
 
@@ -39,9 +39,13 @@
                         </td>
                         {% endif %}
                         
-                    {% else %}
-                        <td>Shiped</td>
+                    
+                        
                     {% endif%}
+                    {% for shipment in item.shipment %}
+                        <td>{{shipment.status}}</td>
+                        <td>{{shipment.track}}</td>
+                    {% endfor %}
                     
                 </tr>
 

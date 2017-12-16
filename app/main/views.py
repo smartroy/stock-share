@@ -29,10 +29,10 @@ from ..email import send_email
 @login_required
 def index():
     form = CreateForm()
-    if current_user.can(Permission.WRITE_ARTICLES):
+    if current_user.can(Permission.POST_PRODUCT):
         if form.validate_on_submit():
             return redirect(url_for('.new_stock'))
-    # if current_user.can(Permission.WRITE_ARTICLES):
+    # if current_user.can(Permission.POST_PRODUCT):
     #     print("user can create")
     # else:
     #     print(current_user.role)
@@ -53,7 +53,102 @@ def index():
 def post_product(upc):
     pass
 
+@main.route('/user/customer',methods=['GET','POST'])
+def my_customer():
+    customers = Customer.query.filter_by(user_id=current_user.id).all()
+    return render_template('my_customers.html',customers=customers)
 
+
+@main.route('/user/customers/delete/<int:customer_id>',methods=['GET','POST'])
+@login_required
+def customer_delete(customer_id):
+    customer = Customer.query.get_or_404(customer_id)
+    # print(order)
+    db.session.delete(customer)
+    db.session.commit()
+    return redirect(url_for('.my_customer'))
+
+
+@main.route('/user/customers/edit/<int:customer_id>',methods=['GET','POST'])
+@login_required
+def customer_edit(customer_id):
+    customer = Customer.query.get_or_404(customer_id)
+    if request.method == 'POST':
+        customer.name = request.form['name']
+        customer.address = request.form['address']
+        customer.cellphone = request.form['cellphone']
+        return redirect(url_for('.my_customer'))
+    return render_template('customer_details.html',customer=customer)
+
+
+@main.route('/user/<username>')
+@login_required
+def user(username):
+    # if not current_user.can(Permission.BROWSE):
+    #     return redirect(url_for('.index'))
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        abort(404)
+    if current_user.can(0xff):
+        users = User.query.all()
+    return render_template('user.html', user=user, users=users)
+
+
+
+
+
+@main.route('/edit_profile', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    form = EditProfileForm()
+    if form.validate_on_submit():
+        current_user.name = form.name.data
+        current_user.location = form.location.data
+        current_user.about_me = form.about_me.data
+        db.session.add(current_user)
+        flash('Your profile has been updated.')
+        return redirect(url_for('.user', username=current_user.username))
+    form.name.data = current_user.name
+    form.location.data = current_user.location
+    form.about_me.data = current_user.about_me
+    return render_template('edit_profile.html', form=form)
+
+
+@main.route('/edit-profile/<int:id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def edit_profile_admin(id):
+    user = User.query.get_or_404(id)
+    form = EditProfileAdminForm(user=user)
+    if form.validate_on_submit():
+        user.email = form.email.data
+        user.username = form.username.data
+        user.confirmed = form.confirmed.data
+        user.role = Role.query.get(form.role.data)
+        user.name = form.name.data
+        user.location = form.location.data
+        user.about_me = form.about_me.data
+        db.session.add(user)
+        flash('The profile has been updated.')
+        return redirect(url_for('.user', username=user.username))
+    form.email.data = user.email
+    form.username.data = user.username
+    form.confirmed.data = user.confirmed
+    form.role.data = user.role_id
+    form.name.data = user.name
+    form.location.data = user.location
+    form.about_me.data = user.about_me
+    return render_template('edit_profile.html', form=form, user=user)
+
+
+@main.route('/_send_email', methods=['GET', 'POST'])
+@login_required
+def email_handle():
+    data = request.get_json()
+    print(data)
+    send_email(data['email'], data['subject'], 'auth/email/confirm', user=user,token='')
+
+    return jsonify(request.referrer)
 # @main.route('/stock/new',methods=['GET','POST'])
 # def new_stock():
 #     form = NewStockForm()
@@ -142,11 +237,11 @@ def post_product(upc):
 # @main.route('/order/sell_orders',methods=['GET','POST'])
 # def sell_orders():
 #     form = CreateForm()
-#     if current_user.can(Permission.WRITE_ARTICLES):
+#     if current_user.can(Permission.POST_PRODUCT):
 #         if form.validate_on_submit():
 #
 #             return redirect(url_for('.new_sell'))
-#     # if current_user.can(Permission.WRITE_ARTICLES):
+#     # if current_user.can(Permission.POST_PRODUCT):
 #     #     print("user can create")
 #     # else:
 #     #     print(current_user.role)
@@ -233,32 +328,7 @@ def post_product(upc):
 #     return 0
 
 
-@main.route('/user/customer',methods=['GET','POST'])
-def my_customer():
-    customers = Customer.query.filter_by(user_id=current_user.id).all()
-    return render_template('my_customers.html',customers=customers)
 
-
-@main.route('/user/customers/delete/<int:customer_id>',methods=['GET','POST'])
-@login_required
-def customer_delete(customer_id):
-    customer = Customer.query.get_or_404(customer_id)
-    # print(order)
-    db.session.delete(customer)
-    db.session.commit()
-    return redirect(url_for('.my_customer'))
-
-
-@main.route('/user/customers/edit/<int:customer_id>',methods=['GET','POST'])
-@login_required
-def customer_edit(customer_id):
-    customer = Customer.query.get_or_404(customer_id)
-    if request.method == 'POST':
-        customer.name = request.form['name']
-        customer.address = request.form['address']
-        customer.cellphone = request.form['cellphone']
-        return redirect(url_for('.my_customer'))
-    return render_template('customer_details.html',customer=customer)
 
 
 # def create_sell(upc=None, sku=None, name=None, price=0, buyer=None, address=None, description=None):
@@ -360,73 +430,7 @@ def customer_edit(customer_id):
 
 
 
-@main.route('/user/<username>')
-@login_required
-def user(username):
-    # if not current_user.can(Permission.FOLLOW):
-    #     return redirect(url_for('.index'))
-    user = User.query.filter_by(username=username).first()
-    if user is None:
-        abort(404)
-    posts = user.posts.order_by(Post.timestamp.desc()).all()
-    return render_template('user.html', user=user, post=posts)
 
-
-
-
-
-@main.route('/edit_profile', methods=['GET', 'POST'])
-@login_required
-def edit_profile():
-    form = EditProfileForm()
-    if form.validate_on_submit():
-        current_user.name = form.name.data
-        current_user.location = form.location.data
-        current_user.about_me = form.about_me.data
-        db.session.add(current_user)
-        flash('Your profile has been updated.')
-        return redirect(url_for('.user', username=current_user.username))
-    form.name.data = current_user.name
-    form.location.data = current_user.location
-    form.about_me.data = current_user.about_me
-    return render_template('edit_profile.html', form=form)
-
-
-@main.route('/edit-profile/<int:id>', methods=['GET', 'POST'])
-@login_required
-@admin_required
-def edit_profile_admin(id):
-    user = User.query.get_or_404(id)
-    form = EditProfileAdminForm(user=user)
-    if form.validate_on_submit():
-        user.email = form.email.data
-        user.username = form.username.data
-        user.confirmed = form.confirmed.data
-        user.role = Role.query.get(form.role.data)
-        user.name = form.name.data
-        user.location = form.location.data
-        user.about_me = form.about_me.data
-        db.session.add(user)
-        flash('The profile has been updated.')
-        return redirect(url_for('.user', username=user.username))
-    form.email.data = user.email
-    form.username.data = user.username
-    form.confirmed.data = user.confirmed
-    form.role.data = user.role_id
-    form.name.data = user.name
-    form.location.data = user.location
-    form.about_me.data = user.about_me
-    return render_template('edit_profile.html', form=form, user=user)
-
-
-@main.route('/_send_email', methods=['GET', 'POST'])
-@login_required
-def email_handle():
-    data = request.get_json()
-    print(data)
-    send_email(data['email'], data['subject'], 'auth/email/confirm', user=user,token='')
-
-    return jsonify(request.referrer)
 
 
 

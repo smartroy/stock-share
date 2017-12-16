@@ -97,10 +97,10 @@ def stock_item_post(item_id):
 @login_required
 def post_all():
     form = CreateForm()
-    if current_user.can(Permission.WRITE_ARTICLES):
+    if current_user.can(Permission.POST_PRODUCT):
         if form.validate_on_submit():
             return redirect(url_for('.new_stock'))
-            # if current_user.can(Permission.WRITE_ARTICLES):
+            # if current_user.can(Permission.POST_PRODUCT):
             #     print("user can create")
             # else:
             #     print(current_user.role)

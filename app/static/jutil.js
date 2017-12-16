@@ -125,8 +125,8 @@ $(function() {
 
     $('#submit_email').bind('click','#send_email',function(){
         var email_item={};
-        email_item['email'] = $('#email').val();
-        email_item['subject'] = $('#subject').val();
+        email_item['email'] = $('#send_email').find('[name="email"]').val();
+        email_item['subject'] = $('#send_email').find('[name="subject"]').val();
         if(email_item['email']){
             email_item=JSON.stringify(email_item);
             $.ajax({
@@ -144,7 +144,7 @@ $(function() {
             alter("Please fill in email address");
         }
     });
-
+    
     
     // $(document).on('click','a#add_stock',function(){
     //     $.getJSON('/_add_stock',{

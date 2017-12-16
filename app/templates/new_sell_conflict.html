@@ -16,7 +16,7 @@
         Stranger
     {% endif %}</h1>
     <div>
-        {% if current_user.can(Permission.WRITE_ARTICLES) %}
+        {% if current_user.can(Permission.POST_PRODUCT) %}
         <div id="stock_search">
             <select id="source">
                 <option value="NONE">NONE</option>

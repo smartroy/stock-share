@@ -9,7 +9,7 @@
             <h1>Add New Products</h1>
 
         </div>
-        {% if current_user.can(Permission.WRITE_ARTICLES) %}
+        {% if current_user.can(Permission.ADD_PRODUCT) %}
         <div>Upload Product File</p>
         	<form method=post enctype=multipart/form-data>
 		      <p><input type=file name=file></p>
