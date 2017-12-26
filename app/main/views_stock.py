@@ -20,13 +20,14 @@ from json import dumps
 from base64 import b64encode
 from datetime import datetime, timedelta
 from .forms import CreateForm, SellForm, SellItemForm
-from .util import create_customer,create_stock_item,create_product, create_item, create_post,update_stock
+from .util import create_customer,create_stock_item,create_product, create_item, create_post,update_stock,get_parent
 from bson import ObjectId
 
 
 @main.route('/stock/new',methods=['GET','POST'])
 @login_required
 def new_stock():
+    sale_user = get_parent()
     sources = []
     cursor = mongo.db.sources.find({})
     for doc in cursor:
@@ -37,18 +38,18 @@ def new_stock():
         if form.upc.data is not None:
             product = mongo.db.products.find_one({"upc":form.upd.data})
         if product is not None:
-            stock_item = StockItem.query.filter_by(product_id=str(product["_id"]),stock_id=current_user.stock.id).first()
+            stock_item = StockItem.query.filter_by(product_id=str(product["_id"]),stock_id=sale_user.stock.id).first()
             if stock_item is not None:
                 stock_item.count+=1
                 db.session.commit()
             else:
-                stock_item = create_stock_item(product_id=str(product["_id"]),stock=current_user.stock, price=form.price.data)
+                stock_item = create_stock_item(product_id=str(product["_id"]),stock=sale_user.stock, price=form.price.data)
                 db.session.add(stock_item)
                 db.session.commit()
 
         else:
             product_id = create_product(name=form.name.data, upc=form.upc.data, sku=form.sku.data,brand=form.brand.data)
-            stock_item = create_stock_item(product_id=product_id, stock=current_user.stock, price=form.price.data)
+            stock_item = create_stock_item(product_id=product_id, stock=sale_user.stock, price=form.price.data)
             db.session.add(stock_item)
             db.session.commit()
 
@@ -59,6 +60,7 @@ def new_stock():
 @main.route('/stock/shopping',methods=['GET','POST'])
 @login_required
 def shopping_list():
+    sale_user = get_parent()
     # if request.method == 'POST':
     #     shop_data = request.get_json()
     #     for key, value in shop_data.items():
@@ -66,7 +68,7 @@ def shopping_list():
     #             and_(StockItem.product_id == str(key), StockItem.stock == current_user.stock)).first()
     #         stock_item
 
-    stocks=StockItem.query.filter(and_(StockItem.need_count>0, StockItem.stock == current_user.stock)).order_by(StockItem.id.desc()).all()
+    stocks=StockItem.query.filter(and_(StockItem.need_count>0, StockItem.stock == sale_user.stock)).order_by(StockItem.id.desc()).all()
     products = []
     for i in range(len(stocks)):
         product = mongo.db.products.find_one({'_id': ObjectId(stocks[i].product_id)})
@@ -81,13 +83,14 @@ def shopping_list():
 @main.route('/stock/item_post/<int:item_id>')
 @login_required
 def stock_item_post(item_id):
+    sale_user = get_parent()
     item = StockItem.query.filter(StockItem.id==item_id).first()
 
-    post = Post.query.filter(Post.stockitem_id==item.id, Post.user_id==current_user.id).all()
+    post = Post.query.filter(Post.stockitem_id==item.id, Post.user_id==sale_user.id).all()
     print(post)
     if not post:
         print('create new post')
-        post = create_post(user=current_user, stockitem=item, product_id=item.product_id, description=None)
+        post = create_post(user=sale_user, stockitem=item, product_id=item.product_id, description=None)
         db.session.add(post)
         db.session.commit()
     return redirect(url_for('.post_all'))
@@ -96,14 +99,15 @@ def stock_item_post(item_id):
 @main.route('/post/all')
 @login_required
 def post_all():
+    sale_user = get_parent()
     form = CreateForm()
-    if current_user.can(Permission.POST_PRODUCT):
+    if sale_user.can(Permission.POST_PRODUCT):
         if form.validate_on_submit():
             return redirect(url_for('.new_stock'))
-            # if current_user.can(Permission.POST_PRODUCT):
+            # if sale_user.can(Permission.POST_PRODUCT):
             #     print("user can create")
             # else:
-            #     print(current_user.role)
+            #     print(sale_user.role)
         posts = Post.query.all()
         products = []
         for i in range(len(posts)):
@@ -114,13 +118,14 @@ def post_all():
         return render_template('post.html', form=form, posts=posts, products=products)
     else:
         return render_template('post.html')
-    # post=Post.query.filter_by(user_id=current_user.id).all()
+    # post=Post.query.filter_by(user_id=sale_user.id).all()
 
 
 
 @main.route('/stock/item_edit/<int:item_id>',methods=['GET','POST'])
 @login_required
 def stock_item_edit(item_id):
+    sale_user = get_parent()
     stock_item = StockItem.query.get_or_404(item_id)
     product = mongo.db.products.find_one({'_id':ObjectId(stock_item.product_id)})
     if request.method == 'POST':
@@ -150,11 +155,12 @@ def stock_item_delete(item_id):
 @main.route('/_add_stock',methods=['GET','POST'])
 @login_required
 def add_stock():
+    sale_user = get_parent()
     stock_data = request.get_json()
     for key, value in stock_data.items():
-        stock_item = StockItem.query.filter(and_(StockItem.product_id == str(key), StockItem.stock == current_user.stock)).first()
+        stock_item = StockItem.query.filter(and_(StockItem.product_id == str(key), StockItem.stock == sale_user.stock)).first()
         if not stock_item:
-            stock_item = create_stock_item(product_id=str(key), stock=current_user.stock)
+            stock_item = create_stock_item(product_id=str(key), stock=sale_user.stock)
             db.session.add(stock_item)
         update_stock(order_item=None, stock_item=stock_item, action=Operation.ADDSTOCK,new_qty=int(value['qty']),price=float(value['price']))
 

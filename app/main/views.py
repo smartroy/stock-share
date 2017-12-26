@@ -19,7 +19,7 @@ from json import dumps
 from base64 import b64encode
 from datetime import datetime, timedelta
 from .forms import CreateForm, SellForm, SellItemForm
-from .util import create_customer,create_stock_item,create_product, create_item, inventory_add
+from .util import get_parent,create_customer,create_stock_item,create_product, create_item, inventory_add
 from bson import ObjectId
 from ..email import send_email
 
@@ -28,15 +28,16 @@ from ..email import send_email
 @main.route('/', methods=['GET', 'POST'])
 @login_required
 def index():
+    sale_user = get_parent()
     form = CreateForm()
     if current_user.can(Permission.POST_PRODUCT):
         if form.validate_on_submit():
             return redirect(url_for('.new_stock'))
-    # if current_user.can(Permission.POST_PRODUCT):
+    # if sale_user.can(Permission.POST_PRODUCT):
     #     print("user can create")
     # else:
-    #     print(current_user.role)
-        stocks = StockItem.query.filter_by(stock_id=current_user.stock.id).order_by(StockItem.id.desc()).all()
+    #     print(sale_user.role)
+        stocks = StockItem.query.filter_by(stock_id=sale_user.stock.id).order_by(StockItem.id.desc()).all()
         products=[]
         for i in range(len(stocks)):
             product = mongo.db.products.find_one({'_id':ObjectId(stocks[i].product_id)})
@@ -55,7 +56,8 @@ def post_product(upc):
 
 @main.route('/user/customer',methods=['GET','POST'])
 def my_customer():
-    customers = Customer.query.filter_by(user_id=current_user.id).all()
+    sale_user = get_parent()
+    customers = Customer.query.filter_by(user_id=sale_user.id).all()
     return render_template('my_customers.html',customers=customers)
 
 
@@ -81,20 +83,18 @@ def customer_edit(customer_id):
     return render_template('customer_details.html',customer=customer)
 
 
-@main.route('/user/<username>')
+@main.route('/user/<int:user_id>')
 @login_required
-def user(username):
-    # if not current_user.can(Permission.BROWSE):
+def user(user_id):
+    # if not sale_user.can(Permission.BROWSE):
     #     return redirect(url_for('.index'))
-    user = User.query.filter_by(username=username).first()
+    user = User.query.filter_by(id=user_id).first()
+    users=[]
     if user is None:
         abort(404)
     if current_user.can(0xff):
         users = User.query.all()
     return render_template('user.html', user=user, users=users)
-
-
-
 
 
 @main.route('/edit_profile', methods=['GET', 'POST'])
@@ -105,9 +105,9 @@ def edit_profile():
         current_user.name = form.name.data
         current_user.location = form.location.data
         current_user.about_me = form.about_me.data
-        db.session.add(current_user)
+        db.session.commit()
         flash('Your profile has been updated.')
-        return redirect(url_for('.user', username=current_user.username))
+        return redirect(url_for('.user', username=sale_user.username))
     form.name.data = current_user.name
     form.location.data = current_user.location
     form.about_me.data = current_user.about_me
@@ -149,6 +149,29 @@ def email_handle():
     send_email(data['email'], data['subject'], 'auth/email/confirm', user=user,token='')
 
     return jsonify(request.referrer)
+
+
+@main.route('/_add_service',methods=['GET', 'POST'])
+@login_required
+def add_child():
+    data = request.get_json()
+    print(data)
+    if User.query.filter_by(email=data['email']).first():
+        flash('email has been registered')
+        return jsonify(request.referrer)
+
+    user = User(email=data['email'],
+                username='',
+                password='stockshare',
+                parent_id=current_user.id,
+                )
+    print(user.role)
+    db.session.add(user)
+    db.session.commit()
+    token = user.generate_confirmation_token()
+    send_email(user.email, 'Confirm your account', 'auth/email/confirm', user=user, token=token)
+    flash('A confirmation email has been sent to you by email.')
+    return jsonify(request.referrer)
 # @main.route('/stock/new',methods=['GET','POST'])
 # def new_stock():
 #     form = NewStockForm()
@@ -157,18 +180,18 @@ def email_handle():
 #         if form.upc.data is not None:
 #             product = mongo.db.products.find_one({"upc":form.upd.data})
 #         if product is not None:
-#             stock_item = StockItem.query.filter_by(product_id=str(product["_id"]),stock_id=current_user.stock.id).first()
+#             stock_item = StockItem.query.filter_by(product_id=str(product["_id"]),stock_id=sale_user.stock.id).first()
 #             if stock_item is not None:
 #                 stock_item.count+=1
 #                 db.session.commit()
 #             else:
-#                 stock_item = create_stock_item(product_id=str(product["_id"]),stock=current_user.stock, price=form.price.data)
+#                 stock_item = create_stock_item(product_id=str(product["_id"]),stock=sale_user.stock, price=form.price.data)
 #                 db.session.add(stock_item)
 #                 db.session.commit()
 #
 #         else:
 #             product_id = create_product(name=form.name.data, upc=form.upc.data, sku=form.sku.data,brand=form.brand.data)
-#             stock_item = create_stock_item(product_id=product_id, stock=current_user.stock, price=form.price.data)
+#             stock_item = create_stock_item(product_id=product_id, stock=sale_user.stock, price=form.price.data)
 #             db.session.add(stock_item)
 #             db.session.commit()
 #
@@ -176,22 +199,22 @@ def email_handle():
 #     return render_template('new_stock.html', form=form)
     #         product = Product.query.filter_by(upc=form.upc.data).first()
     #         if product is not None:
-    #             stock_item = StockItem.query.filter_by(product_id=product.id, stock_id=current_user.stock.id).first()
+    #             stock_item = StockItem.query.filter_by(product_id=product.id, stock_id=sale_user.stock.id).first()
     #             if stock_item is not None:
     #                 stock_item.count += 1
     #                 db.session.commit()
     #             else:
-    #                 stock_item = create_stock_item(product=product, stock=current_user.stock, price=form.price.data)
+    #                 stock_item = create_stock_item(product=product, stock=sale_user.stock, price=form.price.data)
     #                 db.session.add(stock_item)
     #                 db.session.commit()
     #         else:
     #             product = create_product(name = form.name.data, upc=form.upc.data, sku=form.sku.data)
-    #             stock_item = create_stock_item(product=product, stock=current_user.stock, price=form.price.data)
+    #             stock_item = create_stock_item(product=product, stock=sale_user.stock, price=form.price.data)
     #             db.session.add(product)
     #             db.session.add(stock_item)
     #             db.session.commit()
     #     else:
-    #         stock_item=create_stock_item(name = form.name.data, stock=current_user.stock, price=form.price.data)
+    #         stock_item=create_stock_item(name = form.name.data, stock=sale_user.stock, price=form.price.data)
     #         db.session.add(stock_item)
     #         db.session.commit()
     #     return redirect(url_for('.index'))
@@ -203,10 +226,10 @@ def email_handle():
 # def add_stock():
 #     product_id = request.args.get('product_id',type=str)
 #     price = request.args.get('price',type=float)
-#     item = StockItem.query.filter(StockItem.product_id==product_id, StockItem.stock_id==current_user.stock.id).all()
+#     item = StockItem.query.filter(StockItem.product_id==product_id, StockItem.stock_id==sale_user.stock.id).all()
 #     if not item:
 #         # print("item not found")
-#         item = create_stock_item(product_id=product_id, stock=current_user.stock,price=price)
+#         item = create_stock_item(product_id=product_id, stock=sale_user.stock,price=price)
 #         db.session.add(item)
 #     else:
 #         new_count = int(request.args.get('qty',type=int))
@@ -237,15 +260,15 @@ def email_handle():
 # @main.route('/order/sell_orders',methods=['GET','POST'])
 # def sell_orders():
 #     form = CreateForm()
-#     if current_user.can(Permission.POST_PRODUCT):
+#     if sale_user.can(Permission.POST_PRODUCT):
 #         if form.validate_on_submit():
 #
 #             return redirect(url_for('.new_sell'))
-#     # if current_user.can(Permission.POST_PRODUCT):
+#     # if sale_user.can(Permission.POST_PRODUCT):
 #     #     print("user can create")
 #     # else:
-#     #     print(current_user.role)
-#         orders = SellOrder.query.filter_by(user_id=current_user.id).all()
+#     #     print(sale_user.role)
+#         orders = SellOrder.query.filter_by(user_id=sale_user.id).all()
 #         return render_template('sellorders.html', form=form,orders=orders)
 #     else:
 #         return render_template('sellorders.html')
@@ -257,10 +280,10 @@ def email_handle():
 #     if request.method=='POST':
 #         customer = Customer.query.filter(and_(Customer.name==request.form['buyername'], Customer.cellphone==request.form['cellphone'])).first()
 #         if customer is None:
-#             customer = create_customer(user=current_user, name=request.form['buyername'],
+#             customer = create_customer(user=sale_user, name=request.form['buyername'],
 #                                    address=request.form['address'], cellphone=request.form['cellphone'])
 #             db.session.add(customer)
-#         order = SellOrder(user=current_user, customer=customer)
+#         order = SellOrder(user=sale_user, customer=customer)
 #
 #         db.session.add(order)
 #         upcs = request.form.getlist('upc')
@@ -271,12 +294,12 @@ def email_handle():
 #         for i in range(len(upcs)):
 #             product = mongo.db.products.find_one({"upc":upcs[i]})
 #             if product is not None:
-#                 stock_item = StockItem.query.filter(and_(StockItem.product_id==str(product['_id']), StockItem.stock==current_user.stock)).first()
+#                 stock_item = StockItem.query.filter(and_(StockItem.product_id==str(product['_id']), StockItem.stock==sale_user.stock)).first()
 #                 if stock_item:
 #                     print(stock_item.count)
 #                     stock_item.count = stock_item.count - int(counts[i])
 #                 else:
-#                     stock_item = create_stock_item(product_id=str(product['_id']),stock=current_user.stock)
+#                     stock_item = create_stock_item(product_id=str(product['_id']),stock=sale_user.stock)
 #                     stock_item.count = 0 - int(counts[i])
 #                     db.session.add(stock_item)
 #             order_item = OrderItem(sell_price=float(prices[i]), count= int(counts[i]), sellorder=order)
@@ -292,8 +315,8 @@ def email_handle():
     #
     #     if not (item_form.name.data is None and item_form.upc.data==0):
     #         print('new order')
-    #         customer = create_customer(user=current_user, name=sell_form.buyer.data, address=sell_form.address.data,zip=0,cellphone=0)
-    #         order = SellOrder(user=current_user, customer=customer)
+    #         customer = create_customer(user=sale_user, name=sell_form.buyer.data, address=sell_form.address.data,zip=0,cellphone=0)
+    #         order = SellOrder(user=sale_user, customer=customer)
     #         db.session.add(customer)
     #         db.session.add(order)
     #         db.session.commit()
@@ -340,10 +363,10 @@ def email_handle():
 # @login_required
 # def list_products():
 #     #products = Product.query.all()
-#     if current_user.is_administrator():
+#     if sale_user.is_administrator():
 #         products = mongo.db.products.find()
 #     else:
-#         products = mongo.db.products.find({"user":current_user.id})
+#         products = mongo.db.products.find({"user":sale_user.id})
 #     return render_template("products.html", products=products)
 #
 # def allowed_file(filename):
@@ -382,13 +405,13 @@ def email_handle():
                 # if not product:
                 #     create_product(brand=data[0], name=data[1], nick_name=data[2], sku=data[3], size=data[4], color=data[5],p_color=data[6], upc=data[7], source=data[8], figure=[])
                 # else:
-                #     if not (current_user.id in product["user"]):
-                #         mongo.db.products.update({"_id": product["_id"]}, {'$push': {"user": current_user.id}})
+                #     if not (sale_user.id in product["user"]):
+                #         mongo.db.products.update({"_id": product["_id"]}, {'$push': {"user": sale_user.id}})
                 #         source = product["source"]
-                #         if not mongo.db.sources.find_one({"$and": [{"source":source},{"user":current_user.id}]}):
-                #             mongo.db.sources.update({"source":source},{'$push':{"user":current_user.id}})
+                #         if not mongo.db.sources.find_one({"$and": [{"source":source},{"user":sale_user.id}]}):
+                #             mongo.db.sources.update({"source":source},{'$push':{"user":sale_user.id}})
 
-                        # product["user"].append(current_user.id)
+                        # product["user"].append(sale_user.id)
     #     return redirect(url_for('.list_products'))
     # return render_template('new_products.html')
 
@@ -416,13 +439,13 @@ def email_handle():
 #             #     product_id = create_product(brand=brands[i], name=names[i], nick_name=names[i], upc=upcs[i],size=sizes[i],color=colors[i],source=sources[i])
 #             # else:
 #             #     # print(product)
-#             #     # print(current_user.id)
-#             #     if not (current_user.id in product["user"]):
-#             #         mongo.db.products.update({"_id":product["_id"]},{'$push':{"user":current_user.id}})
+#             #     # print(sale_user.id)
+#             #     if not (sale_user.id in product["user"]):
+#             #         mongo.db.products.update({"_id":product["_id"]},{'$push':{"user":sale_user.id}})
 #             #         source = product["source"]
-#             #         if not mongo.db.sources.find_one({"$and": [{"source": source}, {"user": current_user.id}]}):
-#             #             mongo.db.sources.update({"source": source}, {'$push': {"user": current_user.id}})
-#             #         # product["user"].append(current_user.id)
+#             #         if not mongo.db.sources.find_one({"$and": [{"source": source}, {"user": sale_user.id}]}):
+#             #             mongo.db.sources.update({"source": source}, {'$push': {"user": sale_user.id}})
+#             #         # product["user"].append(sale_user.id)
 #             #     # print(product)
 #     return render_template('new_products.html')
 

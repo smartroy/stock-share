@@ -2,7 +2,7 @@ from flask import render_template, redirect, request, url_for, flash, request
 from flask_login import login_user, login_required, logout_user
 from . import auth
 from ..models import User
-from .forms import LoginForm, RegistrationForm, ChangeEmailForm, ChangePasswordForm, PasswordResetForm,PasswordResetRequestForm
+from .forms import LoginForm, RegistrationForm, ChangeEmailForm, ChangePasswordForm, PasswordResetForm,PasswordResetRequestForm, ChangeInitialForm
 from .. import db
 from ..email import send_email
 from flask_login import current_user
@@ -56,6 +56,24 @@ def before_request():
         if not current_user.confirmed \
             and request.endpoint[:5]!='auth.':
             return redirect(url_for('auth.unconfirmed'))
+        if ((not current_user.username) or current_user.verify_password('stockshare')) and request.endpoint[:5]!='auth.':
+            return redirect(url_for('auth.change_initial'))
+
+
+@auth.route('/change_initial',methods=['GET','POST'])
+def change_initial():
+    form = ChangeInitialForm()
+    form.username.data = current_user.username
+    if current_user.is_anonymous or  (current_user.username and not current_user.verify_password('stockshare')):
+        return redirect(url_for('main.index'))
+    if form.validate_on_submit():
+        current_user.username = form.username.data
+        # print(form.password.data)
+        current_user.password = form.password.data
+        # db.session.add(current_user)
+        db.session.commit()
+        return redirect(url_for('main.index'))
+    return render_template('auth/change_initial.html',form=form)
 
 
 @auth.route('/unconfirmed')

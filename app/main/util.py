@@ -80,8 +80,9 @@ def delete_order(order):
 
 
 def delete_orderItem(item):
+    sale_user = get_parent()
     stock_item = StockItem.query.filter(
-        and_(StockItem.product_id == item.product_id, StockItem.stock == current_user.stock)).first()
+        and_(StockItem.product_id == item.product_id, StockItem.stock == sale_user.stock)).first()
     # print(product)
     # product['_id'] = str(product['_id'])
 
@@ -96,30 +97,66 @@ def delete_orderItem(item):
     db.session.commit()
 
 
-def update_stock(order_item,stock_item, action,new_qty=0,price=0,ship_qty=0):
-    if action == Operation.CREATE:
-        stock_item.order_count += order_item.count
+def update_stock(**kwargs):
+    sale_user = get_parent()
+    # sale_user = get_parent()
+    if kwargs['action'] == Operation.CREATE:
+        kwargs['stock_item'].order_count += kwargs['order_item'].count
         db.session.commit()
-    elif action == Operation.SHIP:
-        stock_item.count -= ship_qty
-        stock_item.shipped_count += ship_qty
-        order_item.shipped_count += ship_qty
-        if order_item.count<= order_item.shipped_count:
-            order_item.status = OrderStatus.SHIPPED
-        shipment = Shipment(count=ship_qty, orderitem=order_item)
+    elif kwargs['action'] == Operation.SHIP:
+        ship_info=kwargs['ship_info']
+        kwargs['stock_item'].count -= int(ship_info['qty'])
+        kwargs['stock_item'].shipped_count += int(ship_info['qty'])
+        kwargs['order_item'].shipped_count += int(ship_info['qty'])
+        if kwargs['order_item'].count <= kwargs['order_item'].shipped_count:
+            kwargs['order_item'].status = OrderStatus.SHIPPED
+        shipment = Shipment(count=int(ship_info['qty']),name=ship_info['name'],cell=ship_info['cell'],addr=ship_info['addr'], orderitem=kwargs['order_item'])
         db.session.add(shipment)
-
         db.session.commit()
-    elif action == Operation.ADDSTOCK:
-        stock_item.price = (stock_item.count * stock_item.price + price * new_qty)/(stock_item.count + new_qty)
-        stock_item.count += new_qty
-        purchase = PurchaseItem(count=new_qty, get_price=price, product_id=stock_item.product_id)
+    elif kwargs['action'] == Operation.SHIP_CANCEL:
+        shipment = kwargs['shipment']
+        stock_item = kwargs['stock_item']
+        order_item = shipment.orderitem
+        stock_item.count += shipment.count
+        stock_item.shipped_count -= shipment.count
+        order_item.shipped_count -= shipment.count
+        if order_item.shipped_count < order_item.count:
+            order_item.status = OrderStatus.CREATED
+        db.session.delete(shipment)
+        db.session.commit()
+
+    elif kwargs['action'] == Operation.ADDSTOCK:
+        kwargs['stock_item'].price = (kwargs['stock_item'].count * kwargs['stock_item'].price +
+                                                kwargs['price'] * kwargs['new_qty']) / (
+                                               kwargs['stock_item'].count + kwargs['new_qty'])
+        kwargs['stock_item'].count += kwargs['new_qty']
+        purchase = PurchaseItem(count=kwargs['new_qty'], get_price = kwargs['price'], product_id = kwargs[
+            'stock_item'].product_id)
         db.session.add(purchase)
         db.session.commit()
+    # if action == Operation.CREATE:
+    #     stock_item.order_count += order_item.count
+    #     db.session.commit()
+    # elif action == Operation.SHIP:
+    #     stock_item.count -= ship_qty
+    #     stock_item.shipped_count += ship_qty
+    #     order_item.shipped_count += ship_qty
+    #     if order_item.count<= order_item.shipped_count:
+    #         order_item.status = OrderStatus.SHIPPED
+    #     shipment = Shipment(count=ship_qty, orderitem=order_item)
+    #     db.session.add(shipment)
+    #
+    #     db.session.commit()
+    # elif action == Operation.ADDSTOCK:
+    #     stock_item.price = (stock_item.count * stock_item.price + price * new_qty)/(stock_item.count + new_qty)
+    #     stock_item.count += new_qty
+    #     purchase = PurchaseItem(count=new_qty, get_price=price, product_id=stock_item.product_id)
+    #     db.session.add(purchase)
+    #     db.session.commit()
 
 
 def inventory_add(brand="", name="", nick_name="", upc="", sku="", size="", color="", p_color="",source="", description="",figure=[]):
-
+    sale_user = get_parent()
     product = ""
     if upc:
         product = mongo.db.products.find_one({"upc": upc})
@@ -132,8 +169,23 @@ def inventory_add(brand="", name="", nick_name="", upc="", sku="", size="", colo
     else:
         # print(product)
         # print(current_user.id)
-        if not (current_user.id in product["user"]):
-            mongo.db.products.update({"_id": product["_id"]}, {'$push': {"user": current_user.id}})
+        if not (sale_user.id in product["user"]):
+            mongo.db.products.update({"_id": product["_id"]}, {'$push': {"user": sale_user.id}})
             source = product["source"]
-            if not mongo.db.sources.find_one({"$and": [{"source": source}, {"user": current_user.id}]}):
-                mongo.db.sources.update({"source": source}, {'$push': {"user": current_user.id}})
+            if not mongo.db.sources.find_one({"$and": [{"source": source}, {"user": sale_user.id}]}):
+                mongo.db.sources.update({"source": source}, {'$push': {"user": sale_user.id}})
+
+
+def get_orders():
+    if current_user.role.name == 'User':
+        orders = SellOrder.query.filter_by(user_id=current_user.parent.id).order_by(SellOrder.id.asc()).all()
+    else:
+        orders = SellOrder.query.filter_by(user_id=current_user.id).order_by(SellOrder.id.asc()).all()
+    return orders
+
+
+def get_parent():
+    if current_user.role.name == 'User':
+        return current_user.parent
+    else:
+        return current_user

@@ -25,7 +25,7 @@
 
                 <li><a href="{{ url_for('main.index') }}">Home</a></li>
                 {% if current_user.is_authenticated %}
-                <li><a href="{{ url_for('main.user', username=current_user.username) }}">Profile</a></li>
+                <li><a href="{{ url_for('main.user', user_id=current_user.id) }}">Profile</a></li>
 
                 {% endif %}
                 {% if current_user.can(Permission.POST_PRODUCT) %}

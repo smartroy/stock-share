@@ -30,6 +30,7 @@ class Operation:
     CREATE = 0x01
     ADDSTOCK = 0x02
     SHIP = 0x03
+    SHIP_CANCEL = 0x04
 
 
 class Role(db.Model):
@@ -78,10 +79,13 @@ class User(UserMixin,db.Model):
     avatar_hash = db.Column(db.String(32))
     posts = db.relationship('Post', backref='user', lazy='dynamic')
     stock = db.relationship('Stock', uselist=False, backref='user')
-    sell_orders = db.relationship('SellOrder', backref='user', lazy='dynamic')
+    sell_orders = db.relationship('SellOrder', backref='user', lazy='dynamic',foreign_keys='[SellOrder.user_id]')
+    create_orders = db.relationship('SellOrder', backref='creator', lazy='dynamic', foreign_keys='[SellOrder.creator_id]')
+    # bill = db.relationship('SellOrder',backref='bill',lazy='dynamic',foreign_keys='[SellOrder.bill_id]')
+
     customers = db.relationship('Customer', backref='user', lazy='dynamic')
     parent_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    children = db.relationship('Customer',backref=backref('parent', remote_side=[id]))
+    children = db.relationship('User',backref=backref('parent', remote_side=[id]))
     def __init__(self, **kwargs):
         super(User,self).__init__(**kwargs)
         print('creating user')
@@ -227,11 +231,12 @@ class SellOrder(db.Model):
     __tablename__ = 'sellorders'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    creator_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     date = db.Column(db.DateTime(), default=datetime.utcnow)
     order_items = db.relationship('OrderItem', backref='sellorder', lazy='dynamic',cascade="delete")
     # ship_id = db.Column(db.Integer, db.ForeignKey('customers.id'))
     bill_id = db.Column(db.Integer, db.ForeignKey('customers.id'))
-    ship_addr= db.Column(db.Text)
+    # ship_addr= db.Column(db.Text)
     paid = db.Column(db.Boolean,default=False)
 
     status = db.Column(db.Integer, default=OrderStatus.CREATED)
@@ -273,8 +278,11 @@ class Shipment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     count = db.Column(db.Integer, default=0)
     track = db.Column(db.Text)
-    status = db.Column(db.Text, default='Shipping')
+    status = db.Column(db.Text, default='Ready to Ship')
     orderitem_id = db.Column(db.Integer, db.ForeignKey('order_items.id'))
+    addr = db.Column(db.Text)
+    cell = db.Column(db.Text)
+    name = db.Column(db.Text)
 
 
 class Customer(db.Model):

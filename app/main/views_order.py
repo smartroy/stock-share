@@ -19,7 +19,7 @@ from json import dumps
 from base64 import b64encode
 from datetime import datetime, timedelta
 from .forms import CreateForm, SellForm, SellItemForm
-from .util import create_customer,create_stock_item,create_product, create_item,update_stock, delete_orderItem, delete_order
+from .util import create_customer,create_stock_item,create_product, create_item,update_stock, delete_orderItem, delete_order, get_orders, get_parent
 from bson import ObjectId
 import json
 
@@ -29,6 +29,7 @@ import json
 @login_required
 def sell_orders(user_id):
     form = CreateForm()
+    sale_user = get_parent()
     if current_user.can(Permission.POST_PRODUCT):
         if form.validate_on_submit():
 
@@ -37,7 +38,7 @@ def sell_orders(user_id):
     #     print("user can create")
     # else:
     #     print(current_user.role)
-        orders = SellOrder.query.filter_by(user_id=user_id).all()
+        orders = get_orders()
         return render_template('sellorders.html', form=form,orders=orders,status=OrderStatus.status)
     else:
         return render_template('sellorders.html')
@@ -47,10 +48,11 @@ def sell_orders(user_id):
 @login_required
 def new_sell():
     sources = []
+    sale_user = get_parent()
     if current_user.is_administrator:
         cursor = mongo.db.sources.find()
     else:
-        cursor = mongo.db.sources.find({"user":current_user.id})
+        cursor = mongo.db.sources.find({"user":sale_user.id})
     for doc in cursor:
         sources.append(doc["source"])
 
@@ -61,12 +63,13 @@ def new_sell():
 @login_required
 def search_source():
     source=request.args.get('source','',type=str)
+    sale_user = get_parent()
     # upc_data = upc.split(',')
     products=[]
     if current_user.is_administrator:
         cursor = mongo.db.products.find({"source":source.upper()})
     else:
-        cursor = mongo.db.products.find({"$and": [{"source": source.upper()}, {"user": current_user.id}]})
+        cursor = mongo.db.products.find({"$and": [{"source": source.upper()}, {"user": sale_user.id}]})
     if cursor:
         for product in cursor:
             product["_id"]=str(product["_id"])
@@ -83,45 +86,45 @@ def search_source():
 @main.route('/_add_order',methods=['GET','POST'])
 @login_required
 def create_order():
-
+    sale_user = get_parent()
     order_data = request.get_json()
     print(order_data)
     bill = order_data.pop('bill',None)
-    ship = order_data.pop('ship', None)
+    # ship = order_data.pop('ship', None)
     print(bill)
-    print(ship)
+    # print(ship)
     # print(order_data)
     bill_c = Customer.query.filter(and_(Customer.name == bill['name'], Customer.cellphone == bill['cellphone'])).first()
     if bill_c is None:
-        bill_c = create_customer(user=current_user, name=bill['name'], address=bill['addr'], cellphone=bill['cellphone'])
+        bill_c = create_customer(user=sale_user, name=bill['name'], address=bill['addr'], cellphone=bill['cellphone'])
         db.session.add(bill_c)
         db.session.commit()
-    ship_c = Customer.query.filter(and_(Customer.name == ship['name'], Customer.cellphone == ship['cellphone'])).first()
-    if ship_c is None:
-        ship_c = create_customer(user=current_user, name=ship['name'], address=ship['addr'],
-                                 cellphone=ship['cellphone'])
-        db.session.add(ship_c)
-        db.session.commit()
-    order = SellOrder(user=current_user, bill=bill_c,ship=ship_c)
+    # ship_addr = ship['name']+','+ship['addr']+','+ship['addr']
+    # ship_c = Customer.query.filter(and_(Customer.name == ship['name'], Customer.cellphone == ship['cellphone'])).first()
+    # if ship_c is None:
+    #     ship_c = create_customer(user=current_user, name=ship['name'], address=ship['addr'],
+    #                              cellphone=ship['cellphone'])
+    #     db.session.add(ship_c)
+    #     db.session.commit()
+    order = SellOrder(user=sale_user, bill=bill_c,creator=current_user)
 
     db.session.add(order)
     db.session.commit()
     total_sell = 0
     for key, value in order_data.items():
         # print(value)
-        order_item = OrderItem(sell_price=float(value['price']), count=int(value['qty']), sellorder=order,
-                               product_id=str(key))
+        order_item = OrderItem(sell_price=float(value['price']), count=int(value['qty']), sellorder=order,product_id=str(key))
 
-        stock_item = StockItem.query.filter(and_(StockItem.product_id==str(key), StockItem.stock==current_user.stock)).first()
+        stock_item = StockItem.query.filter(and_(StockItem.product_id==str(key), StockItem.stock==sale_user.stock)).first()
         order_item.note=str(value['note'])
         db.session.add(order_item)
         db.session.commit()
         if not stock_item:
-            stock_item = create_stock_item(product_id=str(key), stock=current_user.stock)
+            stock_item = create_stock_item(product_id=str(key), stock=sale_user.stock)
             db.session.add(stock_item)
             db.session.commit()
 
-        update_stock(order_item,stock_item,Operation.CREATE)
+        update_stock(order_item=order_item,stock_item=stock_item,action=Operation.CREATE)
         # if stock_item:
         #     if stock_item.count >=int(value['qty']):
         #         order_item.stock_count=int(value['qty'])
@@ -141,37 +144,68 @@ def create_order():
     return jsonify(url_for('.new_sell'))
 
 
+def ship_order_item(order_item,info):
+    sale_user = get_parent()
+    stock_item = StockItem.query.filter(StockItem.product_id == order_item.product_id,
+                                        StockItem.stock == sale_user.stock).first()
+    update_stock(order_item=order_item, stock_item=stock_item, action=Operation.SHIP, ship_info=info)
+
+
+def ship_cancel(shipment):
+    sale_user = get_parent()
+    stock_item = StockItem.query.filter(StockItem.product_id == shipment.orderitem.product_id,
+                                        StockItem.stock == sale_user.stock).first()
+    update_stock(shipment=shipment, stock_item = stock_item,action=Operation.SHIP_CANCEL)
+
+
+
+@main.route('/order/_item_ship_cancel',methods=['GET','POST'])
+@login_required
+def item_ship_cancel():
+    data = request.get_json()
+    print(data)
+    shipment_id = int(str(data['id']).split('_')[-1])
+    shipment = Shipment.query.get_or_404(shipment_id)
+    ship_cancel(shipment)
+    return jsonify(request.referrer)
+
+
 @main.route('/order/_item_ship',methods=['GET','POST'])
 @login_required
 def item_ship():
+    sale_user = get_parent()
     ship_data = request.get_json()
     # print(ship_data)
-    item = OrderItem.query.get_or_404(str(list(ship_data.keys())[0]))
-    order = SellOrder.query.get_or_404(item.sellorder.id)
+    # item = OrderItem.query.get_or_404(str(list(ship_data.keys())[0]))
+    # order = SellOrder.query.get_or_404(item.sellorder.id)
     for key, value in ship_data.items():
-        order_item = OrderItem.query.get_or_404(str(key))
-        stock_item = StockItem.query.filter(StockItem.product_id==order_item.product_id, StockItem.stock==current_user.stock).first()
-        update_stock(order_item,stock_item,Operation.SHIP,ship_qty=int(value['qty']))
+        item_key = str(key).split('_')[-1]
+        order_item = OrderItem.query.get_or_404(int(item_key))
+        ship_order_item(order_item,value)
+        # stock_item = StockItem.query.filter(StockItem.product_id==order_item.product_id, StockItem.stock==sale_user.stock).first()
+        # update_stock(order_item=order_item,stock_item=stock_item,action=Operation.SHIP,ship_info=value)
 
-    return jsonify(url_for('.order_details', order_id = order.id))
+    return jsonify(request.referrer)
 
 
 @main.route('/order/ship/<int:order_id>',methods=['GET','POST'])
 @login_required
 def order_ship(order_id):
+    sale_user = get_parent()
     order = SellOrder.query.get_or_404(order_id)
     items = order.order_items.all()
     for order_item in items:
         if order_item.status == OrderStatus.CREATED:
-            stock_item = StockItem.query.filter(StockItem.product_id == order_item.product_id,StockItem.stock==current_user.stock).first()
-            update_stock(order_item, stock_item, Operation.SHIP,ship_qty=order_item.count)
+            stock_item = StockItem.query.filter(StockItem.product_id == order_item.product_id,StockItem.stock==sale_user.stock).first()
+            update_stock(order_item=order_item, stock_item=stock_item, action=Operation.SHIP,ship_qty=order_item.count)
 
-    return redirect(url_for('.order_details', order_id = order.id))
+    return redirect(request.referrer)
 
 
 @main.route('/order/details/<int:order_id>',methods=['GET','POST'])
 @login_required
 def order_details(order_id):
+    sale_user = get_parent()
     order = SellOrder.query.get_or_404(order_id)
     items = order.order_items.all()
     # print(items)
@@ -185,7 +219,7 @@ def order_details(order_id):
         # print(product)
         product['_id'] = str(product['_id'])
         products.append(product)
-        stock_item=StockItem.query.filter(and_(StockItem.product_id==items[i].product_id, StockItem.stock==current_user.stock)).first()
+        stock_item=StockItem.query.filter(and_(StockItem.product_id==items[i].product_id, StockItem.stock==sale_user.stock)).first()
 
         stock_items.append(stock_item)
         if items[i].status == OrderStatus.CREATED:
@@ -199,8 +233,10 @@ def order_details(order_id):
 @main.route('/order/delete/<int:order_id>',methods=['GET','POST'])
 @login_required
 def order_delete(order_id):
+    sale_user = get_parent()
     order = SellOrder.query.get_or_404(order_id)
-    delete_order(order)
+    if order.user.id == sale_user.id:
+        delete_order(order)
     # print(order)
     # items = order.order_items.all()
     # print(items)
@@ -227,8 +263,9 @@ def order_edit(order_id):
 @main.route('/order/check',methods=['GET','POST'])
 @login_required
 def checkout():
+    sale_user = get_parent()
     dues = []
-    customers = Customer.query.filter(Customer.user_id==current_user.id).all()
+    customers = Customer.query.filter(Customer.user_id==sale_user.id).all()
     for customer in customers:
 
         orders = SellOrder.query.filter(and_(SellOrder.bill==customer, SellOrder.paid==False)).all()

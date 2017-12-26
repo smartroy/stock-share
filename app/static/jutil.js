@@ -94,15 +94,15 @@ $(function() {
 
             }
         });
-        var ship_name=$('#ship_info').find('[name="ship_name"]').val();
-        var ship_addr=$('#ship_info').find('[name="address"]').val();
-        var ship_cell=$('#ship_info').find('[name="cellphone"]').val();
+        // var ship_name=$('#ship_info').find('[name="ship_name"]').val();
+        // var ship_addr=$('#ship_info').find('[name="address"]').val();
+        // var ship_cell=$('#ship_info').find('[name="cellphone"]').val();
 
         var bill_name=$('#bill_info').find('[name="bill_name"]').val();
         var bill_addr=$('#bill_info').find('[name="address"]').val();
         var bill_cell=$('#bill_info').find('[name="cellphone"]').val();
         items['bill']={'name':bill_name,'addr':bill_addr,'cellphone':bill_cell};
-        items['ship']={'name':ship_name,'addr':ship_addr,'cellphone':ship_cell};
+        // items['ship']={'name':ship_name,'addr':ship_addr,'cellphone':ship_cell};
         items = JSON.stringify(items);
         $.ajax({
             type : "POST",
@@ -141,10 +141,31 @@ $(function() {
         });
         }
         else{
-            alter("Please fill in email address");
+            alert("Please fill in email address");
         }
     });
-    
+    $('#add_service').bind('click','#new_service',function(){
+        var service_item={};
+        service_item['email'] = $('#new_service').find('[name="email"]').val();
+        // email_item['subject'] = $('#send_email').find('[name="subject"]').val();
+        if(service_item['email']){
+            service_item=JSON.stringify(service_item);
+            $.ajax({
+            type : "POST",
+            url : "/_add_service",
+            data: service_item,
+            contentType: 'application/json;charset=UTF-8',
+            success: function(result) {
+                console.log(result);
+                window.location.href = result;
+            }
+        });
+        }
+        else{
+            alert("Please fill in email address");
+        }
+    });
+
     
     // $(document).on('click','a#add_stock',function(){
     //     $.getJSON('/_add_stock',{
@@ -165,14 +186,19 @@ function ship_item(bt){
         
         var items ={};
         // console.log($('#sources_result').html());
-        var row=$(bt).parents('tr');
+        var row=$(bt).closest('div');
         // alert(row.attr('id'));
-        item_qty=row.find('[name="ship_qty"]').val();
-    
+        var item_qty=row.find('[name="ship_qty"]').val();
+        var cell = row.find('[name="cell"]').val();
+        var name = row.find('[name="name"]').val();
+        var addr = row.find('[name="addr"]').val();
+        console.log(row)
+        console.log(cell)
+        console.log(name)
         if(parseInt(item_qty)>0){
             
             item_id=row.attr('id');
-            items[item_id]={'qty':item_qty};
+            items[item_id]={'qty':item_qty,'name':name,'cell':cell,'addr':addr};
         
             items = JSON.stringify(items);
             $.ajax({
@@ -189,5 +215,41 @@ function ship_item(bt){
         else{
             alert("Please the amount you want to ship")
         }
+        
+};
+
+function ship_cancel(bt){
+        
+        var items ={};
+        // console.log($('#sources_result').html());
+        var row=$(bt).closest('tr');
+        // alert(row.attr('id'));
+        // var item_qty=row.find('[name="ship_qty"]').val();
+        // var cell = row.find('[name="cell"]').val();
+        // var name = row.find('[name="name"]').val();
+        // var addr = row.find('[name="addr"]').val();
+        console.log(row)
+        // console.log(cell)
+        // console.log(name)
+        // if(parseInt(item_qty)>0){
+            
+            item_id=row.attr('id');
+            items['id']=item_id;
+        
+            items = JSON.stringify(items);
+            $.ajax({
+                type : "POST",
+                url : "/order/_item_ship_cancel",
+                data: items,
+                contentType: 'application/json;charset=UTF-8',
+                success: function(result) {
+                    console.log(result);
+                    window.location.href = result;
+                }
+            });
+        // }
+        // else{
+        //     alert("Please the amount you want to ship")
+        // }
         
 };

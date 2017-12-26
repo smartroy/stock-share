@@ -1,4 +1,6 @@
 
+{% for item in items %}
+<div id="orderitem_{{items[loop.index0].id}}">
     <table id="order_status" class="table table-fixed">
         <thead>
         <tr>
@@ -9,53 +11,108 @@
           <th>Ordered Qty</th>
           <th>Stock Qty</th>
           <th>Shipped Qty.</th>
-          <th>Track</th>
-          <th>Qty to Ship</th>
+          
 
         </tr>
         </thead>
         <tbody>
-            {% for item in items %}
-                <tr id="{{items[loop.index0].id}}">
-                    <td>{{products[loop.index0].brand}}</td>
-                    <td>{{products[loop.index0].name}}/{{products[loop.index0].nick_name}}</td>
-                    <td>{{items[loop.index0].sell_price}}</td>
-                    <td name="ordered_count">{{items[loop.index0].count}}</td>
-                    <td name="stock_count">{{stock_items[loop.index0].count}}</td>
-                    <td >{{items[loop.index0].shipped_count}}</td>
-                    
-                    {% if items[loop.index0].count > items[loop.index0].shipped_count%}
-
-                    
-
-                        
-                        {% if stock_items[loop.index0].count > 0%}
-                        
-                        <td><input type=text name="ship_qty" size=3 style="width:100%;"></td>
-                        <td>
-
-                            <button onclick="ship_item(this)" class="optionalBtn" style="width: 85px;height: 30px;margin: -5px;">Ship</button>
-
-                        </td>
-                        {% endif %}
-                        
-                    
-                        
-                    {% endif%}
-                    {% for shipment in item.shipment %}
-                        <td>{{shipment.status}}</td>
-                        <td>{{shipment.track}}</td>
-                    {% endfor %}
-                    
-                </tr>
-
-
-            {% endfor %}
-            <td style="font-weight: bold;">Total</td>
-            <td></td>
             
-            <td style="font-weight: bold;">{{order.total_sell}}</td>
-            <td></td>
+            <tr>
+                <td>{{products[loop.index0].brand}}</td>
+                <td>{{products[loop.index0].name}}/{{products[loop.index0].nick_name}}</td>
+                <td>{{items[loop.index0].sell_price}}</td>
+                <td name="ordered_count">{{items[loop.index0].count}}</td>
+                <td name="stock_count">{{stock_items[loop.index0].count}}</td>
+                <td>{{items[loop.index0].shipped_count}}</td>
+                
+                <!-- {% if items[loop.index0].count > items[loop.index0].shipped_count%}
+
+                
+
+                    
+                    {% if stock_items[loop.index0].count > 0%}
+                    
+                    <td><input type=text name="ship_qty" size=3 style="width:100%;"></td>
+                    <td>
+
+                        <button onclick="ship_item(this)" class="optionalBtn" style="width: 85px;height: 30px;margin: -5px;">Ship</button>
+
+                    </td>
+                    {% endif %}
+                    
+                
+                    
+                {% endif%}
+                {% for shipment in item.shipment %}
+                    <td>{{shipment.status}}</td>
+                    <td>{{shipment.track}}</td>
+                {% endfor %} -->
+                
+            </tr>
         </tbody>
     </table>
+                
+    <table  class="table table-fixed">
+        <thead>
+            <th>Name</th>
+            <th>Addr.</th>
+            <th>Cell</th>
+            <th>Qty.</th>
+            <th>Status</th>
+            <th>Track</th>
+        </thead>
+        <tbody>
+            {% for shipment in item.shipment %}
+            <tr id="shipment_{{shipment.id}}">
+                <td>{{shipment.name}}</td>
+                <td>{{shipment.addr}}</td>
+                <td>{{shipment.cell}}</td>
+                <td>{{shipment.count}}</td>
+                <td>{{shipment.status}}</td>
+                <td>{{shipment.track}}</td>
+                {% if shipment.status|string() == 'Ready to Ship'%}
+                    <td> 
+                        <button onclick="ship_edit(this)" class="optionalBtn" style="width: 85px;height: 30px;margin: -5px;">Edit</button>
+                    </td>
+                    <td> 
+                        <button onclick="ship_release(this)" class="optionalBtn" style="width: 85px;height: 30px;margin: -5px;">Ship</button>
+                    </td>
+                    <td> 
+                        <button onclick="ship_cancel(this)" class="optionalBtn" style="width: 85px;height: 30px;margin: -5px;">Cancel</button>
+                    </td>
+
+
+                {% endif %}
+            </tr>
+            {% endfor %}
+
+            {% if items[loop.index0].count > items[loop.index0].shipped_count%}
+
+        
+
+            
+            {% if stock_items[loop.index0].count > 0%}
+            <tr>
+                <td><input type=text name="name" size=3 style="width:100%;"></td>
+                <td><input type=text name="addr" size=3 style="width:100%;"></td>
+                <td><input type=text name="cell" size=3 style="width:100%;"></td>
+                <td><input type=text name="ship_qty" size=3 style="width:100%;"></td>
+                <td>
+
+                    <button onclick="ship_item(this)" class="optionalBtn" style="width: 85px;height: 30px;margin: -5px;">Create Shipment</button>
+
+                </td>
+            </tr>
+            {% endif %}
+            
+        
+            
+            {% endif%}
+
+        </tbody>
+    </table>
+                
+</div>
+           
+{% endfor %}
 
