@@ -221,35 +221,64 @@ function ship_item(bt){
 function ship_cancel(bt){
         
         var items ={};
-        // console.log($('#sources_result').html());
         var row=$(bt).closest('tr');
-        // alert(row.attr('id'));
-        // var item_qty=row.find('[name="ship_qty"]').val();
-        // var cell = row.find('[name="cell"]').val();
-        // var name = row.find('[name="name"]').val();
-        // var addr = row.find('[name="addr"]').val();
-        console.log(row)
-        // console.log(cell)
-        // console.log(name)
-        // if(parseInt(item_qty)>0){
-            
-            item_id=row.attr('id');
-            items['id']=item_id;
         
-            items = JSON.stringify(items);
-            $.ajax({
-                type : "POST",
-                url : "/order/_item_ship_cancel",
-                data: items,
-                contentType: 'application/json;charset=UTF-8',
-                success: function(result) {
-                    console.log(result);
-                    window.location.href = result;
-                }
-            });
+        console.log(row)
+        
+            
+        item_id=row.attr('id');
+        items['id']=item_id;
+        var json_data ={
+            "action":"cancel",
+            "items": items
+        };
+        json_data = JSON.stringify(json_data);
+        $.ajax({
+            type : "POST",
+            url : "/order/_item_ship_update",
+            data: json_data,
+            contentType: 'application/json;charset=UTF-8',
+            success: function(result) {
+                console.log(result);
+                window.location.href = result;
+            }
+        });
         // }
         // else{
         //     alert("Please the amount you want to ship")
         // }
         
 };
+
+function ship_release(bt){
+        
+        var items ={};
+        var row=$(bt).closest('tr');
+        
+        console.log(row)
+        
+            
+        item_id=row.attr('id');
+        items['id']=item_id;
+        var json_data ={
+            "action":"release",
+            "items": items
+        };
+        json_data = JSON.stringify(json_data);
+        $.ajax({
+            type : "POST",
+            url : "/order/_item_ship_update",
+            data: json_data,
+            contentType: 'application/json;charset=UTF-8',
+            success: function(result) {
+                console.log(result);
+                window.location.href = result;
+            }
+        });
+        // }
+        // else{
+        //     alert("Please the amount you want to ship")
+        // }
+        
+};
+

@@ -1,0 +1,47 @@
+<!-- for each element in dues, 
+    due['customer']: payers info (name, cell); 
+    due['orders_info']: info unpaid orders of due['customer'], for each order_info in due['orders_info'], 
+    order_info['order']: order_info,e.g. order.id, order.date, order.total_sell, order.order_items, for each item in oder.items
+    item.count, item.sell_price, item.product_id which can be used to get info of product by order_info['product'][item.product_id]
+    order_info['products'],
+-->
+
+<ul class="posts">
+    <table class="table table-fixed">
+        <thead>
+        <tr>
+
+          
+          <th>Customer</th>
+          
+          <th>Amount</th>
+         
+	  <th></th>
+	  <th></th>
+	  <th></th>
+        </tr>
+        </thead>
+        <tbody>
+            {% for due in dues %}
+                <tr>
+                    <td>{{due['customer'].name}}</td>
+                    <td>{{due['amount']}}</td>
+                    
+                   
+                </tr>
+                {% for order_info in due['orders_info']%}
+                        
+                    <tr>
+                        <td></td>
+                        <td>{{order_info['order'].id}}</td>
+                        <td>{{order_info['order'].date.strftime('%Y-%m-%d')}}</td>
+                        <td>{{order_info['order'].total_sell}}</td>
+                        <td><a href="{{url_for('main.order_details',order_id=order_info['order'].id)}}">Details</a></td>
+                    </tr>
+                            
+                {% endfor %}
+
+            {% endfor %}
+        </tbody>
+    </table>
+</ul>

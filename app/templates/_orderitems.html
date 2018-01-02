@@ -1,7 +1,7 @@
 
 {% for item in items %}
 <div id="orderitem_{{items[loop.index0].id}}">
-    <table id="order_status" class="table table-fixed">
+    <table name="order_status" class="table table-fixed">
         <thead>
         <tr>
 
@@ -52,7 +52,7 @@
         </tbody>
     </table>
                 
-    <table  class="table table-fixed">
+    <table name="shipment_status" class="table sub-table">
         <thead>
             <th>Name</th>
             <th>Addr.</th>
@@ -71,9 +71,9 @@
                 <td>{{shipment.status}}</td>
                 <td>{{shipment.track}}</td>
                 {% if shipment.status|string() == 'Ready to Ship'%}
-                    <td> 
+                    <!-- <td> 
                         <button onclick="ship_edit(this)" class="optionalBtn" style="width: 85px;height: 30px;margin: -5px;">Edit</button>
-                    </td>
+                    </td> -->
                     <td> 
                         <button onclick="ship_release(this)" class="optionalBtn" style="width: 85px;height: 30px;margin: -5px;">Ship</button>
                     </td>
@@ -99,7 +99,7 @@
                 <td><input type=text name="ship_qty" size=3 style="width:100%;"></td>
                 <td>
 
-                    <button onclick="ship_item(this)" class="optionalBtn" style="width: 85px;height: 30px;margin: -5px;">Create Shipment</button>
+                    <button onclick="ship_item(this)" class="optionalBtn" style="width: 200px;height: 30px;margin: -5px;">Create Shipment</button>
 
                 </td>
             </tr>

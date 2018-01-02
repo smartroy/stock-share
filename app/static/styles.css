@@ -195,6 +195,9 @@ html, body, .container-fluid, .row {
 .table thead {
     background: rgba(52,160,225,0.6);
 }
+.sub-table thead {
+    background: rgba(255,255,255, 0.9);
+}
 
 /*****************Index page*************************/
 #addNewProduct{
@@ -216,9 +219,11 @@ html, body, .container-fluid, .row {
     color: rgb(52,160,225);
 }
 
+
 .table-fixed {
     width: 100% 
 }
+
 
 .table-fixed > thead,
 .table-fixed > tbody,

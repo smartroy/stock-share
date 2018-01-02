@@ -159,14 +159,22 @@ def ship_cancel(shipment):
 
 
 
-@main.route('/order/_item_ship_cancel',methods=['GET','POST'])
+@main.route('/order/_item_ship_update',methods=['GET','POST'])
 @login_required
-def item_ship_cancel():
+def item_ship_update():
     data = request.get_json()
     print(data)
-    shipment_id = int(str(data['id']).split('_')[-1])
-    shipment = Shipment.query.get_or_404(shipment_id)
-    ship_cancel(shipment)
+    if data["action"] == "cancel":
+        item = data["items"]
+        shipment_id = int(str(item['id']).split('_')[-1])
+        shipment = Shipment.query.get_or_404(shipment_id)
+        ship_cancel(shipment)
+    elif data["action"] == "release":
+        item = data["items"]
+        shipment_id = int(str(item['id']).split('_')[-1])
+        shipment = Shipment.query.get_or_404(shipment_id)
+        shipment.status = "Shipping"
+        db.session.commit()
     return jsonify(request.referrer)
 
 
@@ -270,10 +278,18 @@ def checkout():
 
         orders = SellOrder.query.filter(and_(SellOrder.bill==customer, SellOrder.paid==False)).all()
         if orders:
-            payer={'customer':customer,'orders':orders}
+
             total_due = 0
+            orders_detail =[]
             for order in orders:
                 total_due += order.total_sell
+                products={}
+                for item in order.order_items:
+                    product = mongo.db.products.find_one({'_id': ObjectId(item.product_id)})
+                    product['_id'] = item.product_id
+                    products[item.product_id] = product
+                orders_detail.append({'order':order,'products': products})
+            payer = {'customer': customer, 'orders_info': orders_detail}
             payer['amount']=total_due
             dues.append(payer)
     print(dues)
