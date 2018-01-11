@@ -99,13 +99,7 @@ def create_order():
         bill_c = create_customer(user=sale_user, name=bill['name'], address=bill['addr'], cellphone=bill['cellphone'])
         db.session.add(bill_c)
         db.session.commit()
-    # ship_addr = ship['name']+','+ship['addr']+','+ship['addr']
-    # ship_c = Customer.query.filter(and_(Customer.name == ship['name'], Customer.cellphone == ship['cellphone'])).first()
-    # if ship_c is None:
-    #     ship_c = create_customer(user=current_user, name=ship['name'], address=ship['addr'],
-    #                              cellphone=ship['cellphone'])
-    #     db.session.add(ship_c)
-    #     db.session.commit()
+
     order = SellOrder(user=sale_user, bill=bill_c,creator=current_user)
 
     db.session.add(order)
@@ -125,18 +119,6 @@ def create_order():
             db.session.commit()
 
         update_stock(order_item=order_item,stock_item=stock_item,action=Operation.CREATE)
-        # if stock_item:
-        #     if stock_item.count >=int(value['qty']):
-        #         order_item.stock_count=int(value['qty'])
-        #     else:
-        #         order_item.stock_count=max(-int(value['qty']),stock_item.count - int(value['qty']))
-        #     stock_item.count -= int(value['qty'])
-        # else:
-        #     stock_item = create_stock_item(product_id=str(key), stock=current_user.stock)
-        #     order_item.stock_count = 0 - int(value['qty'])
-        #     stock_item.count = 0 - int(value['qty'])
-        #     db.session.add(stock_item)
-        #     db.session.commit()
 
         total_sell += order_item.count*order_item.sell_price
     order.total_sell=total_sell
@@ -245,20 +227,7 @@ def order_delete(order_id):
     order = SellOrder.query.get_or_404(order_id)
     if order.user.id == sale_user.id:
         delete_order(order)
-    # print(order)
-    # items = order.order_items.all()
-    # print(items)
-    # products = []
-    # for i in range(len(items)):
-    #     # print(items[i].product_id)
-    #     stock_item = StockItem.query.filter(and_(StockItem.product_id==items[i].product_id, StockItem.stock==current_user.stock)).first()
-    #     # print(product)
-    #     # product['_id'] = str(product['_id'])
-    #     stock_item.count += items[i].count
-    #     stock_item.order_count -= items[i].count
-    #     db.session.delete(items[i])
-    # db.session.delete(order)
-    # db.session.commit()
+
     return redirect(url_for('.sell_orders'))
 
 
@@ -292,5 +261,5 @@ def checkout():
             payer = {'customer': customer, 'orders_info': orders_detail}
             payer['amount']=total_due
             dues.append(payer)
-    print(dues)
+    # print(dues)
     return render_template("checkout.html",dues=dues)

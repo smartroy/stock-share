@@ -19,7 +19,7 @@ from json import dumps
 from base64 import b64encode
 from datetime import datetime, timedelta
 from .forms import CreateForm, SellForm, SellItemForm
-from .util import create_customer,create_stock_item,create_product, create_item, inventory_add
+from .util import create_customer,create_stock_item,create_product, create_item, inventory_add, get_parent
 from bson import ObjectId
 from ..email import send_email
 
@@ -31,23 +31,25 @@ def list_products():
     #products = Product.query.all()
     products={}
     sources = []
+    sale_user = get_parent()
     if current_user.is_administrator:
         cursor = mongo.db.sources.find()
     else:
-        cursor = mongo.db.sources.find({"user": current_user.id})
+        cursor = mongo.db.sources.find({"user": sale_user.id})
     for doc in cursor:
         sources.append(doc["source"])
 
     if current_user.is_administrator():
         products = mongo.db.products.find()
     else:
-        products = mongo.db.products.find({"user":current_user.id})
+        products = mongo.db.products.find({"user":sale_user.id})
     return render_template("products.html", products=products,sources=sources)
 
 
 @main.route('/_sort_products',methods=['GET','POST'])
 @login_required
 def sort_products():
+    sale_user = get_parent()
     source = request.args.get('source', '', type=str)
     products = []
     if source.upper() =="ALL":
@@ -57,7 +59,7 @@ def sort_products():
     if current_user.is_administrator():
         products = list(mongo.db.products.find(search_dict))
     else:
-        search_dict["user"] = current_user.id
+        search_dict["user"] = sale_user.id
         products = list(mongo.db.products.find(search_dict))
     for product in products:
         product["_id"] = str(product["_id"])

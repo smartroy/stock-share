@@ -259,8 +259,9 @@ class OrderItem(db.Model):
     note = db.Column(db.Text)
     status = db.Column(db.Integer, default=OrderStatus.CREATED)
     product_id = db.Column(db.Text)
+    paid = db.Column(db.Boolean, default=False)
     order_id = db.Column(db.Integer, db.ForeignKey('sellorders.id'))
-    shipment = db.relationship('Shipment', backref='orderitem', lazy='dynamic', cascade="delete")
+    # shipment = db.relationship('Shipment', backref='orderitem', lazy='dynamic', cascade="delete")
 
 
 class PurchaseItem(db.Model):
@@ -279,7 +280,8 @@ class Shipment(db.Model):
     count = db.Column(db.Integer, default=0)
     track = db.Column(db.Text)
     status = db.Column(db.Text, default='Ready to Ship')
-    orderitem_id = db.Column(db.Integer, db.ForeignKey('order_items.id'))
+    customer_id = db.Column(db.Integer, db.ForeignKey('customers.id'))
+    stockitem_id = db.Column(db.Integer, db.ForeignKey('stock_items.id'))
     addr = db.Column(db.Text)
     cell = db.Column(db.Text)
     name = db.Column(db.Text)
@@ -294,6 +296,7 @@ class Customer(db.Model):
     zip = db.Column(db.Text,default=0)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     bill = db.relationship('SellOrder',backref='bill',lazy='dynamic',foreign_keys='[SellOrder.bill_id]')
+    shipments = db.relationship('Shipment',backref='customer',lazy='dynamic')
     # ship = db.relationship('SellOrder',backref='ship',lazy='dynamic',foreign_keys='[SellOrder.ship_id]')
 # class Order(db.Model):
 #     __tablename__='orders'

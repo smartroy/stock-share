@@ -282,3 +282,35 @@ function ship_release(bt){
         
 };
 
+function ship_edit(bt){
+        
+        var items ={};
+        var row=$(bt).closest('tr');
+        
+        console.log(row)
+        
+            
+        item_id=row.attr('id');
+        items['id']=item_id;
+        var json_data ={
+            "action":"release",
+            "items": items
+        };
+        json_data = JSON.stringify(json_data);
+        $.ajax({
+            type : "POST",
+            url : "/order/_item_ship_update",
+            data: json_data,
+            contentType: 'application/json;charset=UTF-8',
+            success: function(result) {
+                console.log(result);
+                window.location.href = result;
+            }
+        });
+        // }
+        // else{
+        //     alert("Please the amount you want to ship")
+        // }
+        
+};
+
