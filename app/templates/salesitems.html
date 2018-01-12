@@ -15,8 +15,13 @@
                 <div>
                     {% if current_user.can(Permission.POST_PRODUCT) %}
                     <input type="button" class="optionalBtn" onclick="location.href='{{url_for('.checkout')}}'" value="Check" style="float:right;">
-                    <div id="sellorders">{% include '_orders.html' %}</div>
-                    <input type="button" class="optionalBtn" onclick="location.href='{{url_for('.new_sell')}}'" value="Add New Order" style="float:right;">
+                    <br>
+                    <div id="sellorders">{% include '_saleitems.html' %}</div>
+                    <br>
+                    <br>
+                    <div>
+                        <input type="button" class="optionalBtn" onclick="location.href='{{url_for('.new_sell')}}'" value="Add New Order" style="float:right;">
+                    </div>
                     {% endif %}
                 </div>
 

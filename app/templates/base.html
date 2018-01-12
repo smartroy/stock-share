@@ -1,6 +1,6 @@
 {% extends "bootstrap/base.html" %}
 
-{% block title %}Flasky{% endblock %}
+{% block title %}Stock M{% endblock %}
 {% block head %}
 {{ super() }}
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
@@ -30,7 +30,7 @@
                 {% endif %}
                 {% if current_user.can(Permission.POST_PRODUCT) %}
 
-                <li><a href="{{ url_for('main.sell_orders', user_id=current_user.id) }}">Sell Orders</a></li>
+                <li><a href="{{ url_for('main.sales_orders') }}">Sell Orders</a></li>
                 <li><a href="{{ url_for('main.my_customer')}}">My Customers</a></li>
                 <li><a href="{{ url_for('main.list_products')}}">My Inventory</a></li>
                 {% endif %}
