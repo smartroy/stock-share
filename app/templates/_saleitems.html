@@ -15,51 +15,55 @@
     </div>
             
     <div id="show{{info['customer'].id}}" class="collapse">
-        {% for key2, item in info['sale_items']|dictsort %}
+        <ul class="posts">
+            
+            {% for key2, item in info['sale_items']|dictsort %}
 
-        <div id="{{info['customer'].id}}-{{item['stock_item'].id}}" class = "card bg-dark text-white">
-            <div class="card-title">
-                
-                    <h5>
+            <div id="{{info['customer'].id}}-{{item['stock_item'].id}}" >
+                <div>
+                    
                         
-                            {{products[item['stock_item'].product_id]['brand']}}   
-                            {{products[item['stock_item'].product_id]['name']}}/{{products[item['stock_item'].product_id]['nick_name']}}
-                            <a href="{{url_for('main.product_details',product_id = products[item['stock_item'].product_id]._id)}}">Details</a>
-                        
-                        
-                            Total Qty: {{item['order_count']}} 
-                            Shipped Qty: {{item['ship_count']}}
-                        <span style="float:right">
-                            <a href="#show{{info['customer'].id}}-{{item['stock_item'].id}}" class="btn btn-info" data-toggle="collapse">Details</a>
-                        </span>
-                    </h5>
-
-            </div>
-            <div id="show{{info['customer'].id}}-{{item['stock_item'].id}}" class = "card-body collapse" >
-                <table class="table table-fixed">
-                    <thead>
-                        <th></th>
-                        <th>Order Id</th>
-                        <th>Date</th>
-                        <th>Qty</th>
-                    </thead>
-                <tbody> 
-                {% for sale in item['sales']%}
-
-                    <tr>
-                        <td></td>
-                        <td>{{sale.sellorder.id}}</td>
-                        <td>{{sale.sellorder.date.strftime('%Y-%m-%d')}}</td>
-                        <td>{{sale.count}}</td>
-                        <td><a href="{{url_for('main.order_details',order_id=sale.sellorder.id)}}">Order Details</a></td>
-                    </tr>
+                        <table class="table table-fixed"> 
+                            <tr>   
+                                <td>{{products[item['stock_item'].product_id]['brand']}}</td>   
+                                <td>{{products[item['stock_item'].product_id]['name']}}/{{products[item['stock_item'].product_id]['nick_name']}}</td>
+                                <td><a href="{{url_for('main.product_details',product_id = products[item['stock_item'].product_id]._id)}}">Details</a></td>
                             
-                {% endfor %}
-                </tbody>
-                </table>
-            </div>
-        </div> 
-        {% endfor %}
+                            
+                                <td>Total Qty: {{item['order_count']}}</td>
+                                <td>Shipped Qty: {{item['ship_count']}}</td>
+                           <!--  <span style="float:right"> -->
+                                <td><a href="#show{{info['customer'].id}}-{{item['stock_item'].id}}" class="btn btn-info" data-toggle="collapse">Details</a></td>
+                            <!-- </span> -->
+                            </tr>
+                        </table>
+                </div>
+                <div id="show{{info['customer'].id}}-{{item['stock_item'].id}}" class = "card-body collapse" >
+                    <table class="table table-fixed">
+                        <thead>
+                            <th></th>
+                            <th>Order Id</th>
+                            <th>Date</th>
+                            <th>Qty</th>
+                        </thead>
+                    <tbody> 
+                    {% for sale in item['sales']%}
+
+                        <tr>
+                            <td></td>
+                            <td>{{sale.sellorder.id}}</td>
+                            <td>{{sale.sellorder.date.strftime('%Y-%m-%d')}}</td>
+                            <td>{{sale.count}}</td>
+                            <td><a href="{{url_for('main.order_details',order_id=sale.sellorder.id)}}">Order Details</a></td>
+                        </tr>
+                                
+                    {% endfor %}
+                    </tbody>
+                    </table>
+                </div>
+            </div> 
+            {% endfor %}
+        </ul>
     </div>
         
     

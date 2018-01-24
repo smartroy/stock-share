@@ -66,16 +66,48 @@ def insert_product_mongo(file):
 
         #collection.insert_one(product)
 
+def create_order(user,buyer,creator,order_data):
+    order = SellOrder(user=user, buyer=buyer, creator=creator)
+
+    db.session.add(order)
+    db.session.commit()
+    total_sell = 0
+    for key, value in order_data.items():
+
+        order_item = create_order_item(key,value,order,user)
+        total_sell += order_item.count * order_item.sell_price
+    order.total_sell = total_sell
+    return order
+
+
+def create_order_item(key,value,order,user):
+    order_item = OrderItem(sell_price=float(value['price']), count=int(value['qty']), sellorder=order,
+                           product_id=str(key))
+
+    stock_item = StockItem.query.filter(
+        and_(StockItem.product_id == str(key), StockItem.stock == user.stock)).first()
+    order_item.note = str(value['note'])
+    db.session.add(order_item)
+    db.session.commit()
+    if not stock_item:
+        stock_item = create_stock_item(product_id=str(key), stock=user.stock)
+        db.session.add(stock_item)
+        db.session.commit()
+
+    update_stock(order_item=order_item, stock_item=stock_item, action=Operation.CREATE)
+    return order_item
+
 
 def delete_order(order):
     items = order.order_items.all()
 
-    for i in range(len(items)):
+    for item in items:
         # print(items[i].product_id)
-        delete_orderItem(items[i])
+        if item.active:
+            delete_orderItem(item)
 
         # db.session.delete(items[i])
-    db.session.delete(order)
+    order.active = False
     db.session.commit()
 
 
@@ -87,14 +119,23 @@ def delete_orderItem(item):
     # product['_id'] = str(product['_id'])
 
     stock_item.order_count -= item.count
-    shipments = item.shipment.all()
-    for i in range(len(shipments)):
-        stock_item.count += shipments[i].count
-        stock_item.shipped_count -= shipments[i].count
-        db.session.delete(shipments[i])
 
-    db.session.delete(item)
+    item.sellorder.total_sell -= item.count*item.sell_price
+
+    # shipments = item.shipment.all()
+    # for i in range(len(shipments)):
+    #     stock_item.count += shipments[i].count
+    #     stock_item.shipped_count -= shipments[i].count
+    #     db.session.delete(shipments[i])
+
+    item.active=False
     db.session.commit()
+    items = OrderItem.query.filter(OrderItem.order_id==item.sellorder.id,OrderItem.active==True).all()
+    print()
+    if not items:
+        print("empty order")
+        item.sellorder.active = False
+        db.session.commit()
 
 
 def update_stock(**kwargs):
@@ -177,11 +218,23 @@ def inventory_add(brand="", name="", nick_name="", upc="", sku="", size="", colo
 
 
 def get_orders():
-    if current_user.role.name == 'User':
-        orders = SellOrder.query.filter_by(user_id=current_user.parent.id).order_by(SellOrder.id.asc()).all()
-    else:
-        orders = SellOrder.query.filter_by(user_id=current_user.id).order_by(SellOrder.id.asc()).all()
-    return orders
+    sale_user = get_parent()
+    # if current_user.role.name == 'User':
+    #     orders = SellOrder.query.filter_by(user_id=current_user.parent.id).order_by(SellOrder.id.asc()).all()
+    # else:
+    #     orders = SellOrder.query.filter_by(user_id=current_user.id).order_by(SellOrder.id.asc()).all()
+    return SellOrder.query.filter(SellOrder.user_id==sale_user.id,SellOrder.active==True).order_by(SellOrder.id.asc()).all()
+
+
+def get_items(order):
+    # sale_user = get_parent()
+    # orders = get_orders()
+    items = []
+    # for order in orders:
+    for item in order.order_items:
+        if item.active:
+            items.append(item)
+    return items
 
 
 def get_parent():

@@ -10,11 +10,14 @@
 
             Sales Data
             </h1>
+             <h5>
+                <span><input type="button" class="optionalBtn" onclick="location.href='{{url_for('.checkout')}}'" value="Check Out" ><input type="button" class="btn btn-info" onclick="location.href='{{url_for('.sales_items')}}'" value="Item View" style="float:right;"></span>
+            </h5>
             <div>
 
                 <div>
                     {% if current_user.can(Permission.POST_PRODUCT) %}
-                    <input type="button" class="optionalBtn" onclick="location.href='{{url_for('.checkout')}}'" value="Check" style="float:right;">
+                    
                     <div id="sellorders">{% include '_orders.html' %}</div>
                     <input type="button" class="optionalBtn" onclick="location.href='{{url_for('.new_sell')}}'" value="Add New Order" style="float:right;">
                     {% endif %}

@@ -235,13 +235,15 @@ class SellOrder(db.Model):
     date = db.Column(db.DateTime(), default=datetime.utcnow)
     order_items = db.relationship('OrderItem', backref='sellorder', lazy='dynamic',cascade="delete")
     # ship_id = db.Column(db.Integer, db.ForeignKey('customers.id'))
-    bill_id = db.Column(db.Integer, db.ForeignKey('customers.id'))
+    # bill_id = db.Column(db.Integer, db.ForeignKey('customers.id'))
     # ship_addr= db.Column(db.Text)
+    buyer_id = db.Column(db.Integer, db.ForeignKey('customers.id'))
     paid = db.Column(db.Boolean,default=False)
 
     status = db.Column(db.Integer, default=OrderStatus.CREATED)
     total_get = db.Column(db.Float)
     total_sell = db.Column(db.Float)
+    active = db.Column(db.Boolean, default=True)
     # def __init__(self, **kwargs):
     #     super(SellOrder, self).__init__(**kwargs)
     #     self.order_items = []
@@ -261,6 +263,7 @@ class OrderItem(db.Model):
     product_id = db.Column(db.Text)
     paid = db.Column(db.Boolean, default=False)
     order_id = db.Column(db.Integer, db.ForeignKey('sellorders.id'))
+    active = db.Column(db.Boolean,default=True)
     # shipment = db.relationship('Shipment', backref='orderitem', lazy='dynamic', cascade="delete")
 
 
@@ -285,6 +288,7 @@ class Shipment(db.Model):
     addr = db.Column(db.Text)
     cell = db.Column(db.Text)
     name = db.Column(db.Text)
+    active = db.Column(db.Boolean,default=True)
 
 
 class Customer(db.Model):
@@ -295,7 +299,8 @@ class Customer(db.Model):
     cellphone = db.Column(db.Text,default=0)
     zip = db.Column(db.Text,default=0)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    bill = db.relationship('SellOrder',backref='bill',lazy='dynamic',foreign_keys='[SellOrder.bill_id]')
+    # bill = db.relationship('SellOrder',backref='bill',lazy='dynamic',foreign_keys='[SellOrder.bill_id]')
+    buy_orders = db.relationship('SellOrder',backref='buyer',lazy='dynamic')
     shipments = db.relationship('Shipment',backref='customer',lazy='dynamic')
     # ship = db.relationship('SellOrder',backref='ship',lazy='dynamic',foreign_keys='[SellOrder.ship_id]')
 # class Order(db.Model):

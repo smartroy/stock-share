@@ -34,6 +34,12 @@ def deploy():
     ut.db_init()
 
 
+@manager.command
+def update_entry():
+    u = OrderItem.query.all()
+    for order in u:
+        order.active=True
+
 
 @manager.command
 def deploy_mongo():

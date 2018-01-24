@@ -31,29 +31,8 @@
                     {% endif %}
                     
                 </td>
+                <td><a href="{{url_for('main.item_delete',item_id=items[loop.index0].id)}}">Delete</a></td>
                 
-                <!-- {% if items[loop.index0].count > items[loop.index0].shipped_count%}
-
-                
-
-                    
-                    {% if stock_items[loop.index0].count > 0%}
-                    
-                    <td><input type=text name="ship_qty" size=3 style="width:100%;"></td>
-                    <td>
-
-                        <button onclick="ship_item(this)" class="optionalBtn" style="width: 85px;height: 30px;margin: -5px;">Ship</button>
-
-                    </td>
-                    {% endif %}
-                    
-                
-                    
-                {% endif%}
-                {% for shipment in item.shipment %}
-                    <td>{{shipment.status}}</td>
-                    <td>{{shipment.track}}</td>
-                {% endfor %} -->
                 
             </tr>
         </tbody>

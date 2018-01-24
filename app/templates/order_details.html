@@ -13,7 +13,7 @@
             <div>
 
             <div>
-                <h3>Order Status: {{status}}</h3>
+                <h3>Order Status: {{status}} <span style="float:right">Total Price: {{order.total_sell}}</span></h3>
                 <!-- <div id="ship_info">
                     <label>Receiver: </label>
                     {{order.ship_addr}}
@@ -23,6 +23,7 @@
                 <div id="bill_info">
                     <label>Buyer Name: </label>
                     {{order.buyer.name}}
+
                     
                 </div>
                 <div>{% include '_orderitems.html' %}</div>
