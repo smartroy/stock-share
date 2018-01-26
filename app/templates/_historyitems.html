@@ -1,0 +1,64 @@
+<ul class="posts">
+    {% for order in orders %}
+    <table class="table table-fixed">
+        
+        
+            
+                <tr>
+                    <td>{{order.id}}</td>
+                    <td>{{order.buyer.name}}</td>
+                    <td>{{order.date.strftime('%Y-%m-%d')}}</td>
+                    <td>{{order.total_sell}}</td>
+                    <td>{{order.status}}
+                    
+                </tr>
+
+
+            
+        
+    </table>
+
+
+    {% for item in order.order_items %}
+    <div id="{{item.id}}">
+        <table name="order_status" class="table table-fixed">
+            <thead>
+            <tr>
+
+              <th>Brand</th>
+              <th>Name/Nick</th>
+              <th>Sell Price</th>
+              <th>Ordered Qty</th>
+              
+              <th>Status</th>
+              
+
+            </tr>
+            </thead>
+            <tbody>
+                
+                <tr>
+                    <td>{{products[item.product_id].brand}}</td>
+                    <td>{{products[item.product_id].name}}/{{products[item.product_id].nick_name}}</td>
+                    <td>{{item.sell_price}}</td>
+                    <td name="ordered_count">{{item.count}}</td>
+                    
+                    <td>
+                        {{item.active}}
+                        
+                    </td>
+                   
+                    
+                    
+                </tr>
+            </tbody>
+        </table>
+                    
+        
+                    
+    </div>
+           
+    {% endfor %}
+
+{% endfor %}
+</ul>

@@ -92,14 +92,17 @@ def user(user_id):
     users=[]
     if user is None:
         abort(404)
-    if current_user.can(0xff):
-        users = User.query.all()
+    if current_user.can(Permission.ADMINISTER):
+        users = User.query.order_by(User.id).all()
+    elif current_user.can(Permission.MODERATOR):
+        users = current_user.children
     return render_template('user.html', user=user, users=users)
 
 
 @main.route('/edit_profile', methods=['GET', 'POST'])
 @login_required
 def edit_profile():
+
     form = EditProfileForm()
     if form.validate_on_submit():
         current_user.name = form.name.data
@@ -107,7 +110,7 @@ def edit_profile():
         current_user.about_me = form.about_me.data
         db.session.commit()
         flash('Your profile has been updated.')
-        return redirect(url_for('.user', username=sale_user.username))
+        return redirect(url_for('.user', username=current_user.username))
     form.name.data = current_user.name
     form.location.data = current_user.location
     form.about_me.data = current_user.about_me

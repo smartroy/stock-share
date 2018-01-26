@@ -23,11 +23,12 @@
                 <div>
                     
                         
-                        <table class="table table-fixed"> 
+                        <table class="table" style="font-size:15pt"> 
                             <tr>   
                                 <td>{{products[item['stock_item'].product_id]['brand']}}</td>   
-                                <td>{{products[item['stock_item'].product_id]['name']}}/{{products[item['stock_item'].product_id]['nick_name']}}</td>
-                                <td><a href="{{url_for('main.product_details',product_id = products[item['stock_item'].product_id]._id)}}">Details</a></td>
+                                <td>
+                                    <a href="{{url_for('main.product_details',product_id = products[item['stock_item'].product_id]._id)}}">{{products[item['stock_item'].product_id]['name']}}/{{products[item['stock_item'].product_id]['nick_name']}}</a>
+                                </td>
                             
                             
                                 <td>Total Qty: {{item['order_count']}}</td>
@@ -45,16 +46,18 @@
                             <th>Order Id</th>
                             <th>Date</th>
                             <th>Qty</th>
+                            <th>Unit Price</th>
                         </thead>
                     <tbody> 
                     {% for sale in item['sales']%}
 
                         <tr>
                             <td></td>
-                            <td>{{sale.sellorder.id}}</td>
+                            <td><a href="{{url_for('main.order_details',order_id=sale.sellorder.id)}}">{{sale.sellorder.id}}</a></td>
                             <td>{{sale.sellorder.date.strftime('%Y-%m-%d')}}</td>
                             <td>{{sale.count}}</td>
-                            <td><a href="{{url_for('main.order_details',order_id=sale.sellorder.id)}}">Order Details</a></td>
+                            <td>{{sale.sell_price}}</td>
+                            <td><a href="{{url_for('main.item_delete',item_id=sale.id)}}">Delete Item From Order</a></td>
                         </tr>
                                 
                     {% endfor %}

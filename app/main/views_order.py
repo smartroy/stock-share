@@ -330,3 +330,23 @@ def checkout():
             dues.append(payer)
     # print(dues)
     return render_template("checkout.html",dues=dues)
+
+
+@main.route('/order/history',methods=['GET'])
+@login_required
+def order_history():
+
+    orders = SellOrder.query.filter(SellOrder.user_id==current_user.id).order_by(SellOrder.id.asc()).all()
+    products = {}
+    for order in orders:
+
+
+        for item in order.order_items:
+
+            if not item.product_id in products:
+                product = mongo.db.products.find_one({'_id': ObjectId(item.product_id)})
+                product['_id'] = str(product['_id'])
+                products[item.product_id] = product
+    print(orders)
+    print(products)
+    return render_template("order_history.html",orders=orders,products=products)

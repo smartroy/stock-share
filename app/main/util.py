@@ -77,6 +77,7 @@ def create_order(user,buyer,creator,order_data):
         order_item = create_order_item(key,value,order,user)
         total_sell += order_item.count * order_item.sell_price
     order.total_sell = total_sell
+    db.session.commit()
     return order
 
 
@@ -108,6 +109,7 @@ def delete_order(order):
 
         # db.session.delete(items[i])
     order.active = False
+    order.status = OrderStatus.CANCEL
     db.session.commit()
 
 
@@ -121,13 +123,6 @@ def delete_orderItem(item):
     stock_item.order_count -= item.count
 
     item.sellorder.total_sell -= item.count*item.sell_price
-
-    # shipments = item.shipment.all()
-    # for i in range(len(shipments)):
-    #     stock_item.count += shipments[i].count
-    #     stock_item.shipped_count -= shipments[i].count
-    #     db.session.delete(shipments[i])
-
     item.active=False
     db.session.commit()
     items = OrderItem.query.filter(OrderItem.order_id==item.sellorder.id,OrderItem.active==True).all()
@@ -135,6 +130,7 @@ def delete_orderItem(item):
     if not items:
         print("empty order")
         item.sellorder.active = False
+        item.sellorder.status = OrderStatus.CANCEL
         db.session.commit()
 
 

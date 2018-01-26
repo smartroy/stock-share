@@ -14,6 +14,7 @@ class Permission:
     SHOP = 0X02
     POST_PRODUCT = 0X04
     ADD_PRODUCT = 0X08
+    MODERATOR = 0x0f
     ADMINISTER = 0Xff
 
 
@@ -48,9 +49,9 @@ class Role(db.Model):
     @staticmethod
     def insert_roles():
         roles = {
-            'User':(Permission.BROWSE | Permission.SHOP | Permission.POST_PRODUCT, True),
+            'User':(Permission.BROWSE | Permission.SHOP | Permission.POST_PRODUCT, False),
             'Moderator':(Permission.BROWSE | Permission.SHOP |
-                         Permission.POST_PRODUCT | Permission.ADD_PRODUCT, False),
+                         Permission.POST_PRODUCT | Permission.ADD_PRODUCT, True),
             'Administrator': (0xff, False)
         }
         for r in roles:

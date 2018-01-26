@@ -30,15 +30,15 @@
             {% endif %}
         </p>
     </div>
-    {% if current_user.can(Permission.ADMINISTER) %}
-    <div id='send_email'>
+    {% if current_user.can(Permission.MODERATOR) %}
+    <!-- <div id='send_email'>
         <br>To
         <input type=text name='email'>
         <br>Subject
         <input type=text name='subject'>
         <br>
-        <button class="actionBtn" type="button" id="submit_email" style='float:right;'>Send</button>
-    </div>
+        <button class="actionBtn" type="button" id="submit_email" >Send</button>
+    </div> -->
 
     <table id="all_user" class="table table-fixed" >
         <thead>
@@ -57,7 +57,7 @@
                     <td>{{u.name}}/{{u.username}}</td>
                     <td>{{u.email}}</td>
                     <td>{{u.role.name}}</td>
-                    <td><a href="{{ url_for('main.sell_orders', user_id=u.id) }}">Orders</a></td>
+                    <td><a href="{{ url_for('main.order_history') }}">Order History</a></td>
                 </tr>
 
 

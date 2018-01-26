@@ -63,13 +63,16 @@ def before_request():
 @auth.route('/change_initial',methods=['GET','POST'])
 def change_initial():
     form = ChangeInitialForm()
-    form.username.data = current_user.username
-    if current_user.is_anonymous or  (current_user.username and not current_user.verify_password('stockshare')):
+    if current_user.username:
+        form.username.data = current_user.username
+    if current_user.is_anonymous or (current_user.username and not current_user.verify_password('stockshare')):
         return redirect(url_for('main.index'))
     if form.validate_on_submit():
         current_user.username = form.username.data
+        print(current_user.username)
         # print(form.password.data)
         current_user.password = form.password.data
+        print(form.password.data)
         # db.session.add(current_user)
         db.session.commit()
         return redirect(url_for('main.index'))
