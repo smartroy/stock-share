@@ -82,6 +82,9 @@ class User(UserMixin,db.Model):
     stock = db.relationship('Stock', uselist=False, backref='user')
     sell_orders = db.relationship('SellOrder', backref='user', lazy='dynamic',foreign_keys='[SellOrder.user_id]')
     create_orders = db.relationship('SellOrder', backref='creator', lazy='dynamic', foreign_keys='[SellOrder.creator_id]')
+    usd_cny = db.Column(db.Float,default=0)
+    profit_rate = db.Column(db.Float, default=0.15)
+    sales_tax = db.Column(db.Float,default=0.0625)
     # bill = db.relationship('SellOrder',backref='bill',lazy='dynamic',foreign_keys='[SellOrder.bill_id]')
 
     customers = db.relationship('Customer', backref='user', lazy='dynamic')
@@ -210,7 +213,8 @@ class StockItem(db.Model):
     __tablename__='stock_items'
     id = db.Column(db.Integer, primary_key=True)
     count = db.Column(db.Integer,default=0)
-    price = db.Column(db.Float,default=0)
+    avg_price = db.Column(db.Float,default=0)
+    current_price = db.Column(db.Float,default=0)
     shipped_count = db.Column(db.Integer, default=0)
     product_id = db.Column(db.Text)
     order_count = db.Column(db.Integer,default=0)

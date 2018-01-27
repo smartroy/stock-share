@@ -10,7 +10,9 @@
             {{ current_user.username }}'s Products
             </h1>
             <div>{% include '_products.html' %}</div>
+            {% if current_user.can(Permission.MODERATOR) %}
             <div><button class="optionalBtn" onclick="location.href='{{url_for('main.add_products')}}'" style="float:right;">Add New Products</input></div>
+            {% endif %}
         </div>
        
 

@@ -175,6 +175,22 @@ def add_child():
     send_email(user.email, 'Confirm your account', 'auth/email/confirm', user=user, token=token)
     flash('A confirmation email has been sent to you by email.')
     return jsonify(request.referrer)
+
+
+@main.route('/_update_rates', methods=['GET', 'POST'])
+@login_required
+def update_rates():
+
+    if request.method =="POST":
+        # print(current_user.usd_cny)
+        current_user.usd_cny = float(request.form['usd_cny'])
+        current_user.sales_tax = float(request.form['sales_tax'])
+        current_user.profit_rate = float(request.form['profit_rate'])
+        # print(current_user.usd_cny)
+
+        db.session.commit()
+    return redirect(request.referrer)
+
 # @main.route('/stock/new',methods=['GET','POST'])
 # def new_stock():
 #     form = NewStockForm()

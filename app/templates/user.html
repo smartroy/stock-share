@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Flasky{% endblock %}
+
 
 
 {% block page_content %}
@@ -39,7 +39,15 @@
         <br>
         <button class="actionBtn" type="button" id="submit_email" >Send</button>
     </div> -->
-
+    <div>
+        <form action="{{url_for('.update_rates')}}" method="post">
+            USD TO CNY: <input type="text" name="usd_cny" value="{{current_user.usd_cny}}">
+            Sales Tax: <input type="text" name="sales_tax" value="{{current_user.sales_tax}}">
+            Profit Rate: <input type="text" name="profit_rate" value="{{current_user.profit_rate}}">
+            <input type="submit" value="Update">
+        </form>
+    </div>
+    <br>
     <table id="all_user" class="table table-fixed" >
         <thead>
         <tr>

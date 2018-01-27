@@ -163,9 +163,10 @@ def update_stock(**kwargs):
         db.session.commit()
 
     elif kwargs['action'] == Operation.ADDSTOCK:
-        kwargs['stock_item'].price = (kwargs['stock_item'].count * kwargs['stock_item'].price +
+        kwargs['stock_item'].avg_price = (kwargs['stock_item'].count * kwargs['stock_item'].price +
                                                 kwargs['price'] * kwargs['new_qty']) / (
                                                kwargs['stock_item'].count + kwargs['new_qty'])
+        kwargs['stock_item'].current_price = kwargs['price']
         kwargs['stock_item'].count += kwargs['new_qty']
         purchase = PurchaseItem(count=kwargs['new_qty'], get_price = kwargs['price'], product_id = kwargs[
             'stock_item'].product_id)
