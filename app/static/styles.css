@@ -272,6 +272,8 @@ html, body, .container-fluid, .row {
     overflow: hidden;
 }
 /*table with 8 columns*/
+#sources_result .table-fixed > tbody > tr > td,
+#sources_result .table-fixed > thead > tr > th,
 #all_products tbody > tr > td,
 #all_products thead > tr > th,
 #sellorders .table-fixed > tbody > tr > td,
@@ -328,8 +330,7 @@ html, body, .container-fluid, .row {
 #product_details input{
     width: 100%;
 }
-#sources_result .table-fixed > tbody > tr > td,
-#sources_result .table-fixed > thead > tr > th,
+
 #itemtable tbody > tr > td,
 #itemtable thead > tr > th {
     width: 20%;

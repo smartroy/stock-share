@@ -129,8 +129,12 @@ def search_source():
             stock_item=StockItem.query.filter(StockItem.product_id==product["_id"]).first()
             if stock_item:
                 product["count"]=stock_item.count
+                product["avg_price"]=stock_item.avg_price*(current_user.sales_tax + 1)*(1+current_user.profit_rate)*current_user.usd_cny
+                product["current_price"]=stock_item.current_price*(current_user.sales_tax + 1)*(1+current_user.profit_rate)*current_user.usd_cny
             else:
                 product["count"]=0
+                product["avg_price"] = 9999999
+                product["current_price"] = 9999999
             products.append(product)
 
     return jsonify(products)
