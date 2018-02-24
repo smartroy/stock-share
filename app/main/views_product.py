@@ -37,6 +37,7 @@ def list_products():
     else:
         cursor = mongo.db.sources.find({"user": sale_user.id})
     for doc in cursor:
+        # print(doc)
         sources.append(doc["source"])
 
     if current_user.is_administrator():

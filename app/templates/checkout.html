@@ -26,3 +26,11 @@
 
 
 {% endblock %}
+{% block scripts %}
+{{super()}}
+
+<script src="{{ url_for('static', filename='checkout_jutil.js') }}"></script>
+
+
+
+{% endblock %}

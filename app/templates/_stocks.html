@@ -3,7 +3,9 @@
         <tr>
           <th title="Brand">Brand</th>
           <th title="Name/Nick Name">Name/Nick Name</th>
-          <th title="Purchase Price">Purchase Price</th>
+          <th title="Avg Price">Avg Price</th>
+          <th title="Current Price">Current Price</th>
+
           <th title="Stock Qty.">Stock Qty.</th>
           <th title="Pending Ordered Qty.">Pending Ordered Qty.</th>
           <th></th>
@@ -15,7 +17,8 @@
                 <tr>
                     <td title="{{products[loop.index0].brand}}">{{products[loop.index0].brand}}</td>
                     <td title="{{products[loop.index0].name}}/{{products[loop.index0].nick_name}}">{{products[loop.index0].name}}/{{products[loop.index0].nick_name}}</td>
-                    <td title="{{stocks[loop.index0].price}}">{{stocks[loop.index0].price}}</td>
+                    <td title="{{stocks[loop.index0].avg_price}}">{{stocks[loop.index0].avg_price}}</td>
+                    <td title="{{stocks[loop.index0].current_price}}">{{stocks[loop.index0].current_price}}</td>
                     <td title="{{stocks[loop.index0].count}}" id="stockQty">{{stocks[loop.index0].count}}</td>
                     <td title="{{stocks[loop.index0].pending_count}}" id="orderQty">{{stocks[loop.index0].pending_count}}</td>
                     <!-- <td><a href="{{url_for('main.stock_item_post',item_id=stocks[loop.index0].id)}}">Post</a></td> -->

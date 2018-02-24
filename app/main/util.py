@@ -1,4 +1,4 @@
-from ..models import StockItem, Customer, OrderItem, Role, User, Post, Operation, OrderStatus, Shipment, PurchaseItem, SellOrder
+from ..models import StockItem, Customer, OrderItem, Role, User, Post, Operation, OrderStatus, Shipment, PurchaseItem, SellOrder, ProductItem
 from app import db, mongo
 from flask_login import current_user
 from sqlalchemy import and_, or_
@@ -28,12 +28,15 @@ def create_product(brand="", name="", nick_name="", figure=[], upc="", sku="", s
     # return Product(name=name, figure=figure, upc=upc, sku=sku, description=description)
 
 
-def create_stock_item(product_id, stock,price=0 ):
-    return StockItem(product_id=product_id, stock=stock, price=price, count=0)
+def create_stock_item(product_id, stock):
+    return StockItem(product_id=product_id, stock=stock,count=0)
 
 
 def create_customer(user=None, name=None, address=None,zip=0,cellphone=0):
     return Customer(user=user, name=name, address=address,zip=zip,cellphone=cellphone)
+
+def create_productitem(user=None, buyer=None, product_id=""):
+    return ProductItem(user=user, buyer=buyer, product_id=product_id)
 
 
 def create_item(count=0, sell_price =0, stockitem=None, sellorder=None ):
@@ -74,14 +77,14 @@ def create_order(user,buyer,creator,order_data):
     total_sell = 0
     for key, value in order_data.items():
 
-        order_item = create_order_item(key,value,order,user)
+        order_item = create_order_item(key,value,order,user,buyer)
         total_sell += order_item.count * order_item.sell_price
     order.total_sell = total_sell
     db.session.commit()
     return order
 
 
-def create_order_item(key,value,order,user):
+def create_order_item(key,value,order,user,buyer):
     order_item = OrderItem(sell_price=float(value['price']), count=int(value['qty']), sellorder=order,
                            product_id=str(key))
 
@@ -90,11 +93,21 @@ def create_order_item(key,value,order,user):
     order_item.note = str(value['note'])
     db.session.add(order_item)
     db.session.commit()
+    print("look for product_item1")
+    # product_item = ProductItem.query.filter(and_(ProductItem.product_id == str(key), ProductItem.user_id == user.id, ProductItem.buyer_id == buyer.id)).first()
+    print("got product_item1")
+    # if not product_item:
+    #     print("create product_item1")
+    #     product_item = create_productitem(user,buyer,str(key))
+    #     print("product_item get"+product_item.product_id)
+    #     db.session.add(product_item)
+    #     db.session.commit()
+    # order_item.productitem = product_item
     if not stock_item:
         stock_item = create_stock_item(product_id=str(key), stock=user.stock)
         db.session.add(stock_item)
         db.session.commit()
-
+    db.session.commit()
     update_stock(order_item=order_item, stock_item=stock_item, action=Operation.CREATE)
     return order_item
 
@@ -119,14 +132,14 @@ def delete_orderItem(item):
         and_(StockItem.product_id == item.product_id, StockItem.stock == sale_user.stock)).first()
     # print(product)
     # product['_id'] = str(product['_id'])
-
+    # stock_item.productitem_id = None
     stock_item.order_count -= item.count
 
     item.sellorder.total_sell -= item.count*item.sell_price
     item.active=False
     db.session.commit()
     items = OrderItem.query.filter(OrderItem.order_id==item.sellorder.id,OrderItem.active==True).all()
-    print()
+    # print()
     if not items:
         print("empty order")
         item.sellorder.active = False
@@ -163,7 +176,7 @@ def update_stock(**kwargs):
         db.session.commit()
 
     elif kwargs['action'] == Operation.ADDSTOCK:
-        kwargs['stock_item'].avg_price = (kwargs['stock_item'].count * kwargs['stock_item'].price +
+        kwargs['stock_item'].avg_price = (kwargs['stock_item'].count * kwargs['stock_item'].avg_price +
                                                 kwargs['price'] * kwargs['new_qty']) / (
                                                kwargs['stock_item'].count + kwargs['new_qty'])
         kwargs['stock_item'].current_price = kwargs['price']

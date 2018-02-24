@@ -77,6 +77,97 @@ $(function() {
     });
 
     
+    $('.order_selector').bind('click',function(){
+        p_div = $(this).closest("div");
+        chekc_boxes = $(p_div).find('input[type="checkbox"]').prop('checked',this.checked);
+        // console.log(p_div.attr('name'));
+    });
+
+
+    $('.pay_selected').bind('click',function(){
+        var items={};
+        var payment=false;
+        var item_info=$(this).closest("div").find('[class="order_item_info"]').each(
+                function(){
+                    var key = $(this).attr("id").replace('order_item','');
+                    var qty = $(this).find('[name="pay_qty"]').val();
+                    var name=$(this).find('[name="product_name"]').html();
+                    var price=$(this).find('[name="price"]').val();
+                    var confirm = $(this).find('[name="confirm"]').is(":checked");
+                    items[key]={'qty':qty,'confirm':confirm,'name':name,'total':qty*price};
+                    // console.log(items[key]);
+                    if(confirm)
+                        payment=true;
+                }
+            );
+
+        // console.log(info_id);
+        // for (var i = 0; i < item_info.length; i++) {
+        //     console.log(item_info[i].attr('id'));       
+        // }
+        var dialog_div = $(document.createElement('div'));
+        dialog_div.id = "Confirm Payment";
+        if(!payment){
+            dialog_div.html("Please select items to pay");
+            dialog_div.dialog({
+                height: "auto",
+                width: 700,
+                modal: true,
+                resizable: true,
+
+                buttons:{
+                    OK:function(){
+                        $(this).dialog("close");
+                    }
+                    
+                }
+            });
+        }
+        else{
+            var inner = "<p>The following items will be marked as Paid</p>"+
+                        "<table class='table table-fixed'>";
+
+            for(key in items){
+                if(items[key]["confirm"]){
+                    inner+="<tr>"+
+                            "<td>"+items[key]["name"]+"</td>"+
+                            
+                            "<td>Qty "+items[key]["qty"]+"</td>"+
+                            "<td>Total "+items[key]["total"]+"</td>"+
+                            "</tr>";
+                }
+            }
+            inner+="</table>";
+            dialog_div.html(inner);
+
+            dialog_div.dialog({
+                height: "auto",
+                width: 700,
+                modal: true,
+                resizable: true,
+
+                buttons:{
+                    Confirm:function(){
+                        items = JSON.stringify(items);
+                        $.ajax({
+                            type : "POST",
+                            url : "/order/checkout/_add_payment",
+                            data: items,
+                            contentType: 'application/json;charset=UTF-8',
+                            success: function(result) {
+                                console.log(result);
+                                window.location.href = result;
+                            }
+                        });
+                    },
+                    Cancel:function(){
+                        $(this).dialog("close");
+                    }
+                }
+            });
+        }
+        
+    });
 
     $('#submit_order').bind('click','#itemtable',function(){
         

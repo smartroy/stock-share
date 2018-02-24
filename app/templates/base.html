@@ -4,6 +4,10 @@
 {% block head %}
 {{ super() }}
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='jquery-ui.min.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='jquery-ui.structure.min.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='jquery-ui.theme.min.css') }}">
+
 <script src="{{ url_for('static', filename='util.js') }}"></script>
 
 {% endblock %}
@@ -97,6 +101,10 @@
 {% block scripts %}
 {{ super() }}
 {{ moment.include_moment() }}
+<script
+  src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+  integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+  crossorigin="anonymous"></script>
 {% endblock %}
 
 

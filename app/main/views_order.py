@@ -88,7 +88,7 @@ def sales_items():
                 sale_item={'stock_item':stock_item,'order_count':item.count,'ship_count':item.shipped_count,'sales':[item]}
                 sale_details[customer.id] = {'customer':customer,'sale_items':{stock_item.id:sale_item}}
             # pass
-        print(sale_details)
+        # print(sale_details)
         infos=[]
         for k,v in sorted(sale_details.items()):
             infos.append(v)
@@ -119,12 +119,14 @@ def search_source():
     sale_user = get_parent()
     # upc_data = upc.split(',')
     products=[]
-    if current_user.is_administrator:
+    if current_user.is_administrator():
         cursor = mongo.db.products.find({"source":source.upper()})
     else:
+        # print(sale_user.id)
         cursor = mongo.db.products.find({"$and": [{"source": source.upper()}, {"user": sale_user.id}]})
     if cursor:
         for product in cursor:
+            # print(product)
             product["_id"]=str(product["_id"])
             stock_item=StockItem.query.filter(StockItem.product_id==product["_id"]).first()
             if stock_item:
@@ -148,7 +150,7 @@ def add_order():
     print(order_data)
     bill = order_data.pop('bill',None)
     # ship = order_data.pop('ship', None)
-    print(bill)
+    # print(bill)
     # print(ship)
     # print(order_data)
     bill_c = Customer.query.filter(and_(Customer.name == bill['name'], Customer.cellphone == bill['cellphone'])).first()
@@ -312,6 +314,7 @@ def checkout():
     sale_user = get_parent()
     dues = []
     customers = Customer.query.filter(Customer.user_id==sale_user.id).all()
+    products = {}
     for customer in customers:
 
         orders = SellOrder.query.filter(and_(SellOrder.buyer==customer, SellOrder.paid==False,SellOrder.active==True)).all()
@@ -321,19 +324,29 @@ def checkout():
             orders_detail =[]
             for order in orders:
                 total_due += order.total_sell
-                products={}
+
                 for item in order.order_items:
                     if item.active:
-                        product = mongo.db.products.find_one({'_id': ObjectId(item.product_id)})
-                        product['_id'] = item.product_id
-                        products[item.product_id] = product
+                        if item.product_id not in products:
+                            product = mongo.db.products.find_one({'_id': ObjectId(item.product_id)})
+                            product['_id'] = item.product_id
+                            products[item.product_id] = product
                         total_due += item.sell_price * item.count
-                orders_detail.append({'order':order,'products': products})
+                orders_detail.append({'order':order})
             payer = {'customer': customer, 'orders_info': orders_detail}
             payer['amount']=total_due
             dues.append(payer)
     # print(dues)
-    return render_template("checkout.html",dues=dues)
+    return render_template("checkout.html",dues=dues,products=products)
+
+@main.route('/order/checkout/_add_payment',methods=['GET','POST'])
+@login_required
+def add_payment():
+    print()
+    pay_data = request.get_json()
+    print(pay_data)
+    return jsonify(request.referrer)
+
 
 
 @main.route('/order/history',methods=['GET'])

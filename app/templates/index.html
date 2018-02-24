@@ -40,8 +40,8 @@
 {{super()}}
 <script>
     $('#stockoverview tr').each(function(){
-        var stockQty = +($(this).find("td:eq(3)").text());
-        var orderQty = +($(this).find("td:eq(4)").text());
+        var stockQty = +($(this).find("td:eq(4)").text());
+        var orderQty = +($(this).find("td:eq(5)").text());
         if(stockQty < orderQty){
             $(this).css("background","rgba(255, 0, 0, 0.2)");
         }else{
