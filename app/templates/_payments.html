@@ -1,0 +1,69 @@
+<!-- for each element in dues, 
+    due['customer']: payers info (name, cell); 
+    due['orders_info']: info unpaid orders of due['customer'], for each order_info in due['orders_info'], 
+    order_info['order']: order_info,e.g. order.id, order.date, order.total_sell, order.order_items, for each item in oder.items
+    item.count, item.sell_price, item.product_id which can be used to get info of product by order_info['product'][item.product_id]
+    order_info['products'],
+-->
+
+<ul class="posts">
+    
+            {% for k,v in buyer_pay.items() %}
+                <div class="card bg-info text-white">
+                    <div class="card-title">
+                        <h2>{{v["buyer"].name}}</h2>
+                    </div>
+
+
+
+                
+                    <table class="table table-fixed">
+                        <thead>
+                            <th>Date</th>
+                            <th>Confirm No.</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                        </thead>
+                        
+                    </table>
+                    {% for payment in v["pay"] %}
+                    <table class="table table-fixed">
+                        <tr>
+                            
+                            <td>{{payment.date.strftime('%Y-%m-%d')}}</td>
+                            <td>{{payment.confirm_id}}</td>
+                            <td>{{payment.total}}</td>
+                            {% if payment.confirmed %}
+                            <td>Paid</td>
+                            {% else %}
+                            <td>Pending</td>
+                            <td><input type="button" class="btn btn-success btn-xs" onclick="location.href='{{url_for('main.payment_confirm',payment_id=payment.id)}}'" value="Confirm"></td>
+                            <td><a href="{{url_for('main.payment_delete',payment_id=payment.id)}}">Delete</a></td>
+                            {% endif%}
+                            <td><a href="#showPayment{{payment.id}}" class="btn btn-info" data-toggle="collapse">Details</a></td>
+                        </tr>
+                    </table>
+                    <div id="showPayment{{payment.id}}" class="collapse">
+                        <table class="table table-fixed">
+                            <tbody>
+                                {% for item in payment.paymentitems%}
+                                <tr>
+                                    <td></td>
+                                    <td>{{item.orderitem.product_info["brand"]}}</td>
+                                    <td>{{item.orderitem.product_info["name"]}}/{{item.orderitem.product_info["nick_name"]}}</td>
+                                    <td>{{item.price}}</td>
+                                    <td>{{item.count}}</td>
+                                    <td>{{item.count*item.price}}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            
+                        </table>
+                    </div>
+                    {% endfor %}
+                        
+                   
+                </div>
+            {% endfor %}
+
+</ul>

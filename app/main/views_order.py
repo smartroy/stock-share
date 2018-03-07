@@ -4,7 +4,7 @@ from flask import current_app as app
 from . import main
 from .forms import NameForm, EditProfileForm, EditProfileAdminForm, NewStockForm
 from .. import db, mongo
-from ..models import User, Role, Permission, Post, Stock, StockItem, SellOrder, OrderItem, Customer,Operation, Shipment, OrderStatus
+from ..models import User, Role, Permission, Post, Stock, StockItem, SellOrder, OrderItem, Customer,Operation, Shipment, OrderStatus,Payment,PaymentItem
 from .. import auth
 from werkzeug.utils import secure_filename
 from config import basedir
@@ -19,7 +19,7 @@ from json import dumps
 from base64 import b64encode
 from datetime import datetime, timedelta
 from .forms import CreateForm, SellForm, SellItemForm
-from .util import create_customer,create_stock_item,create_product, create_item, update_stock, delete_orderItem, delete_order, get_orders, get_parent,get_items, create_order
+from .util import create_customer,create_stock_item,create_product, create_item, update_stock, delete_orderItem, delete_order, get_orders, get_parent,get_items, create_order,create_payment
 from bson import ObjectId
 import json
 
@@ -323,29 +323,80 @@ def checkout():
             total_due = 0
             orders_detail =[]
             for order in orders:
-                total_due += order.total_sell
+                checkout_needed=False
 
                 for item in order.order_items:
-                    if item.active:
+                    if item.active and (item.count>(item.paid_count+item.checked_count)):
+                        # print(item.product_id)
+                        checkout_needed=True
                         if item.product_id not in products:
                             product = mongo.db.products.find_one({'_id': ObjectId(item.product_id)})
                             product['_id'] = item.product_id
                             products[item.product_id] = product
-                        total_due += item.sell_price * item.count
-                orders_detail.append({'order':order})
+                        total_due += item.sell_price * (item.count - item.paid_count - item.checked_count)
+                if checkout_needed:
+                    # total_due += order.total_sell
+                    orders_detail.append({'order':order})
             payer = {'customer': customer, 'orders_info': orders_detail}
             payer['amount']=total_due
             dues.append(payer)
-    # print(dues)
+
+    print(dues)
     return render_template("checkout.html",dues=dues,products=products)
+
+
+@main.route('/order/check/payments',methods=['GET','POST'])
+@login_required
+def show_payments():
+    sales_user = get_parent()
+    payments = Payment.query.filter(Payment.user==sales_user).all()
+    buyer_pay={}
+    for payment in payments:
+        if payment.buyer.id not in buyer_pay:
+            buyer_pay[payment.buyer.id]={"buyer":payment.buyer,"pay":[payment]}
+        else:
+            buyer_pay[payment.buyer.id]["pay"].append(payment)
+
+    return render_template("payment.html", buyer_pay=buyer_pay)
+
+
+@main.route('/order/checkout/payments/delete/<int:payment_id>',methods=['GET','POST'])
+@login_required
+def payment_delete(payment_id):
+    sale_user = get_parent()
+    payment = Payment.query.get_or_404(payment_id)
+    if sale_user == payment.user:
+        db.session.delete(payment)
+        db.session.commit()
+    return redirect(request.referrer)
+
+
+@main.route('/order/checkout/payments/confirm/<int:payment_id>',methods=['GET','POST'])
+@login_required
+def payment_confirm(payment_id):
+    sale_user = get_parent()
+    payment = Payment.query.get_or_404(payment_id)
+    if sale_user == payment.user:
+        payment.confirmed = True
+        db.session.commit()
+    return redirect(request.referrer)
+
 
 @main.route('/order/checkout/_add_payment',methods=['GET','POST'])
 @login_required
 def add_payment():
-    print()
+
     pay_data = request.get_json()
-    print(pay_data)
+    # print(pay_data)
+    pay={}
+    for key,value in pay_data.items():
+        pay[key]=value["qty"]
+    create_payment(pay)
     return jsonify(request.referrer)
+
+
+    # for key,value in pay.items():
+    #     orderitem=OrderItem.query.get_or_404(key)
 
 
 

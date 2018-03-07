@@ -1,4 +1,4 @@
-from app import db
+from app import db, mongo
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin, AnonymousUserMixin
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
@@ -8,6 +8,7 @@ from datetime import datetime
 import hashlib
 from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
 from sqlalchemy.orm import backref
+from bson import ObjectId
 
 class Permission:
     BROWSE = 0x01
@@ -80,8 +81,14 @@ class User(UserMixin,db.Model):
     avatar_hash = db.Column(db.String(32))
     posts = db.relationship('Post', backref='user', lazy='dynamic')
     stock = db.relationship('Stock', uselist=False, backref='user')
+
     sell_orders = db.relationship('SellOrder', backref='user', lazy='dynamic',foreign_keys='[SellOrder.user_id]')
     create_orders = db.relationship('SellOrder', backref='creator', lazy='dynamic', foreign_keys='[SellOrder.creator_id]')
+    payments = db.relationship('Payment', backref='user', lazy='dynamic', foreign_keys='[Payment.user_id]')
+    payments_creator = db.relationship('Payment', backref='creator', lazy='dynamic',
+                                    foreign_keys='[Payment.creator_id]')
+
+
     usd_cny = db.Column(db.Float,default=0)
     profit_rate = db.Column(db.Float, default=0.15)
     sales_tax = db.Column(db.Float,default=0.0625)
@@ -93,9 +100,9 @@ class User(UserMixin,db.Model):
     children = db.relationship('User',backref=backref('parent', remote_side=[id]))
     def __init__(self, **kwargs):
         super(User,self).__init__(**kwargs)
-        print('creating user')
+        # print('creating user')
         if self.role is None:
-            print('assign role')
+            # print('assign role')
             if self.email == current_app.config['FLASKY_ADMIN']:
                 # print('admin')
                 self.role = Role.query.filter_by(permissions=0xff).first()
@@ -112,7 +119,7 @@ class User(UserMixin,db.Model):
             self.stock = Stock()
         self.sell_orders = []
         self.customers = []
-        print(self.role)
+        # print(self.role)
         db.session.commit()
 
     def ping(self):
@@ -303,10 +310,58 @@ class OrderItem(db.Model):
     order_id = db.Column(db.Integer, db.ForeignKey('sellorders.id'))
     active = db.Column(db.Boolean,default=True)
     shipitems = db.relationship('ShipItem', backref='orderitem', lazy='dynamic', cascade="delete")
+    paymentitems = db.relationship('PaymentItem', backref='orderitem', lazy='dynamic', cascade="delete")
     # shipment = db.relationship('Shipment', backref='orderitem', lazy='dynamic', cascade="delete")
     @hybrid_property
     def paid(self):
         return self.paid_count >= self.count
+    @hybrid_property
+    def checked_count(self):
+        count=0
+        for item in self.paymentitems:
+            if item:
+                count += item.count
+            else:
+                break
+        return count
+    @hybrid_property
+    def product_info(self):
+        product = mongo.db.products.find_one({'_id':ObjectId(self.product_id)})
+        product["_id"] = str(product["_id"])
+        return product
+
+
+class Payment(db.Model):
+    __tablename__="payments"
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    creator_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    date = db.Column(db.DateTime(), default=datetime.utcnow)
+    buyer_id = db.Column(db.Integer, db.ForeignKey('customers.id'))
+    confirmed = db.Column(db.Boolean, default=False)
+    paymentitems = db.relationship('PaymentItem', backref='payment', lazy='dynamic', cascade="all, delete-orphan")
+    confirm_id = db.Column(db.Text)
+
+
+    @hybrid_property
+    def total(self):
+        total=0
+        for item in self.paymentitems:
+            total+=item.count * item.price
+        return total
+
+    def gen_confirID(self):
+        self.confirm_id = str(self.user.id).zfill(5) + str(self.id).zfill(5)
+        db.session.commit()
+
+class PaymentItem(db.Model):
+    ___tablename__ = "paymentitems"
+    id = db.Column(db.Integer, primary_key=True)
+    count = db.Column(db.Integer)
+    price = db.Column(db.Float)
+    payment_id = db.Column(db.Integer, db.ForeignKey('payments.id'))
+    orderitem_id = db.Column(db.Integer, db.ForeignKey('orderitems.id'))
+
 
 
 class PurchaseItem(db.Model):
@@ -354,6 +409,7 @@ class Customer(db.Model):
     buy_orders = db.relationship('SellOrder',backref='buyer',lazy='dynamic')
     shipments = db.relationship('Shipment',backref='buyer',lazy='dynamic')
     productitems = db.relationship('ProductItem', uselist=False, backref='buyer')
+    payments = db.relationship('Payment',backref='buyer',lazy='dynamic')
 
     # ship = db.relationship('SellOrder',backref='ship',lazy='dynamic',foreign_keys='[SellOrder.ship_id]')
 # class Order(db.Model):

@@ -1,4 +1,4 @@
-from ..models import StockItem, Customer, OrderItem, Role, User, Post, Operation, OrderStatus, Shipment, PurchaseItem, SellOrder, ProductItem
+from ..models import StockItem, Customer, OrderItem, Role, User, Post, Operation, OrderStatus, Shipment, PurchaseItem, SellOrder, ProductItem,Payment,PaymentItem
 from app import db, mongo
 from flask_login import current_user
 from sqlalchemy import and_, or_
@@ -82,6 +82,21 @@ def create_order(user,buyer,creator,order_data):
     order.total_sell = total_sell
     db.session.commit()
     return order
+
+
+def create_payment(pay):
+    sales_user=get_parent()
+    buyer = OrderItem.query.get_or_404(list(pay.keys())[0]).sellorder.buyer
+    payment = Payment(user=sales_user,creator=current_user,buyer=buyer)
+    db.session.add(payment)
+    db.session.commit()
+    for key,value in pay.items():
+        order_item = OrderItem.query.get_or_404(key)
+        payment_item = PaymentItem(payment=payment, orderitem=order_item,count=value,price=order_item.sell_price)
+        db.session.add(payment_item)
+        db.session.commit()
+        payment.gen_confirID()
+
 
 
 def create_order_item(key,value,order,user,buyer):

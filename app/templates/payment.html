@@ -12,9 +12,9 @@
                 <div>
                     {% if current_user.can(Permission.POST_PRODUCT) %}
                     <h5>
-		                <span><input type="button" class="btn btn-success" onclick="location.href='{{url_for('.show_payments')}}'" value="View Payments"></span>
+		                <span><input type="button" class="optionalBtn" onclick="location.href='{{url_for('.checkout')}}'" value="Check Out" ></span>
 		            </h5>
-                    <div id="sellorders">{% include '_duepayments2.html' %}</div>
+                    <div id="sellorders">{% include '_payments.html' %}</div>
                    
                     {% endif %}
                 </div>

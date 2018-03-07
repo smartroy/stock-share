@@ -252,7 +252,7 @@ html, body, .container-fluid, .row {
 .table-fixed > thead > tr > th {
     width: 16.5%;
     float: left;
-    height: 35px;
+    height: 40px;
     text-overflow: ellipsis;;
     white-space: nowrap;
     overflow: hidden;
