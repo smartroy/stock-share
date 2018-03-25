@@ -31,7 +31,8 @@
                                 </td>
                             
                             
-                                <td>Total Qty: {{item['order_count']}}</td>
+                                <td>Ordered Qty: {{item['order_count']}}</td>
+                                <td>Paid/Checked Qty: {{item['paid_count']}}/{{item['checked_count']}}</td>
                                 <td>Shipped Qty: {{item['ship_count']}}</td>
                            <!--  <span style="float:right"> -->
                                 <td><a href="#show{{info['customer'].id}}-{{item['stock_item'].id}}" class="btn btn-info" data-toggle="collapse">Details</a></td>
@@ -45,7 +46,7 @@
                             <th></th>
                             <th>Order Id</th>
                             <th>Date</th>
-                            <th>Qty</th>
+                            <th>Ordered Qty</th>
                             <th>Unit Price</th>
                         </thead>
                     <tbody> 

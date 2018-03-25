@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block page_content %}
+
+
+        <div class="page-header">
+
+            <h1>
+
+
+            </h1>
+            <div>
+
+            <div>
+                <h3>
+                    Shipment Status: 
+                    {% if shipment.released %}
+
+                        Released
+                        {% if current_user.can(Permission.ADD_PRODUCT) %}
+                        <a class="btn btn-warning btn-xs" href="{{url_for('main.release_shipment',shipment_id=shipment.id)}}">Retrieve</a>
+                        {% endif %}
+                    {% else %}
+
+                            {% if shipment.release_ready %}
+                            <a class="btn btn-success btn-xs" href="{{url_for('main.release_shipment',shipment_id=shipment.id)}}">Release</a>
+                            {% else %}
+                            Not enough Stock
+                            {% endif %}
+                    <a class="btn btn-warning btn-xs" >Edit</a>
+                    {% endif %} 
+                    
+                </h3>
+                <div id="bill_info">
+                    <label>Buyer Name: </label>
+                    {{shipment.buyer.name}}
+
+                    
+                </div>
+                <div id="ship_info">
+                    <label>Receiver: </label>
+                    {{shipment.name}} {{shipment.addr}} {{shipment.cell}}
+
+                        
+                   
+                </div>
+                <div id="shipmetitems">
+                    <table class="table table-fixed">
+                        <thead>
+                            <th>Brand</th>
+                            <th>Name/Nick Name</th>
+                            <th>Count</th>
+                        </thead>
+                        <tbody>
+                        {% for item in shipment.shipmentitems%}
+                            <tr>
+
+                                <td>{{item.orderitem.product_info["brand"]}}</td>
+                                <td title='{{item.orderitem.product_info["name"]}}/{{item.orderitem.product_info["nick_name"]}}'>{{item.orderitem.product_info["name"]}}/{{item.orderitem.product_info["nick_name"]}}</td>
+
+                                <td>{{item.count}}</td>
+                                <td><a href="{{url_for('main.order_details',order_id=item.orderitem.sellorder.id)}}">See in Order</a></td>
+                            </tr>
+                        {% endfor%}
+                        </tbody>
+                    </table>
+                </div>
+                
+                
+            </div>
+
+            </div>
+
+
+        </div>
+
+
+
+
+{% endblock %}
+{% block scripts %}
+{{super()}}
+
+<script src="{{ url_for('static', filename='jutil.min.js') }}"></script>
+
+
+
+{% endblock %}

@@ -1,4 +1,4 @@
-from ..models import StockItem, Customer, OrderItem, Role, User, Post, Operation, OrderStatus, Shipment, PurchaseItem, SellOrder, ProductItem,Payment,PaymentItem
+from ..models import *
 from app import db, mongo
 from flask_login import current_user
 from sqlalchemy import and_, or_
@@ -74,12 +74,12 @@ def create_order(user,buyer,creator,order_data):
 
     db.session.add(order)
     db.session.commit()
-    total_sell = 0
+    # total_sell = 0
     for key, value in order_data.items():
 
         order_item = create_order_item(key,value,order,user,buyer)
-        total_sell += order_item.count * order_item.sell_price
-    order.total_sell = total_sell
+        # total_sell += order_item.count * order_item.sell_price
+    # order.total_sell = total_sell
     db.session.commit()
     return order
 
@@ -95,7 +95,25 @@ def create_payment(pay):
         payment_item = PaymentItem(payment=payment, orderitem=order_item,count=value,price=order_item.sell_price)
         db.session.add(payment_item)
         db.session.commit()
-        payment.gen_confirID()
+    payment.gen_confirmID()
+
+
+def create_shipment(ship_data):
+    sales_user=get_parent()
+    # print(ship_data)
+    # print(list(ship_data["items"].keys())[0])
+    # print(ship_data)
+    # print(ship_data.keys)
+    buyer = OrderItem.query.get_or_404(list(ship_data["items"].keys())[0]).sellorder.buyer
+    shipment = Shipment(user=sales_user,creator=current_user,buyer=buyer,addr=ship_data["addr"],cell=ship_data["cell"],name=ship_data["name"])
+    db.session.add(shipment)
+    db.session.commit()
+
+    for key, value in ship_data["items"].items():
+        order_item = OrderItem.query.get_or_404(key)
+        shipment_item = ShipmentItem(shipment=shipment, orderitem=order_item,count=value["qty"])
+        db.session.add(shipment_item)
+        db.session.commit()
 
 
 
@@ -108,22 +126,13 @@ def create_order_item(key,value,order,user,buyer):
     order_item.note = str(value['note'])
     db.session.add(order_item)
     db.session.commit()
-    print("look for product_item1")
-    # product_item = ProductItem.query.filter(and_(ProductItem.product_id == str(key), ProductItem.user_id == user.id, ProductItem.buyer_id == buyer.id)).first()
-    print("got product_item1")
-    # if not product_item:
-    #     print("create product_item1")
-    #     product_item = create_productitem(user,buyer,str(key))
-    #     print("product_item get"+product_item.product_id)
-    #     db.session.add(product_item)
-    #     db.session.commit()
-    # order_item.productitem = product_item
+
     if not stock_item:
         stock_item = create_stock_item(product_id=str(key), stock=user.stock)
         db.session.add(stock_item)
         db.session.commit()
     db.session.commit()
-    update_stock(order_item=order_item, stock_item=stock_item, action=Operation.CREATE)
+    # update_stock(order_item=order_item, stock_item=stock_item, action=Operation.CREATE)
     return order_item
 
 
@@ -196,8 +205,7 @@ def update_stock(**kwargs):
                                                kwargs['stock_item'].count + kwargs['new_qty'])
         kwargs['stock_item'].current_price = kwargs['price']
         kwargs['stock_item'].count += kwargs['new_qty']
-        purchase = PurchaseItem(count=kwargs['new_qty'], get_price = kwargs['price'], product_id = kwargs[
-            'stock_item'].product_id)
+        purchase = PurchaseItem(count=kwargs['new_qty'], get_price = kwargs['price'], product_id = kwargs['stock_item'].product_id)
         db.session.add(purchase)
         db.session.commit()
     # if action == Operation.CREATE:
@@ -267,3 +275,22 @@ def get_parent():
         return current_user.parent
     else:
         return current_user
+
+def cancel_shipment(shipment):
+    for item in shipment.shipmentitems:
+        cancel_shipment_item(item)
+    # db.session.commit()
+    db.session.delete(shipment)
+    db.session.commit()
+
+def cancel_shipment_item(item):
+    db.session.delete(item)
+    db.session.commit()
+
+
+def shipment_release(shipment):
+    for item in shipment.shipmentitems:
+        item.released=not item.released
+        db.session.commit()
+    shipment.released=not shipment.released
+    db.session.commit()

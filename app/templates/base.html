@@ -35,6 +35,7 @@
                 {% if current_user.can(Permission.POST_PRODUCT) %}
 
                 <li><a href="{{ url_for('main.sales_orders') }}">Sell Orders</a></li>
+                <li><a href="{{ url_for('main.shipping_all') }}">Shipping</a></li>
                 <li><a href="{{ url_for('main.my_customer')}}">My Customers</a></li>
                 <li><a href="{{ url_for('main.list_products')}}">My Inventory</a></li>
                 {% endif %}

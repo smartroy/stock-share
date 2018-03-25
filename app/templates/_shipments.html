@@ -1,0 +1,74 @@
+<ul class="posts">
+    
+    <div >
+        <table  class="table table-fixed">
+            <thead>
+                <th></th>
+                <th>Buyer</th>
+                <th>Receiver</th>
+                <th>Date</th>
+                <th>Addr</th>
+                <th></th>
+                <th></th>
+            </thead>
+        </table>
+            
+        {% for shipment in shipments %}
+        <div id="shipment_div_{{shipment.id}}">
+            <table class="table table-fixed">
+                <tbody>
+                    <tr>
+                        <td><input type="checkBox" class="shipment_selector">{{shipment.id}}</td>
+                        <td>{{shipment.buyer.name}}</td>
+                        <td>{{shipment.name}}</td>
+                        <td>{{shipment.date.strftime('%Y-%m-%d')}}</td>
+                        <td title="{{shipment.addr}}">{{shipment.addr}}</td>
+                        {% if (not shipment.released) %}
+                            {% if shipment.release_ready %}
+                            <td><a class="btn btn-success btn-xs" href="{{url_for('main.release_shipment',shipment_id=shipment.id)}}">Release</a></td>
+                            {% else %}
+                            <td>Not enough Stock</td>
+                            {% endif %}
+                        {% else %}
+                        <td>Released</td>
+                        {% endif %}
+                        <td><a href="#showShipment{{shipment.id}}" class="btn btn-info btn-xs" data-toggle="collapse">Details</a>/<a href="{{url_for('main.shipment_details',shipment_id=shipment.id)}}" >Edit</a></td>
+                        
+                        <td><a href="{{url_for('main.delete_shipment',shipment_id=shipment.id)}}">Delete</a></td>
+                    </tr>
+
+                </tbody>
+            </table>
+            <div id="showShipment{{shipment.id}}" class="collapse">
+                <table class="table table-fixed">
+                    <tbody>
+                    {% for item in shipment.shipmentitems%}
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td>{{item.orderitem.product_info["brand"]}}</td>
+                            <td title='{{item.orderitem.product_info["name"]}}/{{item.orderitem.product_info["nick_name"]}}'>{{item.orderitem.product_info["name"]}}/{{item.orderitem.product_info["nick_name"]}}</td>
+
+                            <td>{{item.count}}</td>
+                            <td>Stock: {{stocks[item.orderitem.product_id].count}}</td>
+                            {% if item.release_ready %}
+                            <td> Ready to Release</td>
+                            {% else %}
+                            <td> Not enough Stock</td>
+                            {% endif %}
+                            {% if not item.released%}
+                            <td><a href="{{url_for('main.delete_shipmentitem',shipmentitem_id=item.id)}}">Delete</a></td>
+                            {% endif %}
+                        </tr>
+
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {% endfor %}
+          
+    </div>
+
+</ul>

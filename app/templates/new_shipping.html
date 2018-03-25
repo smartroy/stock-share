@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block page_content %}
+
+
+        <div class="page-header">
+
+            <h1>
+
+            Shipment Data
+            </h1>
+             <h5>
+                <span><input type="button" class="optionalBtn" onclick="location.href='{{url_for('.shipping_all')}}'" value="Current Shipment" ></span>
+            </h5>
+            <div>
+
+                <div>
+                    {% if current_user.can(Permission.POST_PRODUCT) %}
+                    
+                    <div id="new_shipments" class="table-responsive">{% include '_pending_shipments.html' %}</div>
+                    
+                    {% endif %}
+                </div>
+
+            </div>
+
+
+        </div>
+        
+
+
+
+{% endblock %}
+{% block scripts %}
+{{super()}}
+
+<script src="{{ url_for('static', filename='ship_jutil.js') }}"></script>
+
+
+
+{% endblock %}

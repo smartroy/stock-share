@@ -1,0 +1,74 @@
+<ul class="posts">
+
+    {% for k, due in dues|dictsort %}
+    <div class="card bg-info text-white">
+        <div class="card-title">
+            <h2>{{due['customer'].name}}</h4>
+            <h3>
+                <!-- <span >Total Amount: {{due['amount']}} </span> -->
+                <span style="float:right">
+                    <a href="#showCustomer{{due['customer'].id}}" class="btn btn-info" data-toggle="collapse">See Orders</a>
+                </span>
+               
+                    <a href="#showCustomer{{due['customer'].id}}" class="btn btn-success" data-toggle="collapse">Pack All</a>
+                
+            </h3>
+        </div>
+        <div id ="showCustomer{{due['customer'].id}}" class="collapse">
+            <div name="getter_info">
+                Name:<input type="text" name='getter_name'>Cell:<input type="text" name="getter_cell">Addr:<input type="text" name="getter_addr">
+            </div>
+            <table class="table table-fixed">
+                <thead>
+                    
+                    <th>Order Id</th>
+                    <th>Date</th>
+                    
+                    <th><a class="btn btn-success pack_selected">Pack Selected</a></th>
+                </thead>
+            </table>
+
+
+            {% for order_info in due['order_infos'] %}
+            <div name="order_div{{order_info['order'].id}}">
+                <table class="table table-fixed">
+                    <tbody>
+                        <tr>
+                            
+                            <td>{{order_info['order'].id}}</td>
+                            <td>{{order_info['order'].date.strftime('%Y-%m-%d')}}</td>
+                            <!-- <td>{{order_info['order'].total_sell}}</td> -->
+                            <td><input type="checkBox" class="order_selector"></td>
+                            <td><a href="#showOrder{{order_info['order'].id}}" class="btn btn-info" data-toggle="collapse">Details</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div id="showOrder{{order_info['order'].id}}" class="collapse">
+                    <table class="table table-fixed">
+                        <tbody>
+                        {% for item in order_info['order'].order_items%}
+                            {% if item.count>item.shipped_count+item.packaged_count%}
+                            <tr class="order_item_info" id="order_item{{item.id}}" >
+                                <td name ="product_brand">{{item.product_info.brand}}</td>
+                                <td name ="product_name" title="{{item.product_info.name}}/{{item.product_info.nick_name}}">{{item.product_info.name}}/{{item.product_info.nick_name}}</td>
+
+                                <td title="Ordered/Paid/Checked"> {{item.count}}/{{item.paid_count}}/{{item.checked_count}}</td>
+                                <td>Shipped/Pkgd: {{item.shipped_count}}/{{item.packaged_count}}</td>
+                                <!-- <td>Total: {{ (item.count - item.paid_count - item.checked_count) * item.sell_price}}</td> -->
+                                <td>Qty. Pkg.: <input type="text" name="pack_qty" value="{{([item.paid_count +item.checked_count - item.shipped_count - item.packaged_count, 0]|sort)[-1]}}" size=4></td>
+                                <td><input type="checkBox" name="confirm"></td>
+                            </tr>
+                            {% endif %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>            
+            {% endfor %}
+        
+        </div>
+    </div>
+    {% endfor %}   
+
+
+</ul>

@@ -40,6 +40,7 @@ def sales_orders():
     # else:
     #     print(current_user.role)
         orders = get_orders()
+
         return render_template('sellorders.html', form=form,orders=orders,status=OrderStatus.status)
     else:
         return render_template('sellorders.html')
@@ -77,15 +78,18 @@ def sales_items():
                 if stock_item.id in sale_details[customer.id]['sale_items']:
                     update_dict = sale_details[customer.id]['sale_items'][stock_item.id]
                     update_dict['order_count'] += item.count
+                    update_dict['paid_count']+=item.paid_count
+                    update_dict['checked_count']+=item.checked_count
+                    # print(str(item.id)+' '+str(item.paid_count)+ ' '+str(item.checked_count))
                     update_dict['ship_count'] += item.shipped_count
                     update_dict['sales'].append(item)
                     sale_details[customer.id]['sale_items'][stock_item.id] = update_dict
                 else:
-                    sale_item = {'stock_item': stock_item, 'order_count': item.count, 'ship_count': item.shipped_count,'sales': [item]}
+                    sale_item = {'stock_item': stock_item, 'order_count': item.count, 'ship_count': item.shipped_count,'sales': [item],'paid_count':item.paid_count,'checked_count':item.checked_count}
                     sale_details[customer.id]['sale_items'][stock_item.id] = sale_item
 
             else:
-                sale_item={'stock_item':stock_item,'order_count':item.count,'ship_count':item.shipped_count,'sales':[item]}
+                sale_item={'stock_item':stock_item,'order_count':item.count,'paid_count':item.paid_count,'checked_count':item.checked_count,'ship_count':item.shipped_count,'sales':[item]}
                 sale_details[customer.id] = {'customer':customer,'sale_items':{stock_item.id:sale_item}}
             # pass
         # print(sale_details)
@@ -112,34 +116,7 @@ def new_sell():
     return render_template('new_sell.html',sources=sources)
 
 
-@main.route('/_search_source')
-@login_required
-def search_source():
-    source=request.args.get('source','',type=str)
-    sale_user = get_parent()
-    # upc_data = upc.split(',')
-    products=[]
-    if current_user.is_administrator():
-        cursor = mongo.db.products.find({"source":source.upper()})
-    else:
-        # print(sale_user.id)
-        cursor = mongo.db.products.find({"$and": [{"source": source.upper()}, {"user": sale_user.id}]})
-    if cursor:
-        for product in cursor:
-            # print(product)
-            product["_id"]=str(product["_id"])
-            stock_item=StockItem.query.filter(StockItem.product_id==product["_id"]).first()
-            if stock_item:
-                product["count"]=stock_item.count
-                product["avg_price"]=stock_item.avg_price*(current_user.sales_tax + 1)*(1+current_user.profit_rate)*current_user.usd_cny
-                product["current_price"]=stock_item.current_price*(current_user.sales_tax + 1)*(1+current_user.profit_rate)*current_user.usd_cny
-            else:
-                product["count"]=0
-                product["avg_price"] = 9999999
-                product["current_price"] = 9999999
-            products.append(product)
 
-    return jsonify(products)
 
 
 @main.route('/_add_order',methods=['GET','POST'])
@@ -159,28 +136,6 @@ def add_order():
         db.session.add(bill_c)
         db.session.commit()
     order = create_order(user=sale_user, buyer=bill_c,creator=current_user,order_data=order_data)
-    # order = SellOrder(user=sale_user, buyer=bill_c,creator=current_user)
-    #
-    # db.session.add(order)
-    # db.session.commit()
-    # total_sell = 0
-    # for key, value in order_data.items():
-    #     # print(value)
-    #     order_item = OrderItem(sell_price=float(value['price']), count=int(value['qty']), sellorder=order,product_id=str(key))
-    #
-    #     stock_item = StockItem.query.filter(and_(StockItem.product_id==str(key), StockItem.stock==sale_user.stock)).first()
-    #     order_item.note=str(value['note'])
-    #     db.session.add(order_item)
-    #     db.session.commit()
-    #     if not stock_item:
-    #         stock_item = create_stock_item(product_id=str(key), stock=sale_user.stock)
-    #         db.session.add(stock_item)
-    #         db.session.commit()
-    #
-    #     update_stock(order_item=order_item,stock_item=stock_item,action=Operation.CREATE)
-    #
-    #     total_sell += order_item.count*order_item.sell_price
-    # order.total_sell=total_sell
 
     return jsonify(url_for('.new_sell'))
 
@@ -316,8 +271,13 @@ def checkout():
     customers = Customer.query.filter(Customer.user_id==sale_user.id).all()
     products = {}
     for customer in customers:
-
-        orders = SellOrder.query.filter(and_(SellOrder.buyer==customer, SellOrder.paid==False,SellOrder.active==True)).all()
+        # print(customer.name)
+        all_orders = SellOrder.query.filter(and_(SellOrder.buyer==customer,SellOrder.active==True)).all()
+        orders=[]
+        if all_orders:
+            for order in all_orders:
+                if not order.paid:
+                    orders.append(order)
         if orders:
 
             total_due = 0
@@ -341,7 +301,7 @@ def checkout():
             payer['amount']=total_due
             dues.append(payer)
 
-    print(dues)
+    # print(dues)
     return render_template("checkout.html",dues=dues,products=products)
 
 

@@ -68,7 +68,11 @@ def shopping_list():
     #             and_(StockItem.product_id == str(key), StockItem.stock == current_user.stock)).first()
     #         stock_item
 
-    stocks=StockItem.query.filter(and_(StockItem.need_count>0, StockItem.stock == sale_user.stock)).order_by(StockItem.id.desc()).all()
+    stocks_all=StockItem.query.filter(StockItem.stock == sale_user.stock).order_by(StockItem.id.desc()).all()
+    stocks=[]
+    for stock in stocks_all:
+        if stock.need_count >0:
+            stocks.append(stock)
     products = []
     for i in range(len(stocks)):
         product = mongo.db.products.find_one({'_id': ObjectId(stocks[i].product_id)})
@@ -190,6 +194,38 @@ def search_upc():
         product = mongo.db.products.find_one({"upc":data})
         if product is not None:
             product["_id"]=str(product["_id"])
+            products.append(product)
+    # print(products)
+    return jsonify(products)
+
+
+
+
+@main.route('/_search_source')
+@login_required
+def search_source():
+    source=request.args.get('source','',type=str)
+    sale_user = get_parent()
+    # upc_data = upc.split(',')
+    products=[]
+    if current_user.is_administrator():
+        cursor = mongo.db.products.find({"source":source.upper()})
+    else:
+        # print(sale_user.id)
+        cursor = mongo.db.products.find({"$and": [{"source": source.upper()}, {"user": sale_user.id}]})
+    if cursor:
+        for product in cursor:
+            # print(product)
+            product["_id"]=str(product["_id"])
+            stock_item=StockItem.query.filter(StockItem.product_id==product["_id"]).first()
+            if stock_item:
+                product["count"]=stock_item.pending_count
+                product["avg_price"]=stock_item.avg_price*(current_user.sales_tax + 1)*(1+current_user.profit_rate)*current_user.usd_cny
+                product["current_price"]=stock_item.current_price*(current_user.sales_tax + 1)*(1+current_user.profit_rate)*current_user.usd_cny
+            else:
+                product["count"]=0
+                product["avg_price"] = 9999999
+                product["current_price"] = 9999999
             products.append(product)
     # print(products)
     return jsonify(products)

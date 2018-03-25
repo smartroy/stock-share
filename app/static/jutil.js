@@ -32,8 +32,8 @@ $(function() {
                         "<td name='nick_name'><a href=\"/product/product_details/"+data[i]["_id"]+"\" target=\"_blank\">"+data[i]["name"]+"/"+data[i]["nick_name"]+"</a></td>"+
                         "<td name='color'>"+data[i]["color"]+"</td>"+
                         "<td><input type='text' name='qty' size=4 value=0></td>"+
-                        "<td name='avg_price'>"+data[i]["avg_price"]+"</td>"+
-                        "<td><input type='text' name='price' size=4 value="+data[i]["current_price"]+"></td>"+
+                        "<td name='avg_price'>"+data[i]["avg_price"].toFixed(1)+"</td>"+
+                        "<td><input type='text' name='price' size=4 value="+data[i]["current_price"].toFixed(1)+"></td>"+
                         "<td><input type='text' name='note' size=4 style='width:100%;'></td>"+
                         "</tr>");
 

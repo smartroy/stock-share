@@ -18,7 +18,7 @@
                 <div>
                     {% if current_user.can(Permission.POST_PRODUCT) %}
                     
-                    <div id="sellorders">{% include '_orders.html' %}</div>
+                    <div id="sellorders" class="table-responsive">{% include '_orders.html' %}</div>
                     <input type="button" class="optionalBtn" onclick="location.href='{{url_for('.new_sell')}}'" value="Add New Order" style="float:right;">
                     {% endif %}
                 </div>

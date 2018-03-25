@@ -40,7 +40,7 @@
                             <td><input type="button" class="btn btn-success btn-xs" onclick="location.href='{{url_for('main.payment_confirm',payment_id=payment.id)}}'" value="Confirm"></td>
                             <td><a href="{{url_for('main.payment_delete',payment_id=payment.id)}}">Delete</a></td>
                             {% endif%}
-                            <td><a href="#showPayment{{payment.id}}" class="btn btn-info" data-toggle="collapse">Details</a></td>
+                            <td><a href="#showPayment{{payment.id}}" class="btn btn-info btn-xs" data-toggle="collapse">Details</a></td>
                         </tr>
                     </table>
                     <div id="showPayment{{payment.id}}" class="collapse">

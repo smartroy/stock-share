@@ -12,7 +12,12 @@
                 <div>
                     {% if current_user.can(Permission.POST_PRODUCT) %}
                     <h5>
-		                <span><input type="button" class="optionalBtn" onclick="location.href='{{url_for('.checkout')}}'" value="Check Out" ></span>
+		                <span>
+                            <input type="button" class="optionalBtn" onclick="location.href='{{url_for('.checkout')}}'" value="Check Out" >
+                            <label>Confirm ID: </label>
+                            <input id="confirm_input" type="text" name="confirm" autofocus="true">
+                            <button class="actionBtn" type="button" id="confirm_payment" autofocus>Confirm</button>
+                        </span>
 		            </h5>
                     <div id="sellorders">{% include '_payments.html' %}</div>
                    

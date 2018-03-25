@@ -9,6 +9,7 @@ import hashlib
 from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
 from sqlalchemy.orm import backref
 from bson import ObjectId
+from sqlalchemy import and_, or_
 
 class Permission:
     BROWSE = 0x01
@@ -87,12 +88,15 @@ class User(UserMixin,db.Model):
     payments = db.relationship('Payment', backref='user', lazy='dynamic', foreign_keys='[Payment.user_id]')
     payments_creator = db.relationship('Payment', backref='creator', lazy='dynamic',
                                     foreign_keys='[Payment.creator_id]')
+    shipments = db.relationship('Shipment', backref='user', lazy='dynamic', foreign_keys='[Shipment.user_id]')
+    shipments_creator = db.relationship('Shipment', backref='creator', lazy='dynamic',
+                                       foreign_keys='[Shipment.creator_id]')
 
 
     usd_cny = db.Column(db.Float,default=0)
     profit_rate = db.Column(db.Float, default=0.15)
     sales_tax = db.Column(db.Float,default=0.0625)
-    product_items = db.relationship('ProductItem', uselist=False, backref='user')
+    # product_items = db.relationship('ProductItem', uselist=False, backref='user')
     # bill = db.relationship('SellOrder',backref='bill',lazy='dynamic',foreign_keys='[SellOrder.bill_id]')
 
     customers = db.relationship('Customer', backref='user', lazy='dynamic')
@@ -223,21 +227,49 @@ class StockItem(db.Model):
     count = db.Column(db.Integer,default=0)
     avg_price = db.Column(db.Float,default=0)
     current_price = db.Column(db.Float,default=0)
-    shipped_count = db.Column(db.Integer, default=0)
+    # shipped_count = db.Column(db.Integer, default=0)
     product_id = db.Column(db.Text)
-    order_count = db.Column(db.Integer,default=0)
+    # order_count = db.Column(db.Integer,default=0)
     stock_id = db.Column(db.Integer, db.ForeignKey('stocks.id'))
     posts = db.relationship('Post',backref='stockitem',lazy='dynamic')
 
     @hybrid_property
     def need_count(self):
 
-        return self.pending_count - self.count
+        return max(0,self.pending_count - self.count)
 
 
     @hybrid_property
     def pending_count(self):
         return self.order_count - self.shipped_count
+
+    @hybrid_property
+    def order_count(self):
+        count=0
+
+        order_items=OrderItem.query.filter(OrderItem.product_id==self.product_id, OrderItem.active==True).all()
+        if order_items:
+            for item in order_items:
+                # print(str(item.sellorder.i)
+                if item.sellorder.user==self.stock.user:
+                    count+=item.count
+        return count
+
+    @hybrid_property
+    def shipped_count(self):
+        count=0
+        order_items= OrderItem.query.filter(OrderItem.product_id==self.product_id, OrderItem.active==True).all()
+        if order_items:
+            for item in order_items:
+                if item.sellorder.user==self.stock.user:
+                    count+=item.shipped_count
+        return count
+
+    @hybrid_property
+    def product_info(self):
+        product = mongo.db.products.find_one({'_id': ObjectId(self.product_id)})
+        product["_id"] = str(product["_id"])
+        return product
 
 
 class SellOrder(db.Model):
@@ -251,21 +283,45 @@ class SellOrder(db.Model):
     # bill_id = db.Column(db.Integer, db.ForeignKey('customers.id'))
     # ship_addr= db.Column(db.Text)
     buyer_id = db.Column(db.Integer, db.ForeignKey('customers.id'))
-    paid = db.Column(db.Boolean,default=False)
+    # paid = db.Column(db.Boolean,default=False)
 
     status = db.Column(db.Integer, default=OrderStatus.CREATED)
-    total_get = db.Column(db.Float)
-    total_sell = db.Column(db.Float)
+    # total_get = db.Column(db.Float)
+    # total_sell = db.Column(db.Float)
     active = db.Column(db.Boolean, default=True)
     # def __init__(self, **kwargs):
     #     super(SellOrder, self).__init__(**kwargs)
     #     self.order_items = []
-    # @hybrid_property
-    # def paid(self):
-        # for item in self.order_items:
-        #
-        #     if not item.paid:
-        #         return False
+    @hybrid_property
+    def paid(self):
+        for item in self.order_items:
+
+            if not item.paid:
+                return False
+        return True
+
+    @hybrid_property
+    def shipped(self):
+        for item in self.order_items:
+
+            if not item.shipped:
+                return False
+        return True
+
+    @hybrid_property
+    def total_sell(self):
+        total=0.0
+        for item in self.order_items:
+            total+=item.count*item.sell_price
+
+        return total
+
+    @hybrid_property
+    def total_get(self):
+        total=0
+        for item in self.order_items:
+            total+=item.count*item.get_price
+        return total
         # print(all([item.paid for item in self.order_items]))
         # return all([item.paid for item in self.order_items])
             # all([item.paid for item in self.order_items])
@@ -277,11 +333,11 @@ class SellOrder(db.Model):
 class ProductItem(db.Model):
     __tablename__='productitem'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    buyer_id = db.Column(db.Integer, db.ForeignKey('customers.id'))
-    product_id = db.Column(db.Text)
-    order_items = db.relationship('OrderItem', backref='productitem', lazy='dynamic', cascade="delete")
-    shipments = db.relationship('Shipment', backref='productitem', lazy='dynamic', cascade="delete")
+    # user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    # buyer_id = db.Column(db.Integer, db.ForeignKey('customers.id'))
+    # product_id = db.Column(db.Text)
+    # order_items = db.relationship('OrderItem', backref='productitem', lazy='dynamic', cascade="delete")
+    # shipments = db.relationship('Shipment', backref='productitem', lazy='dynamic', cascade="delete")
     @hybrid_property
     def count(self):
         total = 0
@@ -298,32 +354,65 @@ class OrderItem(db.Model):
     count = db.Column(db.Integer,default=0)
     stock_count = db.Column(db.Integer)
     shipped_count = db.Column(db.Integer, default=0)
-    paid_count = db.Column(db.Integer, default=0)
+    # paid_count = db.Column(db.Integer, default=0)
     sell_price = db.Column(db.Float)
     get_price = db.Column(db.Float,default=0.0)
     type = db.Column(db.Text)
     note = db.Column(db.Text)
     status = db.Column(db.Integer, default=OrderStatus.CREATED)
     product_id = db.Column(db.Text)
-    productitem_id = db.Column(db.Integer, db.ForeignKey('productitem.id'))
+    # productitem_id = db.Column(db.Integer, db.ForeignKey('productitem.id'))
     # paid = db.Column(db.Boolean, default=False)
     order_id = db.Column(db.Integer, db.ForeignKey('sellorders.id'))
     active = db.Column(db.Boolean,default=True)
-    shipitems = db.relationship('ShipItem', backref='orderitem', lazy='dynamic', cascade="delete")
+    # shipitems = db.relationship('ShipItem', backref='orderitem', lazy='dynamic', cascade="delete")
     paymentitems = db.relationship('PaymentItem', backref='orderitem', lazy='dynamic', cascade="delete")
-    # shipment = db.relationship('Shipment', backref='orderitem', lazy='dynamic', cascade="delete")
+    shipmentitems = db.relationship('ShipmentItem', backref='orderitem', lazy='dynamic', cascade="delete")
+
     @hybrid_property
     def paid(self):
         return self.paid_count >= self.count
+
     @hybrid_property
     def checked_count(self):
         count=0
         for item in self.paymentitems:
-            if item:
+            # print(item.count)
+            if item and (not item.payment.confirmed):
                 count += item.count
-            else:
-                break
+
         return count
+
+    @hybrid_property
+    def paid_count(self):
+        count = 0
+        for item in self.paymentitems:
+            if item and item.payment.confirmed:
+                count += item.count
+
+        return count
+
+
+    @hybrid_property
+    def shipped(self):
+        return self.shipped_count>=self.count
+
+    @hybrid_property
+    def shipped_count(self):
+        count=0
+        for item in self.shipmentitems:
+            if item and item.released:
+                count+=item.count
+        return count
+
+    @hybrid_property
+    def packaged_count(self):
+        count=0
+        for item in self.shipmentitems:
+            if item and (not item.released):
+                count+=item.count
+        return count
+
     @hybrid_property
     def product_info(self):
         product = mongo.db.products.find_one({'_id':ObjectId(self.product_id)})
@@ -350,7 +439,7 @@ class Payment(db.Model):
             total+=item.count * item.price
         return total
 
-    def gen_confirID(self):
+    def gen_confirmID(self):
         self.confirm_id = str(self.user.id).zfill(5) + str(self.id).zfill(5)
         db.session.commit()
 
@@ -377,25 +466,46 @@ class PurchaseItem(db.Model):
 class Shipment(db.Model):
     __tablename__ = 'shipments'
     id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    creator_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     # count = db.Column(db.Integer, default=0)
     track = db.Column(db.Text)
 
-    customer_id = db.Column(db.Integer, db.ForeignKey('customers.id'))
+    buyer_id = db.Column(db.Integer, db.ForeignKey('customers.id'))
     # stockitem_id = db.Column(db.Integer, db.ForeignKey('stock_items.id'))
     date = db.Column(db.DateTime(), default=datetime.utcnow)
     addr = db.Column(db.Text)
     cell = db.Column(db.Text)
     name = db.Column(db.Text)
     active = db.Column(db.Boolean,default=True)
-    productitem_id = db.Column(db.Integer, db.ForeignKey('productitem.id'))
-    shipitems = db.relationship('ShipItem', backref='shipment', lazy='dynamic', cascade="delete")
+    # productitem_id = db.Column(db.Integer, db.ForeignKey('productitem.id'))
+    shipmentitems = db.relationship('ShipmentItem', backref='shipment', lazy='dynamic', cascade="delete")
+    released = db.Column(db.Boolean, default=False)
 
-class ShipItem(db.Model):
+    @hybrid_property
+    def release_ready(self):
+        for item in self.shipmentitems:
+            if not item.release_ready:
+                return False
+        return True
+
+class ShipmentItem(db.Model):
+    __tablename__='shipment_items'
     id = db.Column(db.Integer, primary_key=True)
     count = db.Column(db.Integer, default=0)
     shipment_id = db.Column(db.Integer, db.ForeignKey('shipments.id'))
     orderitem_id = db.Column(db.Integer, db.ForeignKey('orderitems.id'))
-    status = db.Column(db.Text, default='Ready to Ship')
+    released = db.Column(db.Boolean, default=False)
+
+    @hybrid_property
+    def release_ready(self):
+        stock=self.shipment.user.stock
+        stockitem=StockItem.query.filter(StockItem.stock_id==stock.id,StockItem.product_id==self.orderitem.product_id).all()
+        if stockitem[0].count>=self.count:
+            return True
+        else:
+            return False
+
 
 class Customer(db.Model):
     __tablename__='customers'
@@ -408,7 +518,7 @@ class Customer(db.Model):
     # bill = db.relationship('SellOrder',backref='bill',lazy='dynamic',foreign_keys='[SellOrder.bill_id]')
     buy_orders = db.relationship('SellOrder',backref='buyer',lazy='dynamic')
     shipments = db.relationship('Shipment',backref='buyer',lazy='dynamic')
-    productitems = db.relationship('ProductItem', uselist=False, backref='buyer')
+    # productitems = db.relationship('ProductItem', uselist=False, backref='buyer')
     payments = db.relationship('Payment',backref='buyer',lazy='dynamic')
 
     # ship = db.relationship('SellOrder',backref='ship',lazy='dynamic',foreign_keys='[SellOrder.ship_id]')

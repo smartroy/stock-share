@@ -46,69 +46,75 @@ $(function() {
             'source': $('#source').find('option:selected').val()
 
         }, function(data) {
-            var i;
-            var table_text = '<table class="table table-fixed" id="result_table">'+
-            '<thead>'+
-            '<tr>'+
-            '<th>Brand</th>'+
-            '<th>Name/Nick name</th>'+
-            '<th>Required Qty.</th>'+
-            '<th>New Qty.</th>'+
-            '<th>Price</th>' +
-            '</tr>'+
-            '</thead>'+
-            '<tbody>';
-            if (data.length==0){
-                $("div#sources_result").append("<h2>UPC not found</h2>");
-            }else{
-                for (i=0;i<data.length;i++){
-                    table_text += ("<tr id='"+data[i]["_id"]+"''>"+
+                var i;
+                var table_text = '<table class="table table-fixed" id="result_table">'+
+                '<thead>'+
+                '<tr>'+
+                '<th>Brand</th>'+
+                '<th>Name/Nick name</th>'+
+                '<th>Required Qty.</th>'+
+                '<th>New Qty.</th>'+
+                '<th>Price</th>' +
+                '</tr>'+
+                '</thead>'+
+                '<tbody>';
+                if (data.length==0){
+                    table_text = "Product not Found";
+                }else{
+                    for (i=0;i<data.length;i++){
+                        table_text += ("<tr id='"+data[i]["_id"]+"''>"+
 
-                        "<td name='brand'>"+data[i]["brand"]+"</td>"+
-                        "<td name='nick_name'>"+data[i]["name"]+"/"+data[i]["nick_name"]+"</td>"+
-                        "<td name='count'>"+data[i]["count"]+"</td>"+
-                        "<td><input type='text' name='qty' size=4 value=0></td>"+
-                        "<td><input type='text' name='price' size=4 value=0.0></td>"+
-                        "</tr>");
+                            "<td name='brand'>"+data[i]["brand"]+"</td>"+
+                            "<td name='nick_name'>"+data[i]["name"]+"/"+data[i]["nick_name"]+"</td>"+
+                            "<td name='count'>"+data[i]["count"]+"</td>"+
+                            "<td><input type='text' name='qty' size=4 value=0></td>"+
+                            "<td><input type='text' name='price' size=4 value=0.0></td>"+
+                            "</tr>");
 
+                    }
+                    table_text +="</tbody></table>";
+                    table_text +="<button class='actionBtn' type='button' id='add_search' >Add to Stock</button>";
+                    
+                    
+                    // $("div#sources_result").append(table_text);
                 }
-                table_text +="</tbody></table>";
-                table_text +="<button class='actionBtn' type='button' id='add_search' >Add to Stock</button>";
                 $("div#sources_result").html(table_text);
-                $('#add_search').bind('click','#sources_result',function(){
-        
-                    var items ={};
-                    // console.log($('#sources_result').html());
-                    $('#result_table tr').each(function(){
-                        var item_qty=$(this).find('[name="qty"]').val();
-                        if(parseInt(item_qty)>0){
-                            // add_table +=$(this).html();
-                            var item_id =$(this).attr('id');
-                            
-                            var item_price=$(this).find('[name="price"]').val();
-                            items[item_id]={'qty':item_qty,'price':item_price};
-
-
-                        } 
-                    });
-                    items = JSON.stringify(items);
-                    $.ajax({
-                        type : "POST",
-                        url : "/_add_stock",
-                        data: items,
-                        contentType: 'application/json;charset=UTF-8',
-                        success: function(result) {
-                            console.log(result);
-                            window.location.href = result;
-                        }
-                    });
-        
-    });
-                // $("div#sources_result").append(table_text);
-            }
             });
+            
         return false;
     });
+
+    $(document).on('click','#add_search',function(){
+        
+        var items ={};
+        console.log($('#sources_result').html());
+        $('#result_table tr').each(function(){
+            var item_qty=$(this).find('[name="qty"]').val();
+            if(parseInt(item_qty)>0){
+                // add_table +=$(this).html();
+                var item_id =$(this).attr('id');
+                
+                var item_price=$(this).find('[name="price"]').val();
+                items[item_id]={'qty':item_qty,'price':item_price};
+
+
+            } 
+        });
+        // console.log(items);
+        items = JSON.stringify(items);
+        $.ajax({
+            type : "POST",
+            url : "/_add_stock",
+            data: items,
+            contentType: 'application/json;charset=UTF-8',
+            success: function(result) {
+                console.log(result);
+                window.location.href = result;
+            }
+        });
+        
+    });
+
 
     $('#add_scan').bind('click','#scan_result',function(){
         submit_scan();  

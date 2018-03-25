@@ -3,14 +3,14 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 
 class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'you will never know'
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'xSkAJJ2170A@@l4824'
     SQLALCHEMY_COMMIT_ON_TEARDOWN =  True
     FLASKY_MAIL_SUBJECT_PREFIX = '[Flasky]'
     FLASKY_MAIL_SENDER = 'Flasky admin <xushikang1127@gmail.com>'
-    FLASKY_ADMIN = 'kang@example.com'
-    AWS_S3_BUCKET = 'psy-axwave'
-    AWS_ACCESS_KEY_ID = 'AKIAI2EWQBXIXGHZH3OQ'
-    AWS_SECRET_ACCESS_KEY = 'CaZ3frtigTFO79AmvH42aEq4Kh8xPHz8LYHlmUeI'
+    FLASKY_ADMIN = 'xushikang1127@gmail.com'
+    # AWS_S3_BUCKET = 'psy-axwave'
+    # AWS_ACCESS_KEY_ID = 'AKIAI2EWQBXIXGHZH3OQ'
+    # AWS_SECRET_ACCESS_KEY = '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'
 
     @staticmethod
     def init_app(app):
@@ -43,7 +43,7 @@ class ProductionConfig(Config):
 
 
 class HerokuConfig(Config):
-    DEBUG = True
+    # DEBUG = True
     MAIL_SERVER = 'smtp.sendgrid.net'
     MAIL_PORT = 587
     MAIL_USE_TLS = True

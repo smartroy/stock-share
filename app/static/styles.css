@@ -290,8 +290,8 @@ html, body, .container-fluid, .row {
 }
 
 /*table with 9 columns*/
-#order_status tbody > tr > td,
-#order_status thead > tr > th {
+.status_table > tbody > tr > td,
+.status_table > thead > tr > th {
     width: 11.1%;
     float: left;
     height: 35px;

@@ -56,7 +56,7 @@
                                 <tr class="order_item_info" id="order_item{{item.id}}" >
                                     <td></td>
                                     <td></td>
-                                    <td name ="product_name">{{products[item.product_id].name}}/{{products[item.product_id].nickname}}</td>
+                                    <td name ="product_name">{{products[item.product_id].name}}/{{products[item.product_id].nick_name}}</td>
                                     <td>Price: <input type="text" name="price" value="{{item.sell_price}}" size=4></td>
                                     <td>Qty.: {{item.count - item.paid_count - item.checked_count}}</td>
                                     <td>Total: {{ (item.count - item.paid_count - item.checked_count) * item.sell_price}}</td>
