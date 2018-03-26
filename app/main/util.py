@@ -49,10 +49,10 @@ def create_post(user=None, product_id=None, stockitem=None, description=None):
 
 def db_init():
     Role.insert_roles()
-    user = User(email='kang@example.com',
+    user = User(email='xushikang1127@gmail.com',
                 username='kang',
                 password='19881127')
-    print(user.role)
+    # print(user.role)
     db.session.add(user)
     db.session.commit()
 
