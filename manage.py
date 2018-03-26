@@ -28,7 +28,7 @@ def test():
 def deploy():
     import app.main.util as ut
     from flask_migrate import upgrade,init,migrate
-    init()
+    # init()
     migrate()
     upgrade()
     ut.db_init()

@@ -47,8 +47,8 @@ class HerokuConfig(Config):
     MAIL_SERVER = 'smtp.sendgrid.net'
     MAIL_PORT = 587
     MAIL_USE_TLS = True
-    MAIL_USERNAME = 'app80708088@heroku.com'
-    MAIL_PASSWORD = 'efq5vskg8381'
+    MAIL_USERNAME = os.environ.get('SENDGRID_USERNAME')
+    MAIL_PASSWORD = os.environ.get('SENDGRID_PASSWORD')
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'postgresql://stockshare:stockshare@localhost/devdb'
     MONGO_DBNAME = 'testmongo'
     MONGO_URI = os.environ.get('MONGODB_URI') or 'mongodb://localhost:27017/testmongo'
