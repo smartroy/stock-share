@@ -257,6 +257,21 @@ html, body, .container-fluid, .row {
     white-space: nowrap;
     overflow: hidden;
 }
+#bill-info,
+#ship-info
+{
+    width: 40%;
+    clear: both;
+    display: inline-block;
+
+}
+#bill-info input,
+#ship-info input{
+    width: 60%;
+    clear: both;
+    
+}
+
 
 /*table with 7 columns*/
 

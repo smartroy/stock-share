@@ -19,7 +19,7 @@ from json import dumps
 from base64 import b64encode
 from datetime import datetime, timedelta
 from .forms import CreateForm, SellForm, SellItemForm
-from .util import create_customer,create_stock_item,create_product, create_item, update_stock, delete_orderItem, delete_order, get_orders, get_parent,get_items, create_order,create_payment
+from .util import *
 from bson import ObjectId
 import json
 
@@ -130,12 +130,24 @@ def add_order():
     # print(bill)
     # print(ship)
     # print(order_data)
+    ship=order_data.pop('ship',None)
     bill_c = Customer.query.filter(and_(Customer.name == bill['name'], Customer.cellphone == bill['cellphone'])).first()
     if bill_c is None:
         bill_c = create_customer(user=sale_user, name=bill['name'], address=bill['addr'], cellphone=bill['cellphone'])
         db.session.add(bill_c)
         db.session.commit()
     order = create_order(user=sale_user, buyer=bill_c,creator=current_user,order_data=order_data)
+    if bill['pay']:
+        pay = {}
+        for item in order.order_items:
+            pay[item.id] = item.count
+        create_payment(pay)
+    if ship['package']:
+        shipment={}
+        for item in order.order_items:
+            shipment[item.id]={"qty":item.count}
+        ship['items']=shipment
+        create_shipment(ship)
 
     return jsonify(url_for('.new_sell'))
 

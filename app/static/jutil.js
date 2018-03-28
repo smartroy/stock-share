@@ -80,48 +80,60 @@ $(function() {
 
     $('#submit_order').bind('click','#itemtable',function(){
         
-        var items ={};
-        // console.log($('#sources_result').html());
+        var items ={'empty':true};
+        // console.log($(':#sources_result').html());
         $('#itemtable tr').each(function(){
-            console.log("in loop");
+            // console.log("in loop");
             console.log($(this).html());
             var item_qty=$(this).find('[name="qty"]').val();
             if(parseInt(item_qty)>0){
                 // add_table +=$(this).html();
+
                 var item_id =$(this).attr('id');
                 
                 var item_price=$(this).find('[name="price"]').val();
                 var item_note=$(this).find('[name="note"]').val();
                 items[item_id]={'qty':item_qty,'price':item_price,"note":item_note};
-
+                item['empty']=false;
 
             }
         });
+        if(items['empty']){
+            alert("Nothing in the Order list\n");
+        }
         // var ship_name=$('#ship_info').find('[name="ship_name"]').val();
-        // var ship_addr=$('#ship_info').find('[name="address"]').val();
+        // vaTherer ship_addr=$('#ship_info').find('[name="address"]').val();
         // var ship_cell=$('#ship_info').find('[name="cellphone"]').val();
-
-        var bill_name=$('#bill_info').find('[name="bill_name"]').val();
-        var bill_addr=$('#bill_info').find('[name="address"]').val();
-        var bill_cell=$('#bill_info').find('[name="cellphone"]').val();
-        items['bill']={'name':bill_name,'addr':bill_addr,'cellphone':bill_cell};
-        // items['ship']={'name':ship_name,'addr':ship_addr,'cellphone':ship_cell};
-        items = JSON.stringify(items);
-        $.ajax({
-            type : "POST",
-            url : "/_add_order",
-            data: items,
-            contentType: 'application/json;charset=UTF-8',
-            success: function(result) {
-                console.log(result);
-                window.location.href = result;
-            }
-        });
-        //  $.getJSON('/_add_order',items, function (data) {
-        //     console.log(data)
-        //     window.location.href = data;
-        // });
+        else{
+            var bill_name=$('#bill-info').find('[name="bill_name"]').val();
+            var bill_addr=$('#bill-info').find('[name="address"]').val();
+            var bill_cell=$('#bill-info').find('[name="cellphone"]').val();
+            var pay=$('#bill-info').find('[name="pay"]').is(":checked");
+            var ship_name=$('#ship-info').find('[name="bill_name"]').val();
+            var ship_addr=$('#ship-info').find('[name="address"]').val();
+            var ship_cell=$('#ship-info').find('[name="cellphone"]').val();
+            var package=$('#ship-info').find('[name="package"]').is(":checked");
+            items['bill']={'name':bill_name,'addr':bill_addr,'cellphone':bill_cell,'pay':pay};
+            items['ship']={'name':ship_name,'addr':ship_addr,'cell':ship_cell,'package':package};
+            items = JSON.stringify(items);
+            // console.log(items)
+            $.ajax({
+                type : "POST",
+                url : "/_add_order",
+                data: items,
+                contentType: 'application/json;charset=UTF-8',
+                success: function(result) {
+                    console.log(result);
+                    window.location.href = result;
+                }
+            });
+        }
         return false;
+        // //  $.getJSON('/_add_order',items, function (data) {
+        // //     console.log(data)
+        // //     window.location.href = data;
+        // // });
+        // return false;
         // console.log(items);
         
     });
