@@ -94,7 +94,7 @@ $(function() {
                 var item_price=$(this).find('[name="price"]').val();
                 var item_note=$(this).find('[name="note"]').val();
                 items[item_id]={'qty':item_qty,'price':item_price,"note":item_note};
-                item['empty']=false;
+                items['empty']=false;
 
             }
         });

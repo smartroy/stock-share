@@ -131,6 +131,7 @@ def add_order():
     # print(ship)
     # print(order_data)
     ship=order_data.pop('ship',None)
+    filled=order_data.pop('empty',None)
     bill_c = Customer.query.filter(and_(Customer.name == bill['name'], Customer.cellphone == bill['cellphone'])).first()
     if bill_c is None:
         bill_c = create_customer(user=sale_user, name=bill['name'], address=bill['addr'], cellphone=bill['cellphone'])
