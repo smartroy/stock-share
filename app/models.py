@@ -92,7 +92,7 @@ class User(UserMixin,db.Model):
     shipments_creator = db.relationship('Shipment', backref='creator', lazy='dynamic',
                                        foreign_keys='[Shipment.creator_id]')
 
-    purchases = db.relationship('PurchaseItem',backref='user',lazy='dyanmic')
+    purchases = db.relationship('PurchaseItem',backref='user',lazy='dynamic')
     usd_cny = db.Column(db.Float,default=0)
     profit_rate = db.Column(db.Float, default=0.15)
     sales_tax = db.Column(db.Float,default=0.0625)
