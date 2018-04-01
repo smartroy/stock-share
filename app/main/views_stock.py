@@ -166,6 +166,7 @@ def add_stock():
         if not stock_item:
             stock_item = create_stock_item(product_id=str(key), stock=sale_user.stock)
             db.session.add(stock_item)
+            db.session.commit()
         update_stock(order_item=None, stock_item=stock_item, action=Operation.ADDSTOCK,new_qty=int(value['qty']),price=float(value['price']))
 
 

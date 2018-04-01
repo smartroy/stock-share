@@ -33,6 +33,15 @@ def deploy():
     upgrade()
     ut.db_init()
 
+@manager.command
+def upgrade():
+    import app.main.util as ut
+    from flask_migrate import upgrade,init,migrate
+    # init()
+    # migrate()
+    upgrade()
+    # ut.db_init()
+
 
 @manager.command
 def update_entry():

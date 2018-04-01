@@ -205,7 +205,7 @@ def update_stock(**kwargs):
                                                kwargs['stock_item'].count + kwargs['new_qty'])
         kwargs['stock_item'].current_price = kwargs['price']
         kwargs['stock_item'].count += kwargs['new_qty']
-        purchase = PurchaseItem(count=kwargs['new_qty'], get_price = kwargs['price'], product_id = kwargs['stock_item'].product_id)
+        purchase = PurchaseItem(count=kwargs['new_qty'], get_price = kwargs['price'],user=sale_user, product_id = kwargs['stock_item'].product_id)
         db.session.add(purchase)
         db.session.commit()
     # if action == Operation.CREATE:
