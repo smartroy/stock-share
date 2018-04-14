@@ -6,8 +6,8 @@
                 <th></th>
                 <th>Buyer</th>
                 <th>Receiver</th>
-                <th>Date</th>
-                <th>Addr</th>
+                
+                <th>Track</th>
                 <th></th>
                 <th></th>
             </thead>
@@ -21,8 +21,8 @@
                         <td><input type="checkBox" class="shipment_selector">{{shipment.id}}</td>
                         <td>{{shipment.buyer.name}}</td>
                         <td>{{shipment.name}}</td>
-                        <td>{{shipment.date.strftime('%Y-%m-%d')}}</td>
-                        <td title="{{shipment.addr}}">{{shipment.addr}}</td>
+                        
+                        <td title="{{shipment.addr}}">{{shipment.track}}</td>
                         {% if (not shipment.released) %}
                             {% if shipment.release_ready %}
                             <td><a class="btn btn-success btn-xs" href="{{url_for('main.release_shipment',shipment_id=shipment.id)}}">Release</a></td>
@@ -40,6 +40,7 @@
                 </tbody>
             </table>
             <div id="showShipment{{shipment.id}}" class="collapse">
+                <p>Reciever: {{shipment.name}}  {{shipment.addr}} {{shipment.cell}}</p>
                 <table class="table table-fixed">
                     <tbody>
                     {% for item in shipment.shipmentitems%}

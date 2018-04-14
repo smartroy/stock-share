@@ -43,6 +43,7 @@ $(function() {
             ship_info["name"]=getter_info.find('[name="getter_name"]').val();
             ship_info["addr"]=getter_info.find('[name="getter_addr"]').val();
             ship_info["cell"]=getter_info.find('[name="getter_cell"]').val();
+            ship_info["track"]=getter_info.find('[name="track"]').val();
             ship_info["items"]=items;
             
         }

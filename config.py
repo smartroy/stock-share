@@ -8,6 +8,12 @@ class Config:
     FLASKY_MAIL_SUBJECT_PREFIX = '[Flasky]'
     FLASKY_MAIL_SENDER = 'Flasky admin <xushikang1127@gmail.com>'
     FLASKY_ADMIN = 'xushikang1127@gmail.com'
+    PIC_FOLDER='product-pic'
+    S3_WEB="s3.amazonaws.com"
+    S3_BUCKET = os.environ.get("S3_BUCKET_NAME")
+    S3_KEY = os.environ.get("S3_ACCESS_KEY")
+    S3_SECRET = os.environ.get("S3_SECRET_ACCESS_KEY")
+    S3_LOCATION = 'http://{}.s3.amazonaws.com/'.format(S3_BUCKET)
     # AWS_S3_BUCKET = 'psy-axwave'
     # AWS_ACCESS_KEY_ID = 'AKIAI2EWQBXIXGHZH3OQ'
     # AWS_SECRET_ACCESS_KEY = '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'

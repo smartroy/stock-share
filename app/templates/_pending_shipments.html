@@ -3,20 +3,20 @@
     {% for k, due in dues|dictsort %}
     <div class="card bg-info text-white">
         <div class="card-title">
-            <h2>{{due['customer'].name}}</h4>
-            <h3>
+            <h2>{{due['customer'].name}}
+            
                 <!-- <span >Total Amount: {{due['amount']}} </span> -->
                 <span style="float:right">
                     <a href="#showCustomer{{due['customer'].id}}" class="btn btn-info" data-toggle="collapse">See Orders</a>
                 </span>
                
-                    <a href="#showCustomer{{due['customer'].id}}" class="btn btn-success" data-toggle="collapse">Pack All</a>
+                    
                 
-            </h3>
+            </h2>
         </div>
         <div id ="showCustomer{{due['customer'].id}}" class="collapse">
             <div name="getter_info">
-                Name:<input type="text" name='getter_name'>Cell:<input type="text" name="getter_cell">Addr:<input type="text" name="getter_addr">
+                Name:<input type="text" name='getter_name'>Cell:<input type="text" name="getter_cell">Addr:<input type="text" name="getter_addr"> Track: <input type='text' name='track'>
             </div>
             <table class="table table-fixed">
                 <thead>

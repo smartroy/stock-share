@@ -39,7 +39,7 @@ def create_productitem(user=None, buyer=None, product_id=""):
     return ProductItem(user=user, buyer=buyer, product_id=product_id)
 
 
-def create_item(count=0, sell_price =0, stockitem=None, sellorder=None ):
+def create_orderitem(count=0, sell_price =0, stockitem=None, sellorder=None ):
     return OrderItem(count=count, sell_price=sell_price,stockitem=stockitem,sellorder=sellorder)
 
 
@@ -83,40 +83,6 @@ def create_order(user,buyer,creator,order_data):
     db.session.commit()
     return order
 
-
-def create_payment(pay):
-    sales_user=get_parent()
-    buyer = OrderItem.query.get_or_404(list(pay.keys())[0]).sellorder.buyer
-    payment = Payment(user=sales_user,creator=current_user,buyer=buyer)
-    db.session.add(payment)
-    db.session.commit()
-    for key,value in pay.items():
-        order_item = OrderItem.query.get_or_404(key)
-        payment_item = PaymentItem(payment=payment, orderitem=order_item,count=value,price=order_item.sell_price)
-        db.session.add(payment_item)
-        db.session.commit()
-    payment.gen_confirmID()
-
-
-def create_shipment(ship_data):
-    sales_user=get_parent()
-    # print(ship_data)
-    # print(list(ship_data["items"].keys())[0])
-    # print(ship_data)
-    # print(ship_data.keys)
-    buyer = OrderItem.query.get_or_404(list(ship_data["items"].keys())[0]).sellorder.buyer
-    shipment = Shipment(user=sales_user,creator=current_user,buyer=buyer,addr=ship_data["addr"],cell=ship_data["cell"],name=ship_data["name"])
-    db.session.add(shipment)
-    db.session.commit()
-
-    for key, value in ship_data["items"].items():
-        order_item = OrderItem.query.get_or_404(key)
-        shipment_item = ShipmentItem(shipment=shipment, orderitem=order_item,count=value["qty"])
-        db.session.add(shipment_item)
-        db.session.commit()
-
-
-
 def create_order_item(key,value,order,user,buyer):
     order_item = OrderItem(sell_price=float(value['price']), count=int(value['qty']), sellorder=order,
                            product_id=str(key))
@@ -136,6 +102,45 @@ def create_order_item(key,value,order,user,buyer):
     return order_item
 
 
+def create_payment(pay):
+    sales_user=get_parent()
+    buyer = OrderItem.query.get_or_404(list(pay.keys())[0]).sellorder.buyer
+    payment = Payment(user=sales_user,creator=current_user,buyer=buyer)
+    db.session.add(payment)
+    db.session.commit()
+    for key,value in pay.items():
+        order_item = OrderItem.query.get_or_404(key)
+        payment_item = PaymentItem(payment=payment, orderitem=order_item,count=value,price=order_item.sell_price)
+        db.session.add(payment_item)
+        db.session.commit()
+    payment.gen_confirmID()
+    return payment
+
+
+def create_shipment(ship_data):
+    sales_user=get_parent()
+    # print(ship_data)
+    # print(list(ship_data["items"].keys())[0])
+    # print(ship_data)
+    # print(ship_data.keys)
+    buyer = OrderItem.query.get_or_404(list(ship_data["items"].keys())[0]).sellorder.buyer
+    if not "track" in ship_data:
+        ship_data["track"]=""
+    shipment = Shipment(user=sales_user,creator=current_user,buyer=buyer,addr=ship_data["addr"],cell=ship_data["cell"],name=ship_data["name"],track=ship_data['track'])
+    db.session.add(shipment)
+    db.session.commit()
+
+    for key, value in ship_data["items"].items():
+        order_item = OrderItem.query.get_or_404(key)
+        shipment_item = ShipmentItem(shipment=shipment, orderitem=order_item,count=value["qty"])
+        db.session.add(shipment_item)
+        db.session.commit()
+
+
+
+
+
+
 def delete_order(order):
     items = order.order_items.all()
 
@@ -151,15 +156,15 @@ def delete_order(order):
 
 
 def delete_orderItem(item):
-    sale_user = get_parent()
-    stock_item = StockItem.query.filter(
-        and_(StockItem.product_id == item.product_id, StockItem.stock == sale_user.stock)).first()
-    # print(product)
-    # product['_id'] = str(product['_id'])
-    # stock_item.productitem_id = None
-    stock_item.order_count -= item.count
-
-    item.sellorder.total_sell -= item.count*item.sell_price
+    # sale_user = get_parent()
+    # stock_item = StockItem.query.filter(
+    #     and_(StockItem.product_id == item.product_id, StockItem.stock == sale_user.stock)).first()
+    # # print(product)
+    # # product['_id'] = str(product['_id'])
+    # # stock_item.productitem_id = None
+    # stock_item.order_count -= item.count
+    #
+    # item.sellorder.total_sell -= item.count*item.sell_price
     item.active=False
     db.session.commit()
     items = OrderItem.query.filter(OrderItem.order_id==item.sellorder.id,OrderItem.active==True).all()
@@ -244,10 +249,10 @@ def inventory_add(brand="", name="", nick_name="", upc="", sku="", size="", colo
         # print(product)
         # print(current_user.id)
         if not (sale_user.id in product["user"]):
-            mongo.db.products.update({"_id": product["_id"]}, {'$push': {"user": sale_user.id}})
+            mongo.db.products.update({"_id": product["_id"]}, {'$addToSet': {"user": sale_user.id}})
             source = product["source"]
             if not mongo.db.sources.find_one({"$and": [{"source": source}, {"user": sale_user.id}]}):
-                mongo.db.sources.update({"source": source}, {'$push': {"user": sale_user.id}})
+                mongo.db.sources.update({"source": source}, {'$addToSet': {"user": sale_user.id}})
 
 
 def get_orders():
@@ -256,7 +261,7 @@ def get_orders():
     #     orders = SellOrder.query.filter_by(user_id=current_user.parent.id).order_by(SellOrder.id.asc()).all()
     # else:
     #     orders = SellOrder.query.filter_by(user_id=current_user.id).order_by(SellOrder.id.asc()).all()
-    return SellOrder.query.filter(SellOrder.user_id==sale_user.id,SellOrder.active==True).order_by(SellOrder.id.asc()).all()
+    return SellOrder.query.filter(SellOrder.user_id==sale_user.id,SellOrder.active==True).order_by(SellOrder.id.desc()).all()
 
 
 def get_items(order):

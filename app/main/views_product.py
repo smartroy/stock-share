@@ -19,11 +19,14 @@ from json import dumps
 from base64 import b64encode
 from datetime import datetime, timedelta
 from .forms import CreateForm, SellForm, SellItemForm
-from .util import create_customer,create_stock_item,create_product, create_item, inventory_add, get_parent
+from .util import *
 from bson import ObjectId
 from ..email import send_email
+import uuid
+from .s3_util import *
 
 ALLOWED_EXTENSIONS = set(['csv','txt'])
+ALLOWED_IMAGE = set(['jpg','png'])
 
 @main.route('/product/all')
 @login_required
@@ -122,15 +125,51 @@ def product_details(product_id):
     product = mongo.db.products.find_one({'_id':ObjectId(product_id)})
     product['_id'] = str(product['_id'])
     if request.method == 'POST':
-        new_value ={}
-        # print(request.form)
-        for key,value in product.items():
-            if not(key == "user" or key == "fig" or key=="_id"):
-                new_value[key] = request.form.get(key)
-        # print(new_value)
-        mongo.db.products.update_one({"_id":ObjectId(product_id)},{"$set":new_value})
-        product = mongo.db.products.find_one({'_id': ObjectId(product_id)})
-    return render_template('product_details.html', product=product)
+        if request.form['btn']=="Update":
+            new_value ={}
+
+            for key,value in product.items():
+                if not(key == "user" or key == "fig" or key=="_id"):
+                    new_value[key] = request.form.get(key)
+            # print(new_value)
+            mongo.db.products.update_one({"_id":ObjectId(product_id)},{"$set":new_value})
+            product = mongo.db.products.find_one({'_id': ObjectId(product_id)})
+        if request.form['btn']=="Upload Figure":
+            upload_files=request.files.getlist("pic_uploader")
+            if upload_files:
+                for file in upload_files:
+                    if allowed_image(file.filename):
+
+                        s3_url = s3_upload(file,current_app.config["S3_BUCKET"])
+                        mongo.db.products.update_one({"_id":ObjectId(product_id)},{"$addToSet":{"fig":s3_url}})
+
+                        return redirect('/product/product_details/'+product_id)
+                        # print("figures")
+    # mongo.db.products.update_one({"_id": ObjectId(product_id)}, {"$set": {'fig':[]}})
+    # for i in range(len(product['fig'])):
+    #     product['fig'][i]="https://"+current_app.config["S3_WEB"]+'/'+current_app.config["S3_BUCKET"]+'/'+current_app.config['PIC_FOLDER']+"/"+ product['fig'][i]
+
+    return render_template('product_details.html', product=product,holder="https://"+current_app.config["S3_WEB"]+'/', folder=current_app.config["S3_BUCKET"]+'/'+current_app.config['PIC_FOLDER']+"/")
+
+
+@main.route('/product/pic_delete/<pic>',methods=['GET','POST'])
+@login_required
+def delete_pic(pic):
+
+    product_id, pic_name=pic.split('-')
+
+    s3_delete(pic_name)
+    try:
+        mongo.db.products.update_one({"_id":ObjectId(product_id)},{"$pull":{'fig':pic_name}})
+        # product['fig'].remove(pic_name)
+    except Exception as e:
+        print(e)
+    return redirect(request.referrer)
+
+
+def allowed_image(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_IMAGE
 
 
 @main.route('/product/product_delete/<product_id>',methods=['GET','POST'])

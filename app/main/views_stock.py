@@ -20,7 +20,7 @@ from json import dumps
 from base64 import b64encode
 from datetime import datetime, timedelta
 from .forms import CreateForm, SellForm, SellItemForm
-from .util import create_customer,create_stock_item,create_product, create_item, create_post,update_stock,get_parent
+from .util import *
 from bson import ObjectId
 
 
@@ -134,8 +134,8 @@ def stock_item_edit(item_id):
     product = mongo.db.products.find_one({'_id':ObjectId(stock_item.product_id)})
     if request.method == 'POST':
         stock_item.count = int(request.form.get("current"))
-        stock_item.order_count = int(request.form.get("order_total"))
-        stock_item.shipped_count = int(request.form.get("shipped_total"))
+        # stock_item.order_count = int(request.form.get("order_total"))
+        # stock_item.shipped_count = int(request.form.get("shipped_total"))
         # stock_item.pending_count = int(request.form.get("pending"))
         db.session.commit()
     return render_template('edit_stock.html', stock_item=stock_item, product=product)
@@ -151,6 +151,14 @@ def stock_item_delete(item_id):
     db.session.delete(stock_item)
     db.session.commit()
     return redirect(url_for('.index'))
+
+@main.route('/stock/item_history/<int:item_id>')
+@login_required
+def stock_item_history(item_id):
+    stock_item = StockItem.query.get_or_404(item_id)
+    product=stock_item.product_info
+    purchases=stock_item.get_purchases()
+    return render_template('purchase_his.html',product=product,purchases=purchases)
 
 
 

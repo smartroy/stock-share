@@ -142,7 +142,9 @@ def add_order():
         pay = {}
         for item in order.order_items:
             pay[item.id] = item.count
-        create_payment(pay)
+        payment=create_payment(pay)
+        payment.confirmed=True
+        db.session.commit()
     if ship['package']:
         shipment={}
         for item in order.order_items:

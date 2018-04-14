@@ -271,6 +271,9 @@ class StockItem(db.Model):
         product["_id"] = str(product["_id"])
         return product
 
+    @hybrid_method
+    def get_purchases(self):
+        return PurchaseItem.query.filter(PurchaseItem.product_id==self.product_id,PurchaseItem.user_id==self.stock.user_id).all()
 
 class SellOrder(db.Model):
     __tablename__ = 'sellorders'
@@ -327,6 +330,7 @@ class SellOrder(db.Model):
             # all([item.paid for item in self.order_items])
     # @paid.expression
     # def paid(cls):
+
 
 
 

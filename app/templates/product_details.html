@@ -37,10 +37,40 @@
                   </tr>
                 </tbody>
             </table>
-            <input class="actionBtn" type="submit" value="Update" style="width:64px;">
+            <input class="actionBtn" type="submit" name='btn' value="Update" style="width:64px;">
             </form>
         </div>
+        <div>
+            <form id="upload_form" enctype="multipart/form-data" method="post">
+                <input name="pic_uploader" id="pic_uploader" type="file" multiple="">
+                <input class="actionBtn" type="submit" name=btn value="Upload Figure" style="width:100px;">
+            </form>
+            <div id="file_count">
+                <img src="" id="img_holder"/>
+            </div>
+        </div>
+        <div>
+            <span>
+            {% for pic in product["fig"] %}
+            <div>
+                <span>
+                    <img src={{holder}}{{folder}}{{pic}} />
+                     <a href="{{url_for('main.delete_pic',pic = product['_id']+'-'+pic)}}">Delete</a>
+               </span>
+            </div>
+            {% endfor %}
+            </span> 
+        </div>
 
+
+
+
+{% endblock %}
+
+{% block scripts %}
+{{super()}}
+
+<script src="{{ url_for('static', filename='product_util.js') }}"></script>
 
 
 
