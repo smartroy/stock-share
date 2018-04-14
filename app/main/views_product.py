@@ -143,7 +143,7 @@ def product_details(product_id):
                         s3_url = s3_upload(file,current_app.config["S3_BUCKET"])
                         mongo.db.products.update_one({"_id":ObjectId(product_id)},{"$addToSet":{"fig":s3_url}})
 
-                        return redirect('/product/product_details/'+product_id)
+                return redirect('/product/product_details/'+product_id)
                         # print("figures")
     # mongo.db.products.update_one({"_id": ObjectId(product_id)}, {"$set": {'fig':[]}})
     # for i in range(len(product['fig'])):
